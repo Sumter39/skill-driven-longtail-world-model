@@ -53,7 +53,7 @@ log_map_archive_<scenario_id>.json
 推荐本地目录：
 
 ```text
-/mnt/d/datasets/av2/motion-forecasting/
+data/av2/motion-forecasting/
 ├── train/
 ├── val/
 └── test/
@@ -66,9 +66,9 @@ cp configs/paths.example.yaml configs/paths.local.yaml
 ```
 
 ```yaml
-data_root: /mnt/d/datasets/av2/motion-forecasting
-cache_root: /mnt/d/skilldrive-cache
-output_root: /mnt/d/skilldrive-outputs
+data_root: ./data/av2/motion-forecasting
+cache_root: ./data/cache
+output_root: ./outputs
 ```
 
 ## 下载策略
@@ -86,36 +86,27 @@ output_root: /mnt/d/skilldrive-outputs
 
 不建议在当前D盘下载`.tar`后再解包，因为归档和解包文件会短期占用双份空间。官方推荐使用`s5cmd`直接复制S3中的散文件，不需要AWS账号，也不产生额外解包副本。
 
-### 安装s5cmd
+### 安装Windows版s5cmd
 
-```bash
-mkdir -p "$HOME/.local/bin"
-curl -sL \
-  "https://github.com/peak/s5cmd/releases/download/v2.0.0/s5cmd_2.0.0_Linux-64bit.tar.gz" \
-  | tar -xz -C "$HOME/.local/bin" s5cmd
-export PATH="$HOME/.local/bin:$PATH"
-s5cmd version
+本机采用混合方案：WSL运行Python脚本，Windows版`s5cmd.exe`负责S3查询和下载，数据直接写入D盘项目目录。安装包可通过开启代理的Windows浏览器下载：
+
+```text
+https://github.com/peak/s5cmd/releases/download/v2.3.0/s5cmd_2.3.0_Windows-64bit.zip
 ```
 
-### 先下载验证集
+在Windows PowerShell解压安装：
 
-```bash
-mkdir -p "/mnt/d/datasets/av2/motion-forecasting/val"
-s5cmd --no-sign-request cp \
-  "s3://argoverse/datasets/av2/motion-forecasting/val/*" \
-  "/mnt/d/datasets/av2/motion-forecasting/val/"
+```powershell
+$zip = "$HOME\Downloads\s5cmd_2.3.0_Windows-64bit.zip"
+$install = "$HOME\.local\bin"
+New-Item -ItemType Directory -Force $install | Out-Null
+Expand-Archive -Force $zip $install
+& "$install\s5cmd.exe" version
 ```
 
-### 正式阶段下载训练集
+### 不下载完整 split
 
-```bash
-mkdir -p "/mnt/d/datasets/av2/motion-forecasting/train"
-s5cmd --no-sign-request cp \
-  "s3://argoverse/datasets/av2/motion-forecasting/train/*" \
-  "/mnt/d/datasets/av2/motion-forecasting/train/"
-```
-
-课程开发不需要Test split，也不计划下载完整Train和Validation。完整容量仅用于评估磁盘上限。
+课程开发不需要 Test split，也不计划下载完整 Train 和 Validation。不要直接对官方 split 使用通配符复制，否则会下载约 58 GB 的完整数据。项目统一通过确定性子集脚本下载，完整命令见[数据下载命令](download-commands.md)。
 
 ### 推荐的确定性子集
 
@@ -123,8 +114,6 @@ s5cmd --no-sign-request cp \
 
 | 用途 | 来源 | 场景数 | 估算空间 |
 |---|---|---:|---:|
-| 开发训练 | Train | 500 | 约0.13 GB |
-| 开发验证 | Validation | 100 | 约0.03 GB |
 | 正式训练和内部验证下载池 | Train | 22,000 | 约5.6 GB |
 | 最终验证子集 | Validation | 5,000 | 约1.3 GB |
 
@@ -132,35 +121,27 @@ s5cmd --no-sign-request cp \
 
 `scripts/download_av2_subset.py`先使用`s5cmd ls`列出官方场景，通过固定随机种子选择ID，写出可提交的CSV清单，然后可选执行下载。S3对象列表缓存在被Git忽略的`data/metadata/`。
 
-开发子集示例：
+正式Train池下载和清单划分示例：
 
 ```bash
 uv run python -m scripts.download_av2_subset \
-  --split train \
-  --count 500 \
-  --seed 2026 \
-  --manifest manifests/development_train.csv \
-  --execute
-
-uv run python -m scripts.download_av2_subset \
-  --split val \
-  --count 100 \
-  --seed 2026 \
-  --manifest manifests/development_validation.csv \
-  --execute
-```
-
-正式下载示例：
-
-```bash
-uv run python -m scripts.download_av2_subset \
+  --s5cmd /mnt/c/Users/123456/.local/bin/s5cmd.exe \
   --split train \
   --count 22000 \
   --seed 2026 \
   --manifest manifests/formal_train_pool.csv \
   --execute
 
+uv run python -m scripts.split_av2_train_pool
+```
+
+划分脚本不下载或复制数据。它将22,000个场景固定划分为20,000个正式训练场景和2,000个内部验证场景，并从两者分别派生500/100开发清单。正式训练与内部验证按`scenario_id`互斥；两个开发清单则分别是它们的子集。
+
+最终Validation下载示例：
+
+```bash
 uv run python -m scripts.download_av2_subset \
+  --s5cmd /mnt/c/Users/123456/.local/bin/s5cmd.exe \
   --split val \
   --count 5000 \
   --seed 2026 \
@@ -168,14 +149,14 @@ uv run python -m scripts.download_av2_subset \
   --execute
 ```
 
-命令默认下载到`/mnt/d/datasets/av2/motion-forecasting`。运行前应确认`s5cmd`位于PATH，并确认目标清单文件不存在；覆盖清单必须显式传入`--force-manifest`。
+命令默认下载到仓库内的`data/av2/motion-forecasting`。`--s5cmd`显式指定Windows下载器；WSL脚本会自动把命令文件和目标目录转换为Windows路径。清单不存在时自动创建，已存在时自动复用并续传；只有需要重新抽样时才显式传入`--force-manifest`。完整命令见[数据下载命令](download-commands.md)。
 
 执行原则：
 
 1. 先阅读官方用户指南和许可条款；
 2. 使用官方小型测试场景验证接口；
-3. 使用固定随机种子下载500/100开发子集；
-4. 正式阶段下载22,000/5,000确定性子集；
+3. 使用固定随机种子下载22,000个Train场景，并从其清单派生500/100开发子集；
+4. 实验方案确定后下载5,000个官方Validation场景用于最终评估；
 5. 处理完成后只保留必要的矢量特征和场景清单；
 6. 不同时保留完整原始数据、全部缓存和全部BEV渲染结果。
 
@@ -214,7 +195,7 @@ scenario_id,split,source_path,city_name,selected_reason
 
 ```csv
 scenario_id,split,source_path,city_name,selected_reason
-example-id,development,/mnt/d/datasets/av2/example/scenario_example-id.parquet,MIA,reader-smoke-test
+example-id,development,data/av2/example/scenario_example-id.parquet,MIA,reader-smoke-test
 ```
 
 `skilldrive.data.manifests.assert_disjoint`负责检查训练、验证和测试清单是否存在重复`scenario_id`。
