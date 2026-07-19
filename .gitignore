@@ -1,0 +1,68 @@
+# Python bytecode and caches
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Virtual environments
+.venv/
+venv/
+env/
+conda-env/
+
+# Packaging
+build/
+dist/
+*.egg-info/
+
+# IDE and OS files
+.idea/
+.vscode/
+*.code-workspace
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Local environment and secrets
+.env
+.env.*
+!.env.example
+*.local.yaml
+*.local.yml
+
+# Datasets and generated artifacts
+data/
+datasets/
+outputs/
+artifacts/
+runs/
+logs/
+wandb/
+tensorboard/
+checkpoints/
+weights/
+
+# Model weights and large numeric files
+*.pt
+*.pth
+*.ckpt
+*.safetensors
+*.onnx
+*.npy
+*.npz
+*.h5
+*.hdf5
+
+# Generated media
+*.mp4
+*.avi
+*.mov
+
+# Course brief and local review files
+大数据综合课程实践课题-大数据-2026.docx
+~$*.docx
+.codex_doc_review/
