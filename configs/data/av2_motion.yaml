@@ -1,0 +1,22 @@
+dataset: argoverse2_motion_forecasting
+history_steps: 50
+future_steps: 60
+sample_rate_hz: 10
+max_agents: 32
+map_radius_m: 100.0
+coordinate_frame: focal_agent_at_last_observation
+subset_plan:
+  development_train: 500
+  development_validation: 100
+  formal_train_download: 22000
+  formal_train_use: 20000
+  internal_validation_use: 2000
+  final_validation_download: 5000
+  expansion_batch: 5000
+  selection_seed: 2026
+manifest_columns:
+  - scenario_id
+  - split
+  - source_path
+  - city_name
+  - selected_reason

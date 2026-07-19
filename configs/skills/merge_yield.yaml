@@ -1,0 +1,26 @@
+skill_id: merge_yield
+family: vehicle_interaction
+implemented: true
+trigger:
+  description: Two vehicle lanes converge or conflict within the prediction horizon.
+  minimum_history_steps: 30
+  maximum_distance_to_conflict_point_m: 60.0
+  required_map_relation: converging_or_intersecting_lanes
+actors:
+  initiator_types: [vehicle]
+  responder_types: [vehicle]
+  generated_roles: [priority_vehicle, yielding_vehicle]
+parameters:
+  merge_time_s: {min: 1.0, max: 5.0}
+  accepted_gap_s: {min: 1.0, max: 4.0}
+  priority_role: {choices: [initiator, responder]}
+constraints:
+  remain_in_drivable_area: true
+  preserve_lane_direction: true
+  maintain_role_consistency: true
+  forbid_unavoidable_collision: true
+risk_definition:
+  metric: conflict_point_time_gap
+  target_range_s: [0.5, 3.0]
+expected_behavior: [yield_according_to_role, maintain_safe_gap, avoid_collision]
+output_labels: [skill_id, priority_track_id, yielding_track_id, conflict_point, risk_level, expected_behavior]

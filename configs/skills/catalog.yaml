@@ -1,0 +1,37 @@
+families:
+  vehicle_interaction:
+    - {skill_id: vehicle_cut_in, implemented: true}
+    - {skill_id: hard_brake, implemented: true}
+    - {skill_id: follow_to_stop, implemented: false}
+    - {skill_id: merge_yield, implemented: true}
+    - {skill_id: unprotected_turn_conflict, implemented: false}
+  vulnerable_road_user:
+    - {skill_id: vulnerable_crossing, implemented: true}
+    - {skill_id: cyclist_crossing, implemented: false}
+    - {skill_id: wrong_way_cyclist, implemented: false}
+    - {skill_id: roadside_emergence, implemented: false}
+    - {skill_id: group_crossing, implemented: false}
+  road_obstacle:
+    - {skill_id: stopped_vehicle_blockage, implemented: true}
+    - {skill_id: road_debris, implemented: false}
+    - {skill_id: low_profile_obstacle, implemented: false}
+    - {skill_id: lane_narrowing, implemented: false}
+    - {skill_id: blocked_lane, implemented: false}
+  construction_change:
+    - {skill_id: work_zone_diversion, implemented: false}
+    - {skill_id: temporary_lane_closure, implemented: false}
+    - {skill_id: cone_channelization, implemented: false}
+    - {skill_id: temporary_detour, implemented: false}
+    - {skill_id: temporary_speed_limit, implemented: false}
+  environment_sensor:
+    - {skill_id: heavy_rain, implemented: false}
+    - {skill_id: dense_fog, implemented: false}
+    - {skill_id: sun_glare, implemented: false}
+    - {skill_id: low_light, implemented: false}
+    - {skill_id: camera_degradation, implemented: false}
+  rule_priority:
+    - {skill_id: yield_violation, implemented: false}
+    - {skill_id: red_light_runner, implemented: false}
+    - {skill_id: emergency_vehicle, implemented: false}
+    - {skill_id: four_way_stop_ambiguity, implemented: false}
+    - {skill_id: uncontrolled_intersection_priority, implemented: false}

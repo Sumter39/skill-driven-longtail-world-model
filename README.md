@@ -2,102 +2,127 @@
 
 **Skill-Driven Long-Tail Scenario Generation for Autonomous Driving**
 
-SkillDrive is a research project on generating controllable long-tail autonomous-driving scenarios with a skill-rule library and a trajectory world model. Bird's-eye-view (BEV) representations are used to organize and visualize each scenario, while occupancy grids may be added later for collision and planning evaluation.
+SkillDrive研究如何使用技能规则和学习式轨迹世界模型，从真实驾驶片段构造可控、连续并符合交通约束的长尾场景。
 
-> 当前状态：项目规划与基线搭建阶段。
+当前仓库处于**前期准备阶段**：只建立环境、数据接口、技能规范、BEV可视化和测试骨架，不训练模型、不批量生成数据，也不运行正式实验。
 
-## 研究目标
-
-真实道路中的低频、高风险场景难以依靠自然采集获得足够样本。本项目希望从真实驾驶片段中提取场景种子，通过可执行的技能规则控制参与者和交互条件，生成满足运动学、地图及交通规则约束的反事实长尾场景，并验证这些数据能否提升轨迹预测或规划模型的长尾泛化能力。
-
-## 技术范围
-
-- **核心世界模型**：生成车辆、行人等交通参与者的未来轨迹。
-- **场景表示**：使用 BEV 表达地图、车道、参与者和历史/未来轨迹。
-- **技能规则库**：定义触发条件、可控参数、运动约束、风险标签和期望驾驶行为。
-- **质量过滤**：检查轨迹连续性、速度与加速度、碰撞、道路边界和交通规则。
-- **下游验证**：比较真实数据、随机增强数据与技能规则生成数据的训练效果。
-- **可选扩展**：将轨迹栅格化为未来占用网格，用于碰撞风险和可通行区域分析。
-
-## 整体流程
+## 技术路线
 
 ```text
-真实场景与地图
-      ↓
-场景解析与种子筛选
-      ↓
-技能规则匹配和条件注入
-      ↓
-轨迹世界模型生成未来状态
-      ↓
-物理、地图与交通规则过滤
-      ↓
-BEV 可视化与长尾数据集构建
-      ↓
-轨迹预测或规划模型增强验证
+Argoverse 2 Motion Forecasting
+        ↓
+矢量地图与多智能体历史轨迹
+        ↓
+技能规则条件
+        ↓
+条件CVAE轨迹世界模型（后续阶段）
+        ↓
+运动学、地图、交通规则和风险过滤
+        ↓
+BEV审核与轨迹预测增强验证
 ```
 
-## 计划实现的长尾技能
+BEV用于统一的俯视场景表达和可视化，不作为像素生成模型。第一版完整实现的技能计划为车辆切入、急减速、停车阻塞、弱势参与者横穿和汇入/让行。
 
-第一阶段计划选择 3–5 类具有明确交互和风险语义的技能：
+## 当前已完成
 
-1. 相邻车辆突然切入；
-2. 行人从遮挡区域横穿；
-3. 临停车辆阻塞车道并触发绕行；
-4. 无保护左转中的抢行与让行；
-5. 多车汇入场景中的交互博弈。
+- Python项目和`uv`依赖定义；
+- AV2运动预测数据与路径配置规范；
+- 场景、参与者、地图、技能和过滤报告数据结构；
+- 二维全局/局部坐标转换；
+- 场景清单读写和跨split泄漏检查；
+- 30类技能目录及5类核心技能YAML；
+- 可在无显示器环境运行的BEV绘图器；
+- 合成场景BEV冒烟脚本；
+- 官方AV2测试场景的下载、读取和BEV验证脚本；
+- 基于固定随机种子的AV2场景子集下载脚本；
+- 前期单元测试、环境文档、数据文档、风险和参考资料清单。
 
-每个技能将采用结构化配置描述，例如触发条件、参与者角色、出现时刻、速度范围、目标车道、最小安全距离、风险等级和期望驾驶行为。
+当前已使用AV2 API官方仓库中的小型测试场景验证读取接口和地图对齐，不代表已经下载或处理正式数据集。
 
-## 实验设计
+## 环境
 
-计划比较以下实验组：
+推荐在WSL2 Ubuntu中使用`uv`：
 
-1. 仅使用真实数据训练；
-2. 真实数据加随机扰动增强；
-3. 真实数据加未过滤的技能生成数据；
-4. 真实数据加质量过滤后的技能生成数据。
+```bash
+curl -LsSf https://astral.sh/uv/install.sh | sh
+source ~/.bashrc
 
-主要评价指标包括：
+cd "/mnt/d/同济大学/Course/032 大三下/大数据智能分析"
+uv python install 3.10
+uv python pin 3.10
+uv sync --extra dev --extra av2
+uv run pytest -q
+```
 
-- 轨迹预测：minADE、minFDE、Miss Rate；
-- 安全与规则：碰撞率、道路越界率、TTC；
-- 数据质量：有效生成率、技能覆盖率、多样性和规则通过率；
-- 泛化能力：总体测试集、常规场景和各类长尾场景的分组性能。
+`uv sync`会自动创建`.venv`，日常通过`uv run`执行命令，无需手工激活。详细说明见[环境准备](docs/environment.md)。
 
-## 计划目录结构
+## 无训练验证
+
+运行全部准备阶段测试：
+
+```bash
+uv run pytest -q
+```
+
+生成一个合成场景BEV检查图：
+
+```bash
+uv run python -m scripts.render_synthetic_bev
+```
+
+输出文件位于`outputs/synthetic_bev.png`，该目录不会提交Git。
+
+验证官方AV2小型测试场景：
+
+```bash
+uv run python -m scripts.download_av2_test_sample
+uv run python -m scripts.render_av2_sample \
+  data/sample/av2/0a1e6f0a-1817-4a98-b02e-db8c9327d151/scenario_0a1e6f0a-1817-4a98-b02e-db8c9327d151.parquet
+```
+
+样例来自AV2 API官方仓库，总大小约220 KB，保存在被Git忽略的`data/`目录中。
+
+后续真实数据采用确定性子集，不下载完整58GB数据集。下载500个开发场景示例：
+
+```bash
+uv run python -m scripts.download_av2_subset \
+  --split train --count 500 --seed 2026 \
+  --manifest manifests/development_train.csv \
+  --execute
+```
+
+详细容量和正式子集方案见[Argoverse 2数据准备](docs/data/argoverse2.md)。
+
+## 目录
 
 ```text
-SkillDrive/
-├── configs/          # 数据、技能、模型和实验配置
-├── skilldrive/       # 核心 Python 包
-│   ├── data/         # 数据读取与场景解析
-│   ├── skills/       # 技能规则及触发器
-│   ├── models/       # 轨迹世界模型
-│   ├── filters/      # 物理与交通规则过滤
-│   ├── evaluation/   # 生成质量和下游评估
-│   └── visualization/# BEV 可视化
-├── scripts/          # 训练、生成和评估入口
-├── tests/            # 单元测试
-└── README.md
+configs/                  数据、路径和技能规则配置
+docs/data/                AV2数据与场景清单说明
+docs/goals/               当前准备Goal和完整长期计划
+docs/references/          论文、官方文档和开源代码清单
+skilldrive/data/          坐标、清单和单场景AV2适配器
+skilldrive/schemas/       公共数据结构
+skilldrive/skills/        技能YAML加载与校验
+skilldrive/visualization/ BEV绘图
+scripts/                  无训练检查脚本
+tests/                    合成数据单元和冒烟测试
 ```
 
-该结构是开发计划，目录会在对应功能开始实现时逐步建立。
+## 文档入口
 
-## 数据集
+- [当前前期准备Goal](docs/goals/PREPARATION_GOAL.md)
+- [完整项目计划](docs/goals/FULL_PROJECT_PLAN.md)
+- [环境准备](docs/environment.md)
+- [Argoverse 2数据准备](docs/data/argoverse2.md)
+- [场景清单与防泄漏](docs/data/manifest-format.md)
+- [参考资料](docs/references/reading-list.md)
+- [风险与待确认事项](docs/risks.md)
+- [前期准备状态](docs/preparation-status.md)
 
-项目将从 Argoverse 2 Motion Forecasting、Waymo Open Motion Dataset、nuPlan 或其他公开自动驾驶数据集中选择一个作为主要数据源。原始数据不会提交到 Git 仓库，请按照后续文档从官方渠道下载，并遵守相应的数据许可协议。
+## 范围限制
 
-## 复现说明
-
-环境安装、数据预处理、模型训练、场景生成和评估命令将在代码实现后补充。所有正式实验将通过配置文件记录数据划分、随机种子、模型参数和生成规则，避免依赖本地硬编码路径。
-
-## 项目状态
-
-- [x] 明确轨迹世界模型与 BEV 表示的总体路线
-- [ ] 确定主要数据集并完成数据读取
-- [ ] 定义技能规则配置格式
-- [ ] 复现轨迹预测/生成基线
-- [ ] 实现场景生成与质量过滤
-- [ ] 完成下游增强实验与消融分析
-
+- 不提交原始AV2数据、完整权重或大规模生成结果；
+- 不硬编码本地绝对路径；
+- 未经用户明确确认，不进入模型训练阶段；
+- 当前结果只证明准备工具链可用，不代表世界模型或下游性能已经得到验证。

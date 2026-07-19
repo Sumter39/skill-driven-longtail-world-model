@@ -35,16 +35,24 @@ Desktop.ini
 *.local.yml
 
 # Datasets and generated artifacts
-data/
-datasets/
-outputs/
-artifacts/
-runs/
-logs/
-wandb/
-tensorboard/
-checkpoints/
-weights/
+/data/
+/datasets/
+/outputs/
+/artifacts/
+/runs/
+/logs/
+/wandb/
+/tensorboard/
+/checkpoints/
+/weights/
+
+# Dataset containers that must not be committed
+*.parquet
+*.feather
+*.arrow
+*.pkl
+*.joblib
+*.zarr/
 
 # Model weights and large numeric files
 *.pt
