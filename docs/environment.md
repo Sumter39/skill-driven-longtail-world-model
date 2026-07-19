@@ -13,11 +13,11 @@
 | 项目Python | 3.10.20，位于Linux `.venv` |
 | AV2 API | 0.3.6，导入和单场景读取已验证 |
 | WSL GPU | RTX 4060 Laptop，8188 MiB，可被 `nvidia-smi` 识别 |
-| D盘可用空间 | 约77 GiB |
+| D盘空间 | 随数据下载变化，使用`df -h .`实时检查 |
 
-Windows现有Anaconda不能与WSL共享环境。项目在WSL内使用Linux版Python和依赖。
+项目在WSL内使用Linux版Python和依赖，不与Windows Python共享虚拟环境目录。
 
-## 推荐安装
+## 安装步骤
 
 以下命令用于新成员或重建环境；当前机器已经完成安装和同步。
 
@@ -81,12 +81,7 @@ uv run python -c "import torch; print(torch.__version__); print(torch.cuda.is_av
 
 | Windows | WSL2 |
 |---|---|
-| `D:\datasets\av2` | `/mnt/d/datasets/av2` |
-| `D:\skilldrive-cache` | `/mnt/d/skilldrive-cache` |
-| `D:\skilldrive-outputs` | `/mnt/d/skilldrive-outputs` |
+| `D:\同济大学\Course\032 大三下\大数据智能分析\data` | `<项目根目录>/data` |
+| `D:\同济大学\Course\032 大三下\大数据智能分析\outputs` | `<项目根目录>/outputs` |
 
-路径通过`configs/paths.local.yaml`配置。该文件不得提交，仓库只提供`paths.example.yaml`。
-
-## 备用Conda方案
-
-`environment.yml`仅供不能使用`uv`的成员。必须在WSL内安装Linux版Miniforge，不能调用Windows Anaconda或共用Windows环境目录。
+默认路径由`configs/paths.example.yaml`中的仓库内相对路径定义。只有需要机器特定覆盖时才创建不提交的`configs/paths.local.yaml`。

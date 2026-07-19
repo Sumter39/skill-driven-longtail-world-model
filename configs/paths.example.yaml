@@ -1,5 +1,5 @@
 # Copy this file to paths.local.yaml and edit the local paths.
 # paths.local.yaml is ignored by Git.
-data_root: /mnt/d/datasets/av2/motion-forecasting
-cache_root: /mnt/d/skilldrive-cache
-output_root: /mnt/d/skilldrive-outputs
+data_root: ./data/av2/motion-forecasting
+cache_root: ./data/cache
+output_root: ./outputs
