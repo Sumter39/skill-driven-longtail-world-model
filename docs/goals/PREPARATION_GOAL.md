@@ -95,15 +95,13 @@ skill-driven-longtail-world-model/
 - WSL2 Ubuntu 24.04；
 - 使用 `uv` 安装和管理 Python 3.10；
 - 使用项目根目录下的 `.venv` 隔离依赖；
-- Miniforge/Conda 仅作为团队成员无法使用 `uv` 时的备用方案；
 - 与 RTX 4060 Laptop 兼容的 CUDA 和 PyTorch；
 - 本机 GPU 显存约 8 GB；
 - 数据和缓存以 D 盘剩余空间为约束，采用分片处理方案。
 
 ### 5.2 环境管理原则
 
-- Windows 和 WSL2 使用不同操作系统二进制，不能共享同一个 Conda 或虚拟环境目录。
-- Windows 中已经安装的 Anaconda 不作为 WSL2 项目环境。
+- Windows 和 WSL2 使用不同操作系统二进制，不能共享同一个虚拟环境目录。
 - WSL2 内由 `uv` 单独安装 Python 3.10，并在仓库根目录创建 `.venv`。
 - 团队共享 `pyproject.toml` 和依赖说明，不共享 `.venv` 目录。
 - `.venv` 必须由 `.gitignore` 排除。
@@ -159,7 +157,7 @@ uv run python -c "import torch; print(torch.__version__); print(torch.cuda.is_av
 准备阶段应提供：
 
 - `pyproject.toml` 作为 `uv` 的主要项目和依赖定义；
-- 可选的 `environment.yml`，仅供偏好 Conda 的团队成员备用；
+- `uv.lock` 作为唯一依赖锁定文件；
 - 依赖版本说明；
 - `uv` 安装、Python 3.10 固定、依赖同步和 `uv run` 使用命令；
 - WSL2 中的 GPU 可见性检查命令；
@@ -188,12 +186,12 @@ uv run python -c "import torch; print(torch.__version__); print(torch.cuda.is_av
 代码不得硬编码绝对路径。默认使用不提交的本地配置：
 
 ```yaml
-data_root: /mnt/d/datasets/av2/motion-forecasting
-cache_root: /mnt/d/skilldrive-cache
-output_root: /mnt/d/skilldrive-outputs
+data_root: ./data/av2/motion-forecasting
+cache_root: ./data/cache
+output_root: ./outputs
 ```
 
-仓库只提交 `paths.example.yaml`，真实路径文件使用 `.gitignore` 排除。
+仓库只提交 `paths.example.yaml`，需要机器特定覆盖时再创建由 `.gitignore` 排除的 `paths.local.yaml`。默认数据仍保存在仓库内的 `data/`，方便从 WSL 和 Windows 定位。
 
 ### 6.3 场景清单
 
@@ -203,9 +201,9 @@ output_root: /mnt/d/skilldrive-outputs
 scenario_id,split,source_path,city_name,selected_reason
 ```
 
-本阶段只用极少量样例建立开发清单，不扫描完整训练集。
+接口验证最初使用少量官方样例；当前已进一步完成22,000个正式Train场景下载和全量完整性验证。
 
-后续数据下载采用确定性子集，而不是完整下载：先取500个Train和100个Validation用于开发；正式阶段固定下载22,000个Train和5,000个Validation，并在技能种子不足时按5,000个场景递增。
+数据采用确定性子集而不是完整下载：22,000个Train场景已固定划分为20,000个正式训练场景和2,000个内部验证场景，并从两者分别派生500/100开发清单，不重复下载或复制数据。5,000个官方Validation场景也已下载并通过全量可读性验证，仅用于最终评估；技能种子不足时按5,000个Train场景递增。
 
 ## 7. 数据结构接口
 
