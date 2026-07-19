@@ -117,7 +117,7 @@ Expand-Archive -Force $zip $install
 | 正式训练和内部验证下载池 | Train | 22,000 | 约5.6 GB |
 | 最终验证子集 | Validation | 5,000 | 约1.3 GB |
 
-总量约7 GB。实际大小以下载结果为准。如果五类技能的候选种子不足，再以5,000个Train场景为一批增量扩展。
+总量约7 GB。实际大小以下载结果为准。如果经确认的30类技能存在真实种子覆盖不足，再以5,000个Train场景为一批讨论是否增量扩展。
 
 `scripts/download_av2_subset.py`先使用`s5cmd ls`列出官方场景，通过固定随机种子选择ID，写出可提交的CSV清单，然后可选执行下载。S3对象列表缓存在被Git忽略的`data/metadata/`。
 

@@ -2,6 +2,8 @@
 
 更新时间：2026-07-19。
 
+本文件记录01前期准备阶段的验收快照。后续02技能体系设计已经完成，当前状态见`goals/02_SKILL_LIBRARY_DESIGN_GOAL.md`和`skills/skill-taxonomy.md`。
+
 ## 已完成
 
 - 建立`pyproject.toml`、`.python-version`和`uv.lock`。
