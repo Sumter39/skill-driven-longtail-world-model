@@ -1,0 +1,33 @@
+skill_id: stopped_vehicle_reentry
+name_zh: 停车车辆重新进入车流
+family: atypical_composite
+definition: 先前静止或近静止车辆启动并进入主车流，压缩前后车辆间隙。
+source: [course_example, traffic_rule, train_pattern]
+data_support:
+  feasibility: B
+  required_tracks: [vehicle]
+  required_map: [lane_centerline, drivable_area]
+  development_evidence: 开发集包含大量停车车辆和邻近车流。
+seed_requirements:
+  description: 停车车辆位于车道边缘或低速位置且主车流在预测时域经过。
+  threshold_source: semantic
+  minimum_history_steps: 30
+trigger:
+  description: 停车车辆在主车流间隙不足时启动并进入通行路径。
+  threshold_source: train_statistics
+  conditions: [previously_stopped, begins_moving, enters_main_flow]
+actors:
+  initiator_types: [vehicle]
+  responder_types: [vehicle]
+  generated_roles: [reentering_vehicle, main_flow_vehicle]
+parameters:
+  restart_time_s: {range: [0.5, 3.5], source: semantic}
+  acceleration_mps2: {range: [0.5, 3.0], source: train_statistics}
+  accepted_gap_s: {range: [1.0, 4.0], source: reference}
+generation_operators: [LONGITUDINAL, MERGE]
+constraints: {remain_in_drivable_area: true, smooth_acceleration: true, forbid_unavoidable_collision: true}
+risk_definition: {metric: minimum_front_rear_time_to_collision, target_range: [1.0, 4.0], source: reference}
+expected_behavior: [wait_for_safe_gap, accelerate_smoothly, yield_to_main_flow]
+validation_metrics: [front_time_to_collision, rear_time_to_collision, acceleration]
+known_limitations: [无法确定车辆是否真实停靠路边或停车原因]
+output_labels: [skill_id, reentering_track_id, main_flow_track_id, accepted_gap_s, risk_level]

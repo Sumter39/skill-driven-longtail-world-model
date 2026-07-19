@@ -1,0 +1,33 @@
+skill_id: wrong_way_vehicle
+name_zh: 车辆持续逆向行驶
+family: atypical_composite
+definition: 机动车在匹配车道上持续朝车道相反方向运动并接近正常车辆。
+source: [traffic_rule, safety_metric, train_pattern]
+data_support:
+  feasibility: A
+  required_tracks: [vehicle]
+  required_map: [lane_centerline, lane_direction]
+  development_evidence: 车辆航向和车道方向支持持续逆向关系判断。
+seed_requirements:
+  description: 车辆能够稳定匹配到有向车道且存在迎面正常车辆。
+  threshold_source: semantic
+  minimum_history_steps: 30
+trigger:
+  description: 车辆航向与车道方向长期相反并沿车道持续移动。
+  threshold_source: train_statistics
+  conditions: [stable_lane_match, sustained_opposite_heading, oncoming_vehicle_present]
+actors:
+  initiator_types: [vehicle]
+  responder_types: [vehicle]
+  generated_roles: [wrong_way_vehicle, normal_vehicle]
+parameters:
+  wrong_way_speed_mps: {range: [2.0, 12.0], source: train_statistics}
+  lateral_offset_m: {range: [-1.0, 1.0], source: semantic}
+  initial_distance_m: {range: [15.0, 60.0], source: semantic}
+generation_operators: [CONFLICT_POINT]
+constraints: {remain_near_lane_centerline: true, sustained_opposite_direction: true, forbid_unavoidable_collision: true}
+risk_definition: {metric: head_on_time_to_collision, target_range: [1.0, 5.0], source: reference}
+expected_behavior: [decelerate, avoid_head_on_path, preserve_escape_space]
+validation_metrics: [head_on_time_to_collision, heading_difference, minimum_distance]
+known_limitations: [必须排除倒车路口转弯和地图匹配错误]
+output_labels: [skill_id, wrong_way_track_id, normal_track_id, heading_difference, risk_level]

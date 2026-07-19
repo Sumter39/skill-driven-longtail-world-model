@@ -1,0 +1,33 @@
+skill_id: cyclist_crossing
+name_zh: 骑行者横穿
+family: vulnerable_road_user
+definition: 骑行者以类别合理速度横穿机动车路径并形成时间冲突。
+source: [course_example, traffic_rule, safety_metric, train_pattern]
+data_support:
+  feasibility: A
+  required_tracks: [cyclist, vehicle]
+  required_map: [lane_centerline, drivable_area]
+  development_evidence: 134个开发场景含车辆与骑行者。
+seed_requirements:
+  description: 骑行者路径与机动车路径在预测时域内相交。
+  threshold_source: semantic
+  minimum_history_steps: 20
+trigger:
+  description: 骑行者和机动车到达路径交点的时间差进入风险区间。
+  threshold_source: reference
+  conditions: [cyclist_crosses_vehicle_path, overlapping_arrival_window]
+actors:
+  initiator_types: [cyclist]
+  responder_types: [vehicle]
+  generated_roles: [crossing_cyclist, responding_vehicle]
+parameters:
+  crossing_start_s: {range: [0.5, 3.0], source: semantic}
+  crossing_angle_deg: {range: [45.0, 135.0], source: semantic}
+  cyclist_speed_mps: {range: [2.0, 7.0], source: train_statistics}
+generation_operators: [VRU_CROSSING, CONFLICT_POINT]
+constraints: {continuous_crossing_motion: true, class_specific_speed_limit: true, forbid_unavoidable_collision: true}
+risk_definition: {metric: post_encroachment_time, target_range: [0.5, 4.0], source: reference}
+expected_behavior: [yield_to_cyclist, decelerate, preserve_lateral_clearance]
+validation_metrics: [post_encroachment_time, minimum_distance, cyclist_speed]
+known_limitations: [真实种子数量低于行人类技能]
+output_labels: [skill_id, cyclist_track_id, vehicle_track_id, conflict_point, risk_level]

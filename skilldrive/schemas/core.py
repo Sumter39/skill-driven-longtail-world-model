@@ -123,27 +123,41 @@ class Scenario:
 @dataclass
 class SkillSpec:
     skill_id: str
+    name_zh: str
     family: str
-    implemented: bool
+    definition: str
+    source: list[str]
+    data_support: dict[str, Any]
+    seed_requirements: dict[str, Any]
     trigger: dict[str, Any]
     actors: dict[str, Any]
     parameters: dict[str, Any]
+    generation_operators: list[str]
     constraints: dict[str, Any]
     risk_definition: dict[str, Any]
     expected_behavior: list[str]
+    validation_metrics: list[str]
+    known_limitations: list[str]
     output_labels: list[str]
 
     def to_dict(self) -> dict[str, Any]:
         return {
             "skill_id": self.skill_id,
+            "name_zh": self.name_zh,
             "family": self.family,
-            "implemented": self.implemented,
+            "definition": self.definition,
+            "source": self.source,
+            "data_support": self.data_support,
+            "seed_requirements": self.seed_requirements,
             "trigger": self.trigger,
             "actors": self.actors,
             "parameters": self.parameters,
+            "generation_operators": self.generation_operators,
             "constraints": self.constraints,
             "risk_definition": self.risk_definition,
             "expected_behavior": self.expected_behavior,
+            "validation_metrics": self.validation_metrics,
+            "known_limitations": self.known_limitations,
             "output_labels": self.output_labels,
         }
 

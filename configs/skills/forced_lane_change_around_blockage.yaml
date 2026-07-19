@@ -1,0 +1,33 @@
+skill_id: forced_lane_change_around_blockage
+name_zh: 受阻绕行换道
+family: lane_change_interaction
+definition: 车辆因当前车道存在低速或静止占道对象而需要向相邻车道绕行。
+source: [course_example, traffic_rule, train_pattern]
+data_support:
+  feasibility: B
+  required_tracks: [vehicle, static_or_construction]
+  required_map: [lane_centerline, adjacent_lane, drivable_area]
+  development_evidence: 开发集包含相邻车道和大量低速或静态轨迹。
+seed_requirements:
+  description: 当前车道存在阻塞条件且相邻车道可达。
+  threshold_source: semantic
+  minimum_history_steps: 30
+trigger:
+  description: 车辆接近阻塞对象且继续当前路径将违反安全缓冲。
+  threshold_source: train_statistics
+  conditions: [blockage_ahead, adjacent_lane_available, approach_to_safety_buffer]
+actors:
+  initiator_types: [vehicle, static, construction]
+  responder_types: [vehicle]
+  generated_roles: [blocking_actor, avoiding_vehicle]
+parameters:
+  blockage_offset_m: {range: [5.0, 35.0], source: semantic}
+  avoidance_start_s: {range: [0.5, 3.0], source: semantic}
+  accepted_gap_s: {range: [1.0, 4.0], source: reference}
+generation_operators: [BLOCKAGE_RESPONSE, LANE_CHANGE]
+constraints: {remain_in_drivable_area: true, preserve_lane_direction: true, respect_object_buffer: true, forbid_unavoidable_collision: true}
+risk_definition: {metric: minimum_combined_clearance, target_range: [1.0, 6.0], source: semantic}
+expected_behavior: [decelerate, check_adjacent_lane, pass_only_if_safe]
+validation_metrics: [object_clearance, adjacent_vehicle_clearance, lateral_acceleration]
+known_limitations: [真实绕行动机不可观测且静态对象类别较粗]
+output_labels: [skill_id, blocking_actor_id, avoiding_track_id, target_lane_id, risk_level, expected_behavior]

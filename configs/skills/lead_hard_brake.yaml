@@ -1,0 +1,33 @@
+skill_id: lead_hard_brake
+name_zh: 前车急减速
+family: longitudinal_interaction
+definition: 前车在同车道跟驰关系中持续明显减速，使后车追尾风险快速上升。
+source: [course_example, safety_metric, train_pattern, literature]
+data_support:
+  feasibility: A
+  required_tracks: [vehicle]
+  required_map: [lane_centerline, lane_successor]
+  development_evidence: 500个开发场景均包含车辆和车道。
+seed_requirements:
+  description: 同车道或连续车道的前后车辆具有足够共同历史。
+  threshold_source: semantic
+  minimum_history_steps: 30
+trigger:
+  description: 前车减速度进入Train车辆减速度尾部分布且后车正在闭合。
+  threshold_source: train_statistics
+  conditions: [same_or_successor_lane, leader_decelerating, follower_closing]
+actors:
+  initiator_types: [vehicle]
+  responder_types: [vehicle]
+  generated_roles: [leader, follower]
+parameters:
+  brake_onset_s: {range: [0.5, 2.5], source: semantic}
+  peak_deceleration_mps2: {range: [2.0, 6.0], source: train_statistics}
+  braking_duration_s: {range: [0.8, 3.0], source: semantic}
+generation_operators: [LONGITUDINAL]
+constraints: {remain_in_drivable_area: true, preserve_lane_direction: true, nonnegative_speed: true, forbid_unavoidable_collision: true}
+risk_definition: {metric: time_to_collision, target_range: [1.0, 4.0], source: reference}
+expected_behavior: [brake, maintain_control, avoid_collision]
+validation_metrics: [time_to_collision, required_deceleration, minimum_longitudinal_gap]
+known_limitations: [减速度阈值必须在Train统计后冻结]
+output_labels: [skill_id, leader_track_id, follower_track_id, peak_deceleration_mps2, risk_level, expected_behavior]

@@ -1,0 +1,33 @@
+skill_id: static_object_avoidance
+name_zh: 粗粒度静态对象避让
+family: atypical_composite
+definition: AV2的static类别对象靠近车辆路径，车辆需要减速停车或横向避让。
+source: [course_example, train_pattern]
+data_support:
+  feasibility: B
+  required_tracks: [static, vehicle]
+  required_map: [lane_centerline, drivable_area, adjacent_lane]
+  development_evidence: 392个开发场景含static对象且1562/2012条对象轨迹总位移不超过1米。
+seed_requirements:
+  description: static对象位于道路安全缓冲附近且车辆具有可行减速或绕行空间。
+  threshold_source: semantic
+  minimum_history_steps: 20
+trigger:
+  description: 车辆当前路径预计侵入static对象保守安全缓冲。
+  threshold_source: semantic
+  conditions: [static_actor_near_path, predicted_buffer_intrusion, response_space_available]
+actors:
+  initiator_types: [static]
+  responder_types: [vehicle]
+  generated_roles: [static_object, avoiding_vehicle]
+parameters:
+  object_buffer_m: {range: [1.0, 4.0], source: semantic}
+  avoidance_offset_m: {range: [0.5, 2.5], source: semantic}
+  response_start_s: {range: [0.5, 3.0], source: semantic}
+generation_operators: [BLOCKAGE_RESPONSE, LANE_CHANGE]
+constraints: {static_actor_stationary: true, remain_in_drivable_area: true, respect_object_buffer: true, forbid_unavoidable_collision: true}
+risk_definition: {metric: minimum_object_clearance, target_range: [1.0, 4.0], source: semantic}
+expected_behavior: [decelerate, avoid_object, remain_within_road_boundary]
+validation_metrics: [minimum_object_clearance, lateral_acceleration, road_boundary_margin]
+known_limitations: [对象类型形状和尺寸未知只能使用粗粒度名称和保守缓冲]
+output_labels: [skill_id, static_actor_id, vehicle_track_id, avoidance_offset_m, risk_level]

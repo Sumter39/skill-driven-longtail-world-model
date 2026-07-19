@@ -1,0 +1,33 @@
+skill_id: crosswalk_pedestrian_crossing
+name_zh: 人行横道行人横穿
+family: vulnerable_road_user
+definition: 行人在标注人行横道内或邻近区域横穿机动车路径。
+source: [course_example, traffic_rule, safety_metric, train_pattern]
+data_support:
+  feasibility: A
+  required_tracks: [pedestrian, vehicle]
+  required_map: [pedestrian_crossing, drivable_area]
+  development_evidence: 403个开发场景含车辆与行人且459个含人行横道。
+seed_requirements:
+  description: 行人和车辆路径在人行横道区域存在冲突点。
+  threshold_source: semantic
+  minimum_history_steps: 20
+trigger:
+  description: 行人正在进入或穿越人行横道且车辆预计同期到达。
+  threshold_source: reference
+  conditions: [pedestrian_near_crosswalk, crossing_vehicle_path, overlapping_arrival_window]
+actors:
+  initiator_types: [pedestrian]
+  responder_types: [vehicle]
+  generated_roles: [pedestrian, yielding_vehicle]
+parameters:
+  crossing_start_s: {range: [0.5, 3.0], source: semantic}
+  pedestrian_speed_mps: {range: [0.8, 2.2], source: train_statistics}
+  arrival_time_gap_s: {range: [0.5, 4.0], source: reference}
+generation_operators: [VRU_CROSSING, CONFLICT_POINT]
+constraints: {continuous_crossing_motion: true, class_specific_speed_limit: true, vehicle_remains_in_drivable_area: true, forbid_unavoidable_collision: true}
+risk_definition: {metric: post_encroachment_time, target_range: [0.5, 4.0], source: reference}
+expected_behavior: [yield, decelerate, stop_if_needed]
+validation_metrics: [post_encroachment_time, minimum_distance, crossing_completion]
+known_limitations: [当前场景适配器需要补充人行横道几何]
+output_labels: [skill_id, pedestrian_track_id, vehicle_track_id, crosswalk_id, risk_level]

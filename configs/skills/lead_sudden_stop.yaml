@@ -1,0 +1,33 @@
+skill_id: lead_sudden_stop
+name_zh: 前车突然停车
+family: longitudinal_interaction
+definition: 前车由运动状态快速降至近零速度并持续停车，使跟随车辆需要紧急调整。
+source: [course_example, safety_metric, train_pattern]
+data_support:
+  feasibility: A
+  required_tracks: [vehicle]
+  required_map: [lane_centerline, lane_successor]
+  development_evidence: 车辆轨迹包含完整速度和未来停车状态。
+seed_requirements:
+  description: 前后车辆存在稳定跟驰关系且前方具有可停车空间。
+  threshold_source: semantic
+  minimum_history_steps: 30
+trigger:
+  description: 前车从正常行驶降至近零速度并保持超过最小持续时间。
+  threshold_source: train_statistics
+  conditions: [same_or_successor_lane, moving_to_stopped, follower_approaching]
+actors:
+  initiator_types: [vehicle]
+  responder_types: [vehicle]
+  generated_roles: [stopping_leader, follower]
+parameters:
+  stop_onset_s: {range: [0.5, 3.0], source: semantic}
+  stopping_duration_s: {range: [1.0, 3.5], source: semantic}
+  stopped_hold_s: {range: [1.0, 5.0], source: semantic}
+generation_operators: [LONGITUDINAL]
+constraints: {remain_in_drivable_area: true, preserve_lane_direction: true, nonnegative_speed: true, forbid_unavoidable_collision: true}
+risk_definition: {metric: stopping_distance_margin, target_range: [0.5, 8.0], source: semantic}
+expected_behavior: [decelerate, stop_safely, maintain_following_gap]
+validation_metrics: [stopping_distance_margin, time_to_collision, stopped_duration]
+known_limitations: [轨迹无法区分停车由信号灯拥堵或障碍导致]
+output_labels: [skill_id, stopping_track_id, follower_track_id, stopped_hold_s, risk_level, expected_behavior]

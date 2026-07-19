@@ -1,0 +1,33 @@
+skill_id: rear_vehicle_rapid_approach
+name_zh: 后车快速逼近
+family: longitudinal_interaction
+definition: 后方车辆以较大闭合速度接近目标车辆，形成来自后方的追尾风险。
+source: [safety_metric, train_pattern]
+data_support:
+  feasibility: A
+  required_tracks: [vehicle]
+  required_map: [lane_centerline]
+  development_evidence: 同车道车辆轨迹支持后向相对运动计算。
+seed_requirements:
+  description: 目标车辆和后车位于同一行驶关系且后车具有正闭合速度。
+  threshold_source: semantic
+  minimum_history_steps: 30
+trigger:
+  description: 后向TTC进入风险区间且后车持续逼近目标车辆。
+  threshold_source: reference
+  conditions: [same_lane, rear_vehicle_closing, positive_relative_speed]
+actors:
+  initiator_types: [vehicle]
+  responder_types: [vehicle]
+  generated_roles: [rapid_rear_vehicle, target_vehicle]
+parameters:
+  rear_speed_scale: {range: [1.05, 1.35], source: semantic}
+  initial_gap_m: {range: [8.0, 40.0], source: train_statistics}
+  approach_onset_s: {range: [0.5, 3.0], source: semantic}
+generation_operators: [LONGITUDINAL]
+constraints: {remain_in_drivable_area: true, preserve_lane_direction: true, forbid_unavoidable_collision: true}
+risk_definition: {metric: rear_time_to_collision, target_range: [1.0, 4.0], source: reference}
+expected_behavior: [maintain_stability, preserve_escape_space, avoid_harsh_unnecessary_braking]
+validation_metrics: [rear_time_to_collision, minimum_longitudinal_gap, relative_speed]
+known_limitations: [目标车辆最佳响应依赖相邻车道和前方空间]
+output_labels: [skill_id, rear_track_id, target_track_id, rear_ttc_s, risk_level, expected_behavior]

@@ -1,0 +1,33 @@
+skill_id: bike_lane_vehicle_merge_conflict
+name_zh: 自行车道与机动车汇合冲突
+family: merge_topology
+definition: 自行车道或骑行路径与机动车道汇合时双方到达时间接近。
+source: [traffic_rule, safety_metric, train_pattern]
+data_support:
+  feasibility: A
+  required_tracks: [vehicle, cyclist]
+  required_map: [bike_lane, lane_successor]
+  development_evidence: 206个开发场景含自行车道且134个含车辆与骑行者。
+seed_requirements:
+  description: 骑行者和机动车路径在预测时域内汇合或相交。
+  threshold_source: semantic
+  minimum_history_steps: 20
+trigger:
+  description: 双方到达汇合区域的时间差进入PET风险区间。
+  threshold_source: reference
+  conditions: [bike_vehicle_paths_merge, overlapping_arrival_window]
+actors:
+  initiator_types: [cyclist]
+  responder_types: [vehicle]
+  generated_roles: [cyclist, motor_vehicle]
+parameters:
+  cyclist_speed_mps: {range: [2.0, 7.0], source: train_statistics}
+  vehicle_speed_scale: {range: [0.7, 1.1], source: train_statistics}
+  arrival_time_gap_s: {range: [0.5, 3.0], source: reference}
+generation_operators: [MERGE, CONFLICT_POINT]
+constraints: {class_specific_speed_limit: true, remain_in_drivable_area: true, preserve_lane_direction: true, forbid_unavoidable_collision: true}
+risk_definition: {metric: post_encroachment_time, target_range: [0.5, 3.0], source: reference}
+expected_behavior: [yield_to_vulnerable_user, reduce_speed, maintain_lateral_clearance]
+validation_metrics: [post_encroachment_time, minimum_distance, lateral_clearance]
+known_limitations: [骑行者种子数量低于车辆类技能]
+output_labels: [skill_id, cyclist_track_id, vehicle_track_id, conflict_point, risk_level]

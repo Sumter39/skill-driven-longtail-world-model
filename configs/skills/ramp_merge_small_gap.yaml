@@ -1,0 +1,33 @@
+skill_id: ramp_merge_small_gap
+name_zh: 小间隙汇入
+family: merge_topology
+definition: 汇入车辆与主路车辆到达车道汇合点的时间差较小。
+source: [course_example, traffic_rule, safety_metric, train_pattern]
+data_support:
+  feasibility: A
+  required_tracks: [vehicle]
+  required_map: [lane_successor, converging_lane]
+  development_evidence: 车道后继关系和车辆轨迹支持汇合点计算。
+seed_requirements:
+  description: 两辆车所在车道在预测范围内汇合。
+  threshold_source: semantic
+  minimum_history_steps: 30
+trigger:
+  description: 两车预计到达汇合点的时间差进入风险区间。
+  threshold_source: reference
+  conditions: [converging_lanes, shared_conflict_point, small_arrival_time_gap]
+actors:
+  initiator_types: [vehicle]
+  responder_types: [vehicle]
+  generated_roles: [merging_vehicle, mainline_vehicle]
+parameters:
+  merge_time_s: {range: [1.0, 5.0], source: semantic}
+  accepted_gap_s: {range: [1.0, 4.0], source: reference}
+  merge_speed_scale: {range: [0.8, 1.2], source: train_statistics}
+generation_operators: [MERGE, CONFLICT_POINT]
+constraints: {remain_in_drivable_area: true, preserve_lane_direction: true, maintain_role_consistency: true, forbid_unavoidable_collision: true}
+risk_definition: {metric: conflict_point_time_gap, target_range: [0.5, 3.0], source: reference}
+expected_behavior: [yield_according_to_role, maintain_safe_gap, avoid_collision]
+validation_metrics: [conflict_point_time_gap, minimum_distance, merge_completion]
+known_limitations: [法律优先权需由地图和规则显式定义]
+output_labels: [skill_id, merging_track_id, mainline_track_id, conflict_point, risk_level, expected_behavior]

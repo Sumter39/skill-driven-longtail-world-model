@@ -1,0 +1,33 @@
+skill_id: cut_in_then_brake
+name_zh: 切入后立即制动
+family: atypical_composite
+definition: 车辆先切入目标车辆前方随后在短时间内明显制动，形成两阶段复合风险。
+source: [safety_metric, literature, train_pattern]
+data_support:
+  feasibility: B
+  required_tracks: [vehicle]
+  required_map: [lane_centerline, adjacent_lane]
+  development_evidence: 切入和制动所需基础车道与车辆关系均广泛存在。
+seed_requirements:
+  description: 相邻车辆可切入目标前方且切入后具有纵向制动空间。
+  threshold_source: semantic
+  minimum_history_steps: 30
+trigger:
+  description: 切入完成后在短延迟内启动明显制动并压缩后车间距。
+  threshold_source: semantic
+  conditions: [adjacent_vehicle_cuts_in, short_post_cut_in_delay, initiator_brakes]
+actors:
+  initiator_types: [vehicle]
+  responder_types: [vehicle]
+  generated_roles: [cut_in_braking_vehicle, responding_vehicle]
+parameters:
+  cut_in_start_s: {range: [0.5, 2.5], source: semantic}
+  brake_delay_after_cut_in_s: {range: [0.2, 1.5], source: semantic}
+  peak_deceleration_mps2: {range: [2.0, 6.0], source: train_statistics}
+generation_operators: [LANE_CHANGE, LONGITUDINAL]
+constraints: {remain_in_drivable_area: true, smooth_lateral_motion: true, nonnegative_speed: true, forbid_unavoidable_collision: true}
+risk_definition: {metric: minimum_stage_time_to_collision, target_range: [1.0, 4.0], source: reference}
+expected_behavior: [track_behavior_change, brake_promptly, maintain_control]
+validation_metrics: [post_cut_in_time_to_collision, peak_deceleration, minimum_longitudinal_gap]
+known_limitations: [组合技能必须在消融中与单独切入和急减速区分]
+output_labels: [skill_id, initiator_track_id, responder_track_id, brake_delay_s, risk_level]

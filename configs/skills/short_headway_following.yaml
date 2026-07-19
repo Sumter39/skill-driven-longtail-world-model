@@ -1,0 +1,33 @@
+skill_id: short_headway_following
+name_zh: 短时距跟车
+family: longitudinal_interaction
+definition: 后车在非低速拥堵条件下持续保持过短车头时距，安全裕度脆弱。
+source: [safety_metric, train_pattern]
+data_support:
+  feasibility: A
+  required_tracks: [vehicle]
+  required_map: [lane_centerline]
+  development_evidence: 车辆位置和速度支持车头时距计算。
+seed_requirements:
+  description: 同车道前后车辆均处于稳定行驶状态并具有连续观测。
+  threshold_source: semantic
+  minimum_history_steps: 30
+trigger:
+  description: 车头时距进入Train非拥堵跟车尾部分布并持续超过最小时长。
+  threshold_source: train_statistics
+  conditions: [same_lane, non_congested_speed, sustained_short_headway]
+actors:
+  initiator_types: [vehicle]
+  responder_types: [vehicle]
+  generated_roles: [leader, close_follower]
+parameters:
+  target_headway_s: {range: [0.4, 1.2], source: reference}
+  duration_s: {range: [1.0, 5.0], source: semantic}
+  follower_speed_scale: {range: [0.9, 1.2], source: semantic}
+generation_operators: [LONGITUDINAL]
+constraints: {remain_in_drivable_area: true, preserve_lane_direction: true, forbid_unavoidable_collision: true}
+risk_definition: {metric: time_headway, target_range: [0.4, 1.2], source: reference}
+expected_behavior: [increase_following_gap, avoid_aggressive_acceleration]
+validation_metrics: [time_headway, time_to_collision, minimum_longitudinal_gap]
+known_limitations: [必须排除低速排队场景中的自然短空间距离]
+output_labels: [skill_id, leader_track_id, follower_track_id, time_headway_s, risk_level, expected_behavior]

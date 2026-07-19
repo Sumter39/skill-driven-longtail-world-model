@@ -1,0 +1,33 @@
+skill_id: diverge_lane_crossing_conflict
+name_zh: 分流横跨冲突
+family: merge_topology
+definition: 车辆接近分流区域时横跨邻近车流路径并形成紧迫冲突。
+source: [traffic_rule, train_pattern]
+data_support:
+  feasibility: B
+  required_tracks: [vehicle]
+  required_map: [lane_successor, diverging_lane, adjacent_lane]
+  development_evidence: 静态地图可识别后继分叉和相邻车道关系。
+seed_requirements:
+  description: 多车道在预测范围内分叉且存在被横跨车流。
+  threshold_source: semantic
+  minimum_history_steps: 30
+trigger:
+  description: 横跨车辆在距分流点较短距离内进入其他车辆路径。
+  threshold_source: semantic
+  conditions: [diverging_topology, late_lateral_crossing, conflicting_vehicle_present]
+actors:
+  initiator_types: [vehicle]
+  responder_types: [vehicle]
+  generated_roles: [crossing_vehicle, through_vehicle]
+parameters:
+  distance_to_diverge_m: {range: [10.0, 60.0], source: semantic}
+  crossing_start_s: {range: [0.5, 3.0], source: semantic}
+  target_gap_m: {range: [4.0, 18.0], source: train_statistics}
+generation_operators: [LANE_CHANGE, MERGE, MULTI_AGENT]
+constraints: {remain_in_drivable_area: true, smooth_lateral_motion: true, forbid_unavoidable_collision: true}
+risk_definition: {metric: minimum_crossing_time_to_collision, target_range: [1.0, 4.0], source: reference}
+expected_behavior: [plan_lane_change_early, wait_for_safe_gap, avoid_crossing_multiple_paths_aggressively]
+validation_metrics: [time_to_diverge, minimum_time_to_collision, lateral_acceleration]
+known_limitations: [AV2不提供导航意图不能声称车辆错过出口]
+output_labels: [skill_id, crossing_track_id, through_track_id, diverge_point, risk_level]

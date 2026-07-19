@@ -1,0 +1,33 @@
+skill_id: lane_drop_merge_competition
+name_zh: 车道收敛汇入竞争
+family: merge_topology
+definition: 两条车道后继拓扑收敛时，两辆车竞争进入保留车流。
+source: [course_example, traffic_rule, train_pattern]
+data_support:
+  feasibility: B
+  required_tracks: [vehicle]
+  required_map: [lane_successor, converging_lane]
+  development_evidence: 静态地图可识别后继收敛但不提供施工原因。
+seed_requirements:
+  description: 两条车道在预测范围内收敛且各有一辆接近车辆。
+  threshold_source: semantic
+  minimum_history_steps: 30
+trigger:
+  description: 两车到达收敛位置的时间相近且可用纵向间隙不足。
+  threshold_source: semantic
+  conditions: [lane_successors_converge, competing_arrival, insufficient_gap]
+actors:
+  initiator_types: [vehicle]
+  responder_types: [vehicle]
+  generated_roles: [closing_lane_vehicle, continuing_lane_vehicle]
+parameters:
+  convergence_distance_m: {range: [15.0, 60.0], source: semantic}
+  priority_role: {choices: [closing_lane_vehicle, continuing_lane_vehicle], source: semantic}
+  accepted_gap_s: {range: [1.0, 4.0], source: reference}
+generation_operators: [MERGE, YIELD_PRIORITY]
+constraints: {remain_in_drivable_area: true, preserve_lane_direction: true, maintain_role_consistency: true, forbid_unavoidable_collision: true}
+risk_definition: {metric: convergence_time_gap, target_range: [0.5, 3.0], source: reference}
+expected_behavior: [coordinate_merge, yield_if_required, avoid_side_swipe]
+validation_metrics: [convergence_time_gap, lateral_clearance, final_lane_order]
+known_limitations: [地图不能证明车道收敛由施工或永久道路设计导致]
+output_labels: [skill_id, closing_lane_track_id, continuing_lane_track_id, priority_role, risk_level]

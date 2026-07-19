@@ -1,0 +1,33 @@
+skill_id: roadside_pedestrian_emergence
+name_zh: 路侧行人突然进入道路
+family: vulnerable_road_user
+definition: 行人从可行驶区域边缘在较晚时刻进入车辆路径并形成突发风险。
+source: [course_example, train_pattern]
+data_support:
+  feasibility: B
+  required_tracks: [pedestrian, vehicle]
+  required_map: [drivable_area]
+  development_evidence: 403个场景含车辆与行人且所有场景含可行驶区域。
+seed_requirements:
+  description: 路侧行人与车辆路径距离足以在预测时域内形成交互。
+  threshold_source: semantic
+  minimum_history_steps: 20
+trigger:
+  description: 行人在延迟后首次侵入可行驶区域并接近车辆路径。
+  threshold_source: semantic
+  conditions: [pedestrian_near_drivable_boundary, delayed_entry, vehicle_approaching]
+actors:
+  initiator_types: [pedestrian]
+  responder_types: [vehicle]
+  generated_roles: [emerging_pedestrian, responding_vehicle]
+parameters:
+  emergence_start_s: {range: [1.0, 4.0], source: semantic}
+  pedestrian_speed_mps: {range: [0.8, 2.2], source: train_statistics}
+  initial_boundary_distance_m: {range: [0.5, 8.0], source: semantic}
+generation_operators: [VRU_CROSSING, CONFLICT_POINT]
+constraints: {continuous_entry_motion: true, class_specific_speed_limit: true, forbid_unavoidable_collision: true}
+risk_definition: {metric: first_intrusion_time_to_collision, target_range: [1.0, 4.0], source: reference}
+expected_behavior: [rapidly_decelerate, maintain_lateral_clearance, stop_if_needed]
+validation_metrics: [first_intrusion_time_to_collision, minimum_distance, boundary_crossing_time]
+known_limitations: [不声称行人此前被视觉遮挡]
+output_labels: [skill_id, pedestrian_track_id, vehicle_track_id, emergence_point, risk_level]

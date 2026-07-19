@@ -1,0 +1,33 @@
+skill_id: intersection_blocking_vehicle
+name_zh: 车辆滞留路口冲突区
+family: intersection_interaction
+definition: 车辆进入路口后低速或停车滞留在冲突区并阻碍横向交通。
+source: [course_example, traffic_rule, train_pattern]
+data_support:
+  feasibility: B
+  required_tracks: [vehicle]
+  required_map: [intersection_lane, drivable_area]
+  development_evidence: 路口与停车车辆字段支持冲突区占用建模。
+seed_requirements:
+  description: 车辆路径经过路口冲突区且横向交通将在预测时域到达。
+  threshold_source: semantic
+  minimum_history_steps: 30
+trigger:
+  description: 车辆在冲突区内速度降至低阈值并停留超过最小时长。
+  threshold_source: train_statistics
+  conditions: [inside_conflict_area, sustained_low_speed_or_stop, crossing_flow_approaches]
+actors:
+  initiator_types: [vehicle]
+  responder_types: [vehicle]
+  generated_roles: [blocking_vehicle, crossing_vehicle]
+parameters:
+  hold_position_offset_m: {range: [-3.0, 3.0], source: semantic}
+  hold_duration_s: {range: [1.0, 5.0], source: semantic}
+  crossing_arrival_s: {range: [1.0, 5.0], source: semantic}
+generation_operators: [BLOCKAGE_RESPONSE, CONFLICT_POINT]
+constraints: {remain_in_drivable_area: true, blocking_actor_near_stationary: true, forbid_unavoidable_collision: true}
+risk_definition: {metric: conflict_area_occupancy_overlap, target_range: [0.5, 3.0], source: semantic}
+expected_behavior: [do_not_enter_without_exit_space, clear_conflict_area, crossing_vehicle_slow_down]
+validation_metrics: [conflict_area_occupancy_time, occupancy_overlap, minimum_distance]
+known_limitations: [无法从轨迹判断车辆滞留的真实原因]
+output_labels: [skill_id, blocking_track_id, crossing_track_id, occupancy_time_s, risk_level]

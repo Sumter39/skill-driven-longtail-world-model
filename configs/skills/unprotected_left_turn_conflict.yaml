@@ -1,0 +1,33 @@
+skill_id: unprotected_left_turn_conflict
+name_zh: 无保护左转冲突
+family: intersection_interaction
+definition: 左转车辆穿越对向直行车辆路径并形成较小到达时间差。
+source: [course_example, traffic_rule, safety_metric, train_pattern]
+data_support:
+  feasibility: A
+  required_tracks: [vehicle]
+  required_map: [intersection_lane, lane_centerline]
+  development_evidence: 496个开发场景包含路口车道。
+seed_requirements:
+  description: 左转轨迹与对向直行轨迹在路口存在冲突点。
+  threshold_source: semantic
+  minimum_history_steps: 30
+trigger:
+  description: 左转与对向直行车辆到达冲突点的时间差进入风险区间。
+  threshold_source: reference
+  conditions: [left_turn_path, opposing_through_path, small_arrival_time_gap]
+actors:
+  initiator_types: [vehicle]
+  responder_types: [vehicle]
+  generated_roles: [left_turn_vehicle, opposing_through_vehicle]
+parameters:
+  turn_start_s: {range: [0.5, 3.0], source: semantic}
+  turn_speed_mps: {range: [2.0, 8.0], source: train_statistics}
+  accepted_gap_s: {range: [1.0, 4.0], source: reference}
+generation_operators: [CONFLICT_POINT, YIELD_PRIORITY]
+constraints: {remain_in_drivable_area: true, smooth_turning_motion: true, role_assignment_fixed: true, forbid_unavoidable_collision: true}
+risk_definition: {metric: post_encroachment_time, target_range: [0.5, 3.0], source: reference}
+expected_behavior: [yield_to_opposing_traffic, wait_for_safe_gap, complete_turn_smoothly]
+validation_metrics: [post_encroachment_time, minimum_distance, turn_curvature]
+known_limitations: [无动态信号相位仅表达几何和让行意义上的无保护冲突]
+output_labels: [skill_id, left_turn_track_id, opposing_track_id, conflict_point, risk_level]

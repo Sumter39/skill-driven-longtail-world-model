@@ -1,0 +1,33 @@
+skill_id: intersection_creep_conflict
+name_zh: 路口低速探入冲突
+family: intersection_interaction
+definition: 车辆在路口边缘低速向冲突区域前探并接近交叉车流路径。
+source: [traffic_rule, train_pattern]
+data_support:
+  feasibility: B
+  required_tracks: [vehicle]
+  required_map: [intersection_lane, drivable_area]
+  development_evidence: 路口与低速车辆种子广泛存在。
+seed_requirements:
+  description: 一辆车位于路口入口附近且存在交叉车辆流。
+  threshold_source: semantic
+  minimum_history_steps: 30
+trigger:
+  description: 低速车辆逐步侵入冲突区并使PET降低。
+  threshold_source: semantic
+  conditions: [near_intersection_entry, sustained_creep_speed, crossing_vehicle_present]
+actors:
+  initiator_types: [vehicle]
+  responder_types: [vehicle]
+  generated_roles: [creeping_vehicle, crossing_vehicle]
+parameters:
+  creep_speed_mps: {range: [0.3, 2.0], source: train_statistics}
+  intrusion_distance_m: {range: [0.5, 5.0], source: semantic}
+  hold_duration_s: {range: [0.5, 3.0], source: semantic}
+generation_operators: [LONGITUDINAL, CONFLICT_POINT]
+constraints: {remain_in_drivable_area: true, low_speed_motion: true, allow_safe_stop: true, forbid_unavoidable_collision: true}
+risk_definition: {metric: conflict_area_intrusion_margin, target_range: [0.2, 3.0], source: semantic}
+expected_behavior: [creep_slowly, stop_if_conflict_approaches, yield_to_crossing_traffic]
+validation_metrics: [intrusion_distance, post_encroachment_time, creep_speed]
+known_limitations: [不能声称低速探入由视觉遮挡引起]
+output_labels: [skill_id, creeping_track_id, crossing_track_id, intrusion_distance_m, risk_level]

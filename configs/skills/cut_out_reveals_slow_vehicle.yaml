@@ -1,0 +1,33 @@
+skill_id: cut_out_reveals_slow_vehicle
+name_zh: 前车切出后暴露慢车
+family: lane_change_interaction
+definition: 直接前车换出后，目标车辆面对更前方的慢车或停车车辆，形成突增纵向风险。
+source: [course_example, train_pattern, literature]
+data_support:
+  feasibility: B
+  required_tracks: [vehicle]
+  required_map: [lane_centerline, adjacent_lane]
+  development_evidence: 多车队列和相邻车道结构在开发集广泛存在。
+seed_requirements:
+  description: 至少三辆车形成纵向队列，直接前车具有可达相邻车道。
+  threshold_source: semantic
+  minimum_history_steps: 30
+trigger:
+  description: 直接前车切出后，次前车成为低速或停车主风险对象。
+  threshold_source: train_statistics
+  conditions: [three_vehicle_queue, lead_vehicle_cuts_out, newly_exposed_slow_vehicle]
+actors:
+  initiator_types: [vehicle]
+  responder_types: [vehicle]
+  generated_roles: [cut_out_vehicle, target_vehicle, slow_vehicle]
+parameters:
+  cut_out_start_s: {range: [0.5, 2.5], source: semantic}
+  slow_vehicle_speed_scale: {range: [0.0, 0.4], source: train_statistics}
+  response_delay_s: {range: [0.2, 1.2], source: semantic}
+generation_operators: [LANE_CHANGE, BLOCKAGE_RESPONSE, MULTI_AGENT]
+constraints: {remain_in_drivable_area: true, preserve_lane_direction: true, forbid_unavoidable_collision: true}
+risk_definition: {metric: newly_exposed_time_to_collision, target_range: [1.0, 4.0], source: reference}
+expected_behavior: [detect_new_leader, brake, maintain_safe_gap]
+validation_metrics: [newly_exposed_time_to_collision, stopping_distance_margin, minimum_longitudinal_gap]
+known_limitations: [只表达轨迹层面的风险暴露不能证明视觉遮挡]
+output_labels: [skill_id, cut_out_track_id, target_track_id, slow_track_id, risk_level, expected_behavior]

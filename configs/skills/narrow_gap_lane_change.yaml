@@ -1,0 +1,33 @@
+skill_id: narrow_gap_lane_change
+name_zh: 窄间隙换道
+family: lane_change_interaction
+definition: 换道车辆进入目标车道时前后安全裕度均较小。
+source: [traffic_rule, safety_metric, train_pattern]
+data_support:
+  feasibility: A
+  required_tracks: [vehicle]
+  required_map: [lane_centerline, adjacent_lane]
+  development_evidence: 多车道和车辆轨迹支持目标车道前后间隙计算。
+seed_requirements:
+  description: 换道车辆及目标车道前后车辆具有足够共同历史。
+  threshold_source: semantic
+  minimum_history_steps: 30
+trigger:
+  description: 换道完成时目标车道前后时距同时进入Train低分位。
+  threshold_source: train_statistics
+  conditions: [lane_change, front_gap_small, rear_gap_small]
+actors:
+  initiator_types: [vehicle]
+  responder_types: [vehicle]
+  generated_roles: [lane_changer, target_front_vehicle, target_rear_vehicle]
+parameters:
+  lane_change_start_s: {range: [0.5, 3.0], source: semantic}
+  front_gap_m: {range: [4.0, 15.0], source: train_statistics}
+  rear_gap_m: {range: [4.0, 15.0], source: train_statistics}
+generation_operators: [LANE_CHANGE, MULTI_AGENT]
+constraints: {remain_in_drivable_area: true, smooth_lateral_motion: true, preserve_lane_direction: true, forbid_unavoidable_collision: true}
+risk_definition: {metric: minimum_front_rear_time_to_collision, target_range: [1.0, 4.0], source: reference}
+expected_behavior: [wait_for_safe_gap, complete_lane_change_smoothly, avoid_cutting_off_traffic]
+validation_metrics: [front_time_to_collision, rear_time_to_collision, lateral_clearance]
+known_limitations: [必须同时稳定跟踪目标车道前车和后车]
+output_labels: [skill_id, lane_changer_track_id, front_track_id, rear_track_id, target_lane_id, risk_level]

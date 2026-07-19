@@ -1,0 +1,33 @@
+skill_id: construction_object_lane_blockage
+name_zh: construction类别占道阻塞
+family: atypical_composite
+definition: AV2的construction类别对象靠近车辆通行区域并形成减速停车或绕行约束。
+source: [course_example, train_pattern]
+data_support:
+  feasibility: B
+  required_tracks: [construction, vehicle]
+  required_map: [lane_centerline, drivable_area]
+  development_evidence: 99个开发场景含车辆与construction对象且437/486条对象轨迹总位移不超过1米。
+seed_requirements:
+  description: construction对象位于车道或可行驶区域安全缓冲附近且车辆正在接近。
+  threshold_source: semantic
+  minimum_history_steps: 20
+trigger:
+  description: 车辆继续当前路径将进入construction对象保守安全缓冲。
+  threshold_source: semantic
+  conditions: [construction_actor_near_path, vehicle_approaching, safety_buffer_violation_predicted]
+actors:
+  initiator_types: [construction]
+  responder_types: [vehicle]
+  generated_roles: [construction_object, responding_vehicle]
+parameters:
+  object_buffer_m: {range: [1.0, 4.0], source: semantic}
+  response_start_s: {range: [0.5, 3.0], source: semantic}
+  speed_scale: {range: [0.2, 0.8], source: semantic}
+generation_operators: [BLOCKAGE_RESPONSE]
+constraints: {construction_actor_static: true, remain_in_drivable_area: true, respect_object_buffer: true, forbid_unavoidable_collision: true}
+risk_definition: {metric: minimum_object_clearance, target_range: [1.0, 4.0], source: semantic}
+expected_behavior: [decelerate, maintain_conservative_clearance, stop_or_pass_if_safe]
+validation_metrics: [minimum_object_clearance, stopping_distance_margin, road_boundary_margin]
+known_limitations: [对象类别粗且无轮廓尺寸不能声称是锥桶施工牌或低矮障碍]
+output_labels: [skill_id, construction_actor_id, vehicle_track_id, object_buffer_m, risk_level]

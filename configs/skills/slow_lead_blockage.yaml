@@ -1,0 +1,33 @@
+skill_id: slow_lead_blockage
+name_zh: 慢车阻塞
+family: longitudinal_interaction
+definition: 前车持续显著慢于周边车流并占据当前通行车道，对后车形成长期阻塞。
+source: [course_example, train_pattern]
+data_support:
+  feasibility: A
+  required_tracks: [vehicle]
+  required_map: [lane_centerline, adjacent_lane]
+  development_evidence: 开发集包含大量低速车辆和相邻车道结构。
+seed_requirements:
+  description: 同车道前车持续低速，后车正在接近且存在足够未来时域。
+  threshold_source: semantic
+  minimum_history_steps: 30
+trigger:
+  description: 前车速度相对同场景车流处于低分位并持续占据目标车道。
+  threshold_source: train_statistics
+  conditions: [same_lane, sustained_low_speed, follower_approaching]
+actors:
+  initiator_types: [vehicle, bus]
+  responder_types: [vehicle]
+  generated_roles: [slow_leader, follower]
+parameters:
+  leader_speed_scale: {range: [0.0, 0.5], source: train_statistics}
+  blockage_duration_s: {range: [2.0, 6.0], source: semantic}
+  initial_gap_m: {range: [8.0, 45.0], source: train_statistics}
+generation_operators: [LONGITUDINAL, BLOCKAGE_RESPONSE]
+constraints: {remain_in_drivable_area: true, preserve_lane_direction: true, forbid_unavoidable_collision: true}
+risk_definition: {metric: minimum_longitudinal_gap, target_range: [3.0, 15.0], source: semantic}
+expected_behavior: [decelerate, follow_safely, pass_only_if_legal]
+validation_metrics: [minimum_longitudinal_gap, speed_ratio, response_delay]
+known_limitations: [无法从轨迹确定前车低速的真实原因]
+output_labels: [skill_id, slow_leader_track_id, follower_track_id, speed_ratio, risk_level, expected_behavior]

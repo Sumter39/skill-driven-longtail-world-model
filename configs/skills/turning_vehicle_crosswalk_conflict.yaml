@@ -1,0 +1,33 @@
+skill_id: turning_vehicle_crosswalk_conflict
+name_zh: 转向车辆与横道人行冲突
+family: vulnerable_road_user
+definition: 转向车辆穿越人行横道时与行人到达时间接近。
+source: [traffic_rule, safety_metric, train_pattern]
+data_support:
+  feasibility: A
+  required_tracks: [vehicle, pedestrian]
+  required_map: [intersection_lane, pedestrian_crossing]
+  development_evidence: 路口、人行横道及车辆行人组合覆盖充足。
+seed_requirements:
+  description: 转向车辆路径穿过人行横道且行人正在靠近或穿越。
+  threshold_source: semantic
+  minimum_history_steps: 20
+trigger:
+  description: 转向车辆与行人到达横道冲突点的时间差较小。
+  threshold_source: reference
+  conditions: [turning_vehicle, pedestrian_on_crosswalk, shared_conflict_point]
+actors:
+  initiator_types: [pedestrian]
+  responder_types: [vehicle]
+  generated_roles: [pedestrian, turning_vehicle]
+parameters:
+  turn_speed_mps: {range: [1.5, 7.0], source: train_statistics}
+  pedestrian_speed_mps: {range: [0.8, 2.2], source: train_statistics}
+  arrival_time_gap_s: {range: [0.5, 4.0], source: reference}
+generation_operators: [CONFLICT_POINT, VRU_CROSSING, YIELD_PRIORITY]
+constraints: {remain_in_drivable_area: true, class_specific_speed_limit: true, smooth_turning_motion: true, forbid_unavoidable_collision: true}
+risk_definition: {metric: post_encroachment_time, target_range: [0.5, 4.0], source: reference}
+expected_behavior: [turning_vehicle_yields, reduce_turn_speed, stop_if_needed]
+validation_metrics: [post_encroachment_time, minimum_distance, crosswalk_occupancy]
+known_limitations: [无动态信号相位仅评价几何冲突和让行]
+output_labels: [skill_id, pedestrian_track_id, turning_vehicle_track_id, crosswalk_id, risk_level]

@@ -1,0 +1,33 @@
+skill_id: right_turn_vehicle_conflict
+name_zh: 右转车辆与交叉车流冲突
+family: intersection_interaction
+definition: 右转车辆进入交叉或汇合车流时与另一机动车路径产生冲突。
+source: [traffic_rule, train_pattern]
+data_support:
+  feasibility: A
+  required_tracks: [vehicle]
+  required_map: [intersection_lane, lane_centerline]
+  development_evidence: 路口和车辆轨迹覆盖充足。
+seed_requirements:
+  description: 可识别右转航向变化和交叉或汇合车辆路径。
+  threshold_source: semantic
+  minimum_history_steps: 30
+trigger:
+  description: 右转车辆与交叉车流到达冲突区域的时间差较小。
+  threshold_source: reference
+  conditions: [right_turn_path, crossing_or_merging_vehicle, shared_conflict_area]
+actors:
+  initiator_types: [vehicle]
+  responder_types: [vehicle]
+  generated_roles: [right_turn_vehicle, conflicting_vehicle]
+parameters:
+  turn_start_s: {range: [0.5, 3.0], source: semantic}
+  turn_speed_mps: {range: [2.0, 8.0], source: train_statistics}
+  arrival_time_gap_s: {range: [0.5, 3.0], source: reference}
+generation_operators: [CONFLICT_POINT, MERGE]
+constraints: {remain_in_drivable_area: true, smooth_turning_motion: true, forbid_unavoidable_collision: true}
+risk_definition: {metric: conflict_point_time_gap, target_range: [0.5, 3.0], source: reference}
+expected_behavior: [yield_if_required, reduce_turn_speed, enter_with_safe_gap]
+validation_metrics: [conflict_point_time_gap, minimum_distance, turn_curvature]
+known_limitations: [需区分真实右转和道路自然弯曲]
+output_labels: [skill_id, turning_track_id, conflicting_track_id, conflict_point, risk_level]

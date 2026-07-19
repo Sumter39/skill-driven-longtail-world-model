@@ -1,0 +1,33 @@
+skill_id: jaywalking_pedestrian_crossing
+name_zh: 非人行横道行人横穿
+family: vulnerable_road_user
+definition: 行人远离标注人行横道进入并穿越车辆可行驶区域。
+source: [course_example, traffic_rule, train_pattern]
+data_support:
+  feasibility: A
+  required_tracks: [pedestrian, vehicle]
+  required_map: [pedestrian_crossing, drivable_area]
+  development_evidence: 行人、人行横道和可行驶区域覆盖支持位置关系判断。
+seed_requirements:
+  description: 行人靠近可行驶区域且与车辆路径存在潜在交点。
+  threshold_source: semantic
+  minimum_history_steps: 20
+trigger:
+  description: 横穿位置距最近人行横道超过Train地图距离阈值。
+  threshold_source: train_statistics
+  conditions: [pedestrian_enters_drivable_area, away_from_crosswalk, vehicle_path_conflict]
+actors:
+  initiator_types: [pedestrian]
+  responder_types: [vehicle]
+  generated_roles: [pedestrian, responding_vehicle]
+parameters:
+  crossing_start_s: {range: [0.5, 3.0], source: semantic}
+  crossing_angle_deg: {range: [60.0, 120.0], source: semantic}
+  pedestrian_speed_mps: {range: [0.8, 2.2], source: train_statistics}
+generation_operators: [VRU_CROSSING, CONFLICT_POINT]
+constraints: {continuous_crossing_motion: true, class_specific_speed_limit: true, forbid_unavoidable_collision: true}
+risk_definition: {metric: post_encroachment_time, target_range: [0.5, 4.0], source: reference}
+expected_behavior: [detect_unexpected_crossing, decelerate, stop_if_needed]
+validation_metrics: [distance_to_crosswalk, post_encroachment_time, minimum_distance]
+known_limitations: [非人行横道只按地图位置定义不判断法律责任]
+output_labels: [skill_id, pedestrian_track_id, vehicle_track_id, crossing_location, risk_level]

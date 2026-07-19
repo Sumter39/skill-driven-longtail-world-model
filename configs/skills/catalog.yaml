@@ -1,37 +1,41 @@
+version: 2
+status: user_confirmed
+selection: balanced_a
+confirmed_on: 2026-07-19
 families:
-  vehicle_interaction:
-    - {skill_id: vehicle_cut_in, implemented: true}
-    - {skill_id: hard_brake, implemented: true}
-    - {skill_id: follow_to_stop, implemented: false}
-    - {skill_id: merge_yield, implemented: true}
-    - {skill_id: unprotected_turn_conflict, implemented: false}
+  longitudinal_interaction:
+    - {skill_id: lead_hard_brake, family: longitudinal_interaction, feasibility: A}
+    - {skill_id: lead_sudden_stop, family: longitudinal_interaction, feasibility: A}
+    - {skill_id: slow_lead_blockage, family: longitudinal_interaction, feasibility: A}
+    - {skill_id: short_headway_following, family: longitudinal_interaction, feasibility: A}
+    - {skill_id: rear_vehicle_rapid_approach, family: longitudinal_interaction, feasibility: A}
+  lane_change_interaction:
+    - {skill_id: adjacent_vehicle_cut_in, family: lane_change_interaction, feasibility: A}
+    - {skill_id: cut_out_reveals_slow_vehicle, family: lane_change_interaction, feasibility: B}
+    - {skill_id: narrow_gap_lane_change, family: lane_change_interaction, feasibility: A}
+    - {skill_id: simultaneous_lane_change_conflict, family: lane_change_interaction, feasibility: B}
+    - {skill_id: forced_lane_change_around_blockage, family: lane_change_interaction, feasibility: B}
+  merge_topology:
+    - {skill_id: ramp_merge_small_gap, family: merge_topology, feasibility: A}
+    - {skill_id: lane_drop_merge_competition, family: merge_topology, feasibility: B}
+    - {skill_id: merge_without_yield, family: merge_topology, feasibility: B}
+    - {skill_id: diverge_lane_crossing_conflict, family: merge_topology, feasibility: B}
+    - {skill_id: bike_lane_vehicle_merge_conflict, family: merge_topology, feasibility: A}
+  intersection_interaction:
+    - {skill_id: unprotected_left_turn_conflict, family: intersection_interaction, feasibility: A}
+    - {skill_id: right_turn_vehicle_conflict, family: intersection_interaction, feasibility: A}
+    - {skill_id: crossing_path_conflict, family: intersection_interaction, feasibility: A}
+    - {skill_id: intersection_creep_conflict, family: intersection_interaction, feasibility: B}
+    - {skill_id: intersection_blocking_vehicle, family: intersection_interaction, feasibility: B}
   vulnerable_road_user:
-    - {skill_id: vulnerable_crossing, implemented: true}
-    - {skill_id: cyclist_crossing, implemented: false}
-    - {skill_id: wrong_way_cyclist, implemented: false}
-    - {skill_id: roadside_emergence, implemented: false}
-    - {skill_id: group_crossing, implemented: false}
-  road_obstacle:
-    - {skill_id: stopped_vehicle_blockage, implemented: true}
-    - {skill_id: road_debris, implemented: false}
-    - {skill_id: low_profile_obstacle, implemented: false}
-    - {skill_id: lane_narrowing, implemented: false}
-    - {skill_id: blocked_lane, implemented: false}
-  construction_change:
-    - {skill_id: work_zone_diversion, implemented: false}
-    - {skill_id: temporary_lane_closure, implemented: false}
-    - {skill_id: cone_channelization, implemented: false}
-    - {skill_id: temporary_detour, implemented: false}
-    - {skill_id: temporary_speed_limit, implemented: false}
-  environment_sensor:
-    - {skill_id: heavy_rain, implemented: false}
-    - {skill_id: dense_fog, implemented: false}
-    - {skill_id: sun_glare, implemented: false}
-    - {skill_id: low_light, implemented: false}
-    - {skill_id: camera_degradation, implemented: false}
-  rule_priority:
-    - {skill_id: yield_violation, implemented: false}
-    - {skill_id: red_light_runner, implemented: false}
-    - {skill_id: emergency_vehicle, implemented: false}
-    - {skill_id: four_way_stop_ambiguity, implemented: false}
-    - {skill_id: uncontrolled_intersection_priority, implemented: false}
+    - {skill_id: crosswalk_pedestrian_crossing, family: vulnerable_road_user, feasibility: A}
+    - {skill_id: jaywalking_pedestrian_crossing, family: vulnerable_road_user, feasibility: A}
+    - {skill_id: roadside_pedestrian_emergence, family: vulnerable_road_user, feasibility: B}
+    - {skill_id: cyclist_crossing, family: vulnerable_road_user, feasibility: A}
+    - {skill_id: turning_vehicle_crosswalk_conflict, family: vulnerable_road_user, feasibility: A}
+  atypical_composite:
+    - {skill_id: wrong_way_vehicle, family: atypical_composite, feasibility: A}
+    - {skill_id: stopped_vehicle_reentry, family: atypical_composite, feasibility: B}
+    - {skill_id: construction_object_lane_blockage, family: atypical_composite, feasibility: B}
+    - {skill_id: static_object_avoidance, family: atypical_composite, feasibility: B}
+    - {skill_id: cut_in_then_brake, family: atypical_composite, feasibility: B}

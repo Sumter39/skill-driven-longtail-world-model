@@ -1,0 +1,33 @@
+skill_id: simultaneous_lane_change_conflict
+name_zh: 双车同时换入同一车道
+family: lane_change_interaction
+definition: 两辆车几乎同时向同一目标车道移动并形成横向冲突。
+source: [traffic_rule, train_pattern, literature]
+data_support:
+  feasibility: B
+  required_tracks: [vehicle]
+  required_map: [lane_centerline, adjacent_lane]
+  development_evidence: 多车道场景充足但自然同步换道样本预计稀少。
+seed_requirements:
+  description: 两辆车辆均能到达同一目标车道并具有重叠预测时域。
+  threshold_source: semantic
+  minimum_history_steps: 30
+trigger:
+  description: 两车横向进入同一车道的时间窗重叠且纵向位置接近。
+  threshold_source: semantic
+  conditions: [shared_target_lane, overlapping_lane_change_window, close_longitudinal_position]
+actors:
+  initiator_types: [vehicle]
+  responder_types: [vehicle]
+  generated_roles: [left_lane_changer, right_lane_changer]
+parameters:
+  first_start_s: {range: [0.5, 3.0], source: semantic}
+  second_start_offset_s: {range: [-0.5, 0.5], source: semantic}
+  target_longitudinal_gap_m: {range: [0.0, 12.0], source: semantic}
+generation_operators: [LANE_CHANGE, MULTI_AGENT]
+constraints: {shared_target_lane: true, smooth_lateral_motion: true, forbid_unavoidable_collision: true}
+risk_definition: {metric: lateral_time_to_collision, target_range: [0.5, 3.0], source: reference}
+expected_behavior: [cancel_or_delay_one_lane_change, maintain_lateral_clearance]
+validation_metrics: [lateral_time_to_collision, minimum_lateral_clearance, lane_occupancy_overlap]
+known_limitations: [自然种子较少且共同目标车道匹配要求高]
+output_labels: [skill_id, first_track_id, second_track_id, target_lane_id, risk_level, expected_behavior]

@@ -1,0 +1,33 @@
+skill_id: adjacent_vehicle_cut_in
+name_zh: 相邻车辆切入
+family: lane_change_interaction
+definition: 相邻车道车辆进入目标车辆前方间隙并压缩其安全跟车空间。
+source: [course_example, traffic_rule, train_pattern, literature]
+data_support:
+  feasibility: A
+  required_tracks: [vehicle]
+  required_map: [lane_centerline, adjacent_lane]
+  development_evidence: 499个开发场景包含左右相邻车道关系。
+seed_requirements:
+  description: 相邻车辆与目标车辆具有共同历史且目标车道可达。
+  threshold_source: semantic
+  minimum_history_steps: 30
+trigger:
+  description: 发起车辆由相邻车道向目标车辆前方间隙横移。
+  threshold_source: train_statistics
+  conditions: [adjacent_lane, lateral_entry, target_gap_ahead]
+actors:
+  initiator_types: [vehicle]
+  responder_types: [vehicle]
+  generated_roles: [cut_in_vehicle, responding_vehicle]
+parameters:
+  cut_in_start_s: {range: [0.5, 3.0], source: semantic}
+  cut_in_duration_s: {range: [1.0, 3.0], source: train_statistics}
+  target_gap_m: {range: [4.0, 18.0], source: train_statistics}
+generation_operators: [LANE_CHANGE]
+constraints: {remain_in_drivable_area: true, preserve_lane_direction: true, smooth_lateral_motion: true, forbid_unavoidable_collision: true}
+risk_definition: {metric: post_cut_in_time_to_collision, target_range: [1.0, 4.0], source: reference}
+expected_behavior: [decelerate, increase_following_gap, avoid_collision]
+validation_metrics: [post_cut_in_time_to_collision, lateral_clearance, lateral_acceleration]
+known_limitations: [需要稳定识别车辆跨越车道边界的时刻]
+output_labels: [skill_id, cut_in_track_id, responder_track_id, target_lane_id, risk_level, expected_behavior]

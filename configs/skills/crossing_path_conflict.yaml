@@ -1,0 +1,33 @@
+skill_id: crossing_path_conflict
+name_zh: 路口交叉路径冲突
+family: intersection_interaction
+definition: 两辆来自不同道路方向的车辆路径在路口相交且到达时间接近。
+source: [traffic_rule, safety_metric, train_pattern]
+data_support:
+  feasibility: A
+  required_tracks: [vehicle]
+  required_map: [intersection_lane, lane_centerline]
+  development_evidence: 路口车道覆盖496个开发场景。
+seed_requirements:
+  description: 两辆车的未来路径在路口存在稳定几何交点。
+  threshold_source: semantic
+  minimum_history_steps: 30
+trigger:
+  description: 双方到达几何冲突点的时间差进入风险区间。
+  threshold_source: reference
+  conditions: [crossing_paths, stable_conflict_point, small_arrival_time_gap]
+actors:
+  initiator_types: [vehicle]
+  responder_types: [vehicle]
+  generated_roles: [first_vehicle, second_vehicle]
+parameters:
+  first_speed_scale: {range: [0.8, 1.2], source: train_statistics}
+  second_speed_scale: {range: [0.8, 1.2], source: train_statistics}
+  priority_role: {choices: [first_vehicle, second_vehicle], source: semantic}
+generation_operators: [CONFLICT_POINT, YIELD_PRIORITY]
+constraints: {remain_in_drivable_area: true, preserve_path_direction: true, role_assignment_fixed: true, forbid_unavoidable_collision: true}
+risk_definition: {metric: post_encroachment_time, target_range: [0.5, 3.0], source: reference}
+expected_behavior: [yield_according_to_role, avoid_simultaneous_conflict_occupancy]
+validation_metrics: [post_encroachment_time, minimum_distance, priority_consistency]
+known_limitations: [缺少动态信号状态因此不声称路口法律上无控制]
+output_labels: [skill_id, first_track_id, second_track_id, conflict_point, priority_role, risk_level]

@@ -1,0 +1,33 @@
+skill_id: merge_without_yield
+name_zh: 汇入未让行
+family: merge_topology
+definition: 应让行车辆在冲突时间差不足时仍持续汇入优先车流。
+source: [course_example, traffic_rule, safety_metric]
+data_support:
+  feasibility: B
+  required_tracks: [vehicle]
+  required_map: [lane_successor, converging_lane]
+  development_evidence: 正常汇入种子可通过缩短到达时间差形成反事实风险。
+seed_requirements:
+  description: 可确定汇入和优先角色的车道汇合场景。
+  threshold_source: semantic
+  minimum_history_steps: 30
+trigger:
+  description: 让行角色未降低冲突点占用优先级且时间差不足。
+  threshold_source: semantic
+  conditions: [converging_lanes, explicit_priority_role, yielding_actor_continues]
+actors:
+  initiator_types: [vehicle]
+  responder_types: [vehicle]
+  generated_roles: [non_yielding_vehicle, priority_vehicle]
+parameters:
+  merge_onset_s: {range: [0.5, 3.5], source: semantic}
+  accepted_gap_s: {range: [0.5, 2.5], source: reference}
+  priority_role: {choices: [initiator, responder], source: semantic}
+generation_operators: [MERGE, YIELD_PRIORITY]
+constraints: {remain_in_drivable_area: true, preserve_lane_direction: true, role_assignment_fixed: true, forbid_unavoidable_collision: true}
+risk_definition: {metric: conflict_point_time_gap, target_range: [0.5, 2.5], source: reference}
+expected_behavior: [yield_to_priority_vehicle, reduce_speed, enter_only_with_safe_gap]
+validation_metrics: [conflict_point_time_gap, priority_consistency, minimum_distance]
+known_limitations: [法律优先权不能从运动结果倒推必须由技能条件指定]
+output_labels: [skill_id, non_yielding_track_id, priority_track_id, conflict_point, risk_level]
