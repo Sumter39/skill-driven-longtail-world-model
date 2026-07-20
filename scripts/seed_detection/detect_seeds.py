@@ -178,7 +178,10 @@ def _validate_exclusion_manifests(
     return audit
 
 
-def _load_confirmed_skills(skill_dir: Path) -> list[SkillSpec]:
+def _load_confirmed_skills(
+    skill_dir: Path,
+    selected_skill_ids: Sequence[str] | None = None,
+) -> list[SkillSpec]:
     catalog_path = skill_dir / "catalog.yaml"
     with catalog_path.open(encoding="utf-8") as handle:
         catalog = yaml.safe_load(handle)
@@ -188,10 +191,43 @@ def _load_confirmed_skills(skill_dir: Path) -> list[SkillSpec]:
     if not isinstance(families, dict):
         raise ValueError("skill catalog families must be a mapping")
 
-    entries = [entry for family in families.values() for entry in family]
-    skill_ids = [entry.get("skill_id") for entry in entries if isinstance(entry, dict)]
-    if len(entries) != 30 or len(skill_ids) != 30 or len(set(skill_ids)) != 30:
-        raise ValueError("confirmed skill catalog must contain 30 unique skills")
+    entries: list[Mapping[str, Any]] = []
+    for family_name, family_entries in families.items():
+        if not isinstance(family_entries, list):
+            raise ValueError(f"skill catalog family {family_name} must be a list")
+        for entry in family_entries:
+            if not isinstance(entry, dict):
+                raise ValueError("skill catalog entries must be mappings")
+            entries.append(entry)
+
+    catalog_skill_ids = [entry.get("skill_id") for entry in entries]
+    if (
+        len(catalog_skill_ids) < 30
+        or any(not isinstance(skill_id, str) or not skill_id for skill_id in catalog_skill_ids)
+        or len(set(catalog_skill_ids)) != len(catalog_skill_ids)
+    ):
+        raise ValueError("confirmed skill catalog must contain at least 30 unique skills")
+
+    if selected_skill_ids is None:
+        skill_ids = catalog_skill_ids
+    else:
+        requested = list(selected_skill_ids)
+        if not requested:
+            raise ValueError("selected_skill_ids must contain at least one skill ID")
+        if any(not isinstance(skill_id, str) or not skill_id for skill_id in requested):
+            raise ValueError("selected_skill_ids must contain non-empty strings")
+        if len(set(requested)) != len(requested):
+            raise ValueError("selected_skill_ids must not contain duplicates")
+        unknown = sorted(set(requested) - set(catalog_skill_ids))
+        if unknown:
+            raise ValueError(
+                f"selected skill IDs are not in the confirmed catalog: {unknown}"
+            )
+        requested_set = set(requested)
+        skill_ids = [
+            skill_id for skill_id in catalog_skill_ids if skill_id in requested_set
+        ]
+
     skills = [load_skill(skill_dir / f"{skill_id}.yaml") for skill_id in skill_ids]
     if [skill.skill_id for skill in skills] != skill_ids:
         raise ValueError("skill YAML IDs do not match the confirmed catalog")
@@ -218,10 +254,13 @@ def _manifest_fingerprint(rows: Sequence[ManifestRow]) -> str:
     return hashlib.sha256(payload).hexdigest()
 
 
-def _directory_fingerprint(directory: Path) -> str:
-    paths = sorted(directory.glob("*.yaml"))
-    if not paths:
-        raise ValueError(f"no skill YAML files found in {directory}")
+def _skills_fingerprint(directory: Path, skill_ids: Sequence[str]) -> str:
+    if not skill_ids:
+        raise ValueError("skill_ids must contain at least one skill ID")
+    paths = [directory / f"{skill_id}.yaml" for skill_id in skill_ids]
+    missing = [str(path) for path in paths if not path.is_file()]
+    if missing:
+        raise FileNotFoundError(f"missing selected skill YAML files: {missing}")
     return _hash_payloads(
         [(path.relative_to(directory).as_posix(), path.read_bytes()) for path in paths]
     )
@@ -244,6 +283,7 @@ def _checkpoint_metadata(
     data_root: Path,
     config_path: Path,
     skill_dir: Path,
+    selected_skill_ids: Sequence[str],
     exclusion_audit: Mapping[str, Mapping[str, Any]],
 ) -> dict[str, Any]:
     project_root = Path(__file__).resolve().parents[2]
@@ -252,8 +292,10 @@ def _checkpoint_metadata(
         "version": CHECKPOINT_VERSION,
         "scan_kind": kind,
         "manifest_sha256": _manifest_fingerprint(rows),
+        "manifest_scenario_count": len(rows),
         "config_sha256": hashlib.sha256(config_path.read_bytes()).hexdigest(),
-        "skills_sha256": _directory_fingerprint(skill_dir),
+        "selected_skill_ids": list(selected_skill_ids),
+        "skills_sha256": _skills_fingerprint(skill_dir, selected_skill_ids),
         "pipeline_sha256": _pipeline_fingerprint(project_root),
         "data_root": str(data_root.resolve()),
     }
@@ -722,6 +764,7 @@ def _build_summary(
             "skills_dir": str(skill_dir),
             "manifest_scenario_count": len(all_rows),
             "selected_scenario_count": len(selected_rows),
+            "selected_skill_ids": skill_ids,
             "global_seed": config.global_seed,
             "workers": workers,
             "fingerprints": {
@@ -842,6 +885,7 @@ def run_scan(
     output_csv: Path,
     summary_json: Path,
     checkpoint_path: Path | None = None,
+    skill_ids: Sequence[str] | None = None,
     limit: int | None = None,
     progress_every: int = 10,
     restart: bool = False,
@@ -877,15 +921,20 @@ def run_scan(
     rows = read_manifest(manifest_path)
     kind = _validate_manifest_scope(manifest_path, rows)
     selected_rows = rows if limit is None else rows[:limit]
-    if len(selected_rows) < len(rows):
+    if len(selected_rows) < len(rows) or skill_ids is not None:
         default_csv, default_summary = DEFAULT_OUTPUTS[kind]
         uses_canonical_output = (
             output_csv.resolve() == default_csv.resolve()
             or summary_json.resolve() == default_summary.resolve()
         )
         if uses_canonical_output:
+            reason = (
+                "partial scans"
+                if len(selected_rows) < len(rows)
+                else "skill-subset scans"
+            )
             raise ValueError(
-                "partial scans cannot overwrite the canonical candidate CSV or summary; "
+                f"{reason} cannot overwrite the canonical candidate CSV or summary; "
                 "provide explicit smoke output paths"
             )
     exclusion_manifests = {
@@ -893,7 +942,8 @@ def run_scan(
         "final_validation": final_validation_manifest,
     }
     exclusion_audit = _validate_exclusion_manifests(rows, exclusion_manifests)
-    skills = _load_confirmed_skills(skill_dir)
+    skills = _load_confirmed_skills(skill_dir, skill_ids)
+    selected_skill_ids = [skill.skill_id for skill in skills]
     config = load_detection_config(config_path)
     target_risk_definitions = {
         skill.skill_id: skill.risk_definition for skill in skills
@@ -913,6 +963,7 @@ def run_scan(
         data_root=data_root,
         config_path=config_path,
         skill_dir=skill_dir,
+        selected_skill_ids=selected_skill_ids,
         exclusion_audit=exclusion_audit,
     )
     entries = _load_checkpoint(checkpoint_path, metadata, restart=restart)
@@ -1136,6 +1187,15 @@ def _parser() -> argparse.ArgumentParser:
     )
     parser.add_argument("--skills-dir", type=Path, default=Path("configs/skills"))
     parser.add_argument(
+        "--skill-id",
+        dest="skill_ids",
+        action="append",
+        help=(
+            "Scan only this confirmed skill ID. Repeat for multiple skills; "
+            "catalog order is preserved."
+        ),
+    )
+    parser.add_argument(
         "--config", type=Path, default=Path("configs/seed_detection.yaml")
     )
     parser.add_argument("--output-csv", type=Path)
@@ -1193,6 +1253,7 @@ def main() -> None:
             output_csv=args.output_csv or default_csv,
             summary_json=args.summary_json or default_summary,
             checkpoint_path=args.checkpoint,
+            skill_ids=args.skill_ids,
             limit=args.limit,
             progress_every=args.progress_every,
             restart=args.restart,

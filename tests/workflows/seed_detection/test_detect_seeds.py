@@ -146,9 +146,41 @@ def _checkpoint_scenario_ids(path: Path) -> list[str]:
     return [value["scenario_id"] for value in values[1:]]
 
 
+def _subset_skill_dir(tmp_path: Path) -> Path:
+    skill_dir = tmp_path / "skills"
+    skill_dir.mkdir()
+    catalog_ids = [
+        "lead_sudden_stop",
+        "slow_lead_blockage",
+        "unused_skill",
+        *(f"placeholder_{index:02d}" for index in range(27)),
+    ]
+    catalog_lines = [
+        "version: 1",
+        "status: user_confirmed",
+        "families:",
+        "  test_family:",
+        *(f"    - {{skill_id: {skill_id}}}" for skill_id in catalog_ids),
+    ]
+    (skill_dir / "catalog.yaml").write_text(
+        "\n".join(catalog_lines) + "\n",
+        encoding="utf-8",
+    )
+    for skill_id in ("lead_sudden_stop", "slow_lead_blockage"):
+        (skill_dir / f"{skill_id}.yaml").write_text(
+            (SKILL_DIR / f"{skill_id}.yaml").read_text(encoding="utf-8"),
+            encoding="utf-8",
+        )
+    (skill_dir / "unused_skill.yaml").write_text("first\n", encoding="utf-8")
+    return skill_dir
+
+
 def test_scan_resumes_after_partial_checkpoint_and_builds_summary(
     tmp_path, capsys
 ) -> None:
+    primary_skill = detect_seeds._load_confirmed_skills(SKILL_DIR)[0]
+    primary_skill_id = primary_skill.skill_id
+    target_metric = primary_skill.risk_definition["metric"]
     manifest = tmp_path / "development_train.csv"
     rows = [_manifest_row("scene-b"), _manifest_row("scene-a")]
     write_manifest(manifest, rows)
@@ -205,22 +237,21 @@ def test_scan_resumes_after_partial_checkpoint_and_builds_summary(
         "candidates": 2,
         "unique_candidate_scenarios": 2,
     }
-    assert second["skill_hits"]["lead_hard_brake"] == 2
-    assert second["skill_scenario_hits"]["lead_hard_brake"] == 2
-    assert second["rejection_reasons"] == {"no_compatible_pair": 58}
+    assert second["skill_hits"][primary_skill_id] == 2
+    assert second["skill_scenario_hits"][primary_skill_id] == 2
+    assert second["rejection_reasons"] == {
+        "no_compatible_pair": 2 * (len(detect_seeds._load_confirmed_skills(SKILL_DIR)) - 1)
+    }
     assert second["actor_distribution"]["pair"] == {"vehicle|pedestrian": 2}
     assert second["actor_distribution"]["by_role"] == {
         "initiator": {"vehicle": 2},
         "responder": {"pedestrian": 2},
     }
     assert second["schema_version"] == 2
-    assert second["target_risk_definitions"]["lead_hard_brake"] == {
-        "metric": "time_to_collision",
-        "target_range": [1.0, 4.0],
-        "source": "reference",
-        "direction": "lower_is_riskier",
-    }
-    assert second["seed_risk_distribution"]["by_metric"]["time_to_collision"] == {
+    assert second["target_risk_definitions"][primary_skill_id] == (
+        primary_skill.risk_definition
+    )
+    assert second["seed_risk_distribution"]["by_metric"][target_metric] == {
         "count": 1,
         "min": 2.0,
         "p25": 2.0,
@@ -230,7 +261,7 @@ def test_scan_resumes_after_partial_checkpoint_and_builds_summary(
         "mean": 2.0,
     }
     assert second["seed_risk_distribution"]["by_skill_and_metric"][
-        "lead_hard_brake"
+        primary_skill_id
     ] == {
         "minimum_trajectory_distance": {
             "count": 1,
@@ -241,7 +272,7 @@ def test_scan_resumes_after_partial_checkpoint_and_builds_summary(
             "max": 4.0,
             "mean": 4.0,
         },
-        "time_to_collision": {
+        target_metric: {
             "count": 1,
             "min": 2.0,
             "p25": 2.0,
@@ -256,7 +287,7 @@ def test_scan_resumes_after_partial_checkpoint_and_builds_summary(
         "proxy_metric": 1,
     }
     assert second["seed_risk_distribution"]["relation_by_skill"][
-        "lead_hard_brake"
+        primary_skill_id
     ] == {
         "target_metric_observation": 1,
         "proxy_metric": 1,
@@ -293,6 +324,103 @@ def test_scan_resumes_after_partial_checkpoint_and_builds_summary(
         detector=_detector,
     )
     assert output_csv.read_bytes() == candidate_bytes
+
+
+def test_skill_subset_uses_catalog_order_and_ignores_unselected_yaml_changes(
+    tmp_path: Path,
+) -> None:
+    manifest = tmp_path / "development_train.csv"
+    write_manifest(manifest, [_manifest_row("scene-a")])
+    internal = tmp_path / "internal_validation.csv"
+    final = tmp_path / "final_validation.csv"
+    write_manifest(internal, [])
+    write_manifest(final, [])
+    skill_dir = _subset_skill_dir(tmp_path)
+    loaded: list[str] = []
+
+    def loader(path: str | Path) -> Scenario:
+        scenario_id = Path(path).parent.name
+        loaded.append(scenario_id)
+        return _scenario(scenario_id)
+
+    checkpoint = tmp_path / "subset.checkpoint.jsonl"
+    arguments = {
+        "manifest_path": manifest,
+        "data_root": tmp_path / "data",
+        "skill_dir": skill_dir,
+        "config_path": CONFIG_PATH,
+        "output_csv": tmp_path / "subset.csv",
+        "summary_json": tmp_path / "subset.json",
+        "checkpoint_path": checkpoint,
+        "skill_ids": ["slow_lead_blockage", "lead_sudden_stop"],
+        "internal_validation_manifest": internal,
+        "final_validation_manifest": final,
+        "scenario_loader": loader,
+        "detector": _detector,
+    }
+    first = run_scan(**arguments)
+    metadata = json.loads(checkpoint.read_text(encoding="ascii").splitlines()[0])
+
+    assert metadata["selected_skill_ids"] == [
+        "lead_sudden_stop",
+        "slow_lead_blockage",
+    ]
+    assert metadata["manifest_scenario_count"] == 1
+    assert first["inputs"]["selected_skill_ids"] == metadata["selected_skill_ids"]
+    assert [record.skill_id for record in read_seed_records(tmp_path / "subset.csv")] == [
+        "lead_sudden_stop"
+    ]
+
+    (skill_dir / "unused_skill.yaml").write_text("second\n", encoding="utf-8")
+    second = run_scan(**arguments)
+    assert loaded == ["scene-a"]
+    assert second["counts"]["resumed_scenarios_this_run"] == 1
+
+    selected_path = skill_dir / "lead_sudden_stop.yaml"
+    selected_path.write_text(
+        selected_path.read_text(encoding="utf-8").replace(
+            "name_zh: 前车突然停车",
+            "name_zh: 前车突然停车测试变更",
+        ),
+        encoding="utf-8",
+    )
+    with pytest.raises(ValueError, match="checkpoint inputs differ"):
+        run_scan(**arguments)
+
+
+def test_skill_subset_cannot_overwrite_canonical_outputs(tmp_path: Path) -> None:
+    manifest = tmp_path / "development_train.csv"
+    write_manifest(manifest, [_manifest_row("scene-a")])
+
+    with pytest.raises(ValueError, match="skill-subset scans cannot overwrite"):
+        run_scan(
+            manifest_path=manifest,
+            data_root=tmp_path / "data",
+            skill_dir=SKILL_DIR,
+            config_path=CONFIG_PATH,
+            output_csv=DEFAULT_OUTPUTS["development"][0],
+            summary_json=tmp_path / "summary.json",
+            skill_ids=["lead_sudden_stop"],
+            scenario_loader=lambda path: _scenario("scene-a"),
+            detector=_detector,
+        )
+
+
+def test_skill_subset_rejects_duplicate_or_unknown_ids(tmp_path: Path) -> None:
+    skill_dir = _subset_skill_dir(tmp_path)
+    with pytest.raises(ValueError, match="must not contain duplicates"):
+        detect_seeds._load_confirmed_skills(
+            skill_dir,
+            ["lead_sudden_stop", "lead_sudden_stop"],
+        )
+    with pytest.raises(ValueError, match="not in the confirmed catalog"):
+        detect_seeds._load_confirmed_skills(skill_dir, ["unknown_skill"])
+
+
+def test_candidate_rule_is_not_loaded_by_formal_catalog() -> None:
+    assert len(detect_seeds._load_confirmed_skills(SKILL_DIR)) == 34
+    with pytest.raises(ValueError, match="not in the confirmed catalog"):
+        detect_seeds._load_confirmed_skills(SKILL_DIR, ["lead_hard_brake"])
 
 
 def test_checkpoint_rejects_changed_configuration(tmp_path) -> None:
@@ -394,7 +522,7 @@ def test_scan_rejects_target_risk_definition_that_differs_from_yaml(tmp_path) ->
         )
         return DetectionRun(records=[record], rejection_counts=run.rejection_counts)
 
-    with pytest.raises(ValueError, match="differs from lead_hard_brake YAML"):
+    with pytest.raises(ValueError, match="differs from lead_sudden_stop YAML"):
         run_scan(
             manifest_path=manifest,
             data_root=tmp_path / "data",
