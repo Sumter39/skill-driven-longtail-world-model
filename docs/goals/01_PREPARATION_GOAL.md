@@ -119,14 +119,14 @@ source ~/.bashrc
 cd "/mnt/d/同济大学/Course/032 大三下/大数据智能分析"
 uv python install 3.10
 uv python pin 3.10
-uv sync --extra dev --extra av2
+uv sync
 ```
 
 说明：
 
 - `uv python install 3.10` 安装由 `uv` 管理的 Linux Python，不修改 Ubuntu 系统 Python。
 - `uv python pin 3.10` 创建可提交的 `.python-version`，让团队统一使用 Python 3.10。
-- `uv sync --extra dev --extra av2` 根据 `pyproject.toml` 和 `uv.lock` 自动创建或更新仓库根目录下的 `.venv`，并安装测试依赖和 AV2 API。
+- `uv sync` 根据 `pyproject.toml` 和 `uv.lock` 自动创建或更新仓库根目录下的 `.venv`；AV2作为正式依赖安装，pytest通过默认启用的`dev`依赖组安装。
 - 日常使用 `uv run <command>`，无需手工激活 `.venv`；需要交互式终端时仍可执行 `source .venv/bin/activate`。
 - `.venv` 必须忽略，`.python-version` 和 `uv.lock` 应提交。
 - 项目位于`/mnt/d`时，`uv`缓存与`.venv`跨文件系统，允许设置`UV_LINK_MODE=copy`；硬链接降级警告不是安装失败。
@@ -381,4 +381,4 @@ Goal 模式按以下顺序执行：
 
 截至2026-07-19，本文件范围内的环境、代码骨架、技能目录、合成测试和官方AV2小型样例验证均已完成。详细证据见`../preparation-status.md`。
 
-本阶段已经完成。当前30类目录和5份完整YAML只属于前期结构验证结果，不代表最终只实现5类。下一阶段执行`02_SKILL_LIBRARY_DESIGN_GOAL.md`，先提出不少于30类候选方案、完成AV2可行性论证并获得用户确认；随后由`03_SKILL_SEED_DETECTION_GOAL.md`实现规则执行和候选种子检测。两个阶段均禁止模型训练，GPU版PyTorch只需在后续模型训练开始前安装和验证。
+本阶段已经完成。本阶段交付时的30类目录和5份完整YAML只属于前期结构验证结果，不代表最终只实现5类。后续`02_SKILL_LIBRARY_DESIGN_GOAL.md`和`03_SKILL_SEED_DETECTION_GOAL.md`已经完成，当前定稿为34类正式技能与5类候选规则；本阶段及上述两个阶段均未进行模型训练。GPU版PyTorch只需在后续模型训练开始前安装和验证。

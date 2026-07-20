@@ -2,7 +2,7 @@
 
 ## 1. 文档状态
 
-本文件记录`02_SKILL_LIBRARY_DESIGN_GOAL.md`的候选方案和决策过程。共提出40个A/B类候选，其中A类20个、B类20个；2026-07-19用户确认采用“平衡方案A”，最终30类见`skill-taxonomy.md`。
+本文件记录`02_SKILL_LIBRARY_DESIGN_GOAL.md`的候选方案和决策过程。共提出40个A/B类候选，其中A类20个、B类20个；2026-07-19先确认“平衡方案A”形成30类基线，2026-07-20恢复其中9类候补完成39规则扫描，随后根据种子覆盖最终定稿为34类正式技能与5类零命中候选规则，见`skill-taxonomy.md`。
 
 候选来源包括：
 
@@ -489,7 +489,39 @@
 
 - 保留`construction_object_lane_blockage`和`static_object_avoidance`，但使用粗粒度名称和保守安全缓冲；
 - 保留组合技能`cut_in_then_brake`；
-- `motorcyclist_filtering_conflict`保留为候补，不进入最终30类；
+- 当时将`motorcyclist_filtering_conflict`保留为候补，不进入30类历史基线；
 - 使用保守名称`crossing_path_conflict`，不声称AV2能够识别动态信号控制状态。
 
-最终目录和完整YAML已经固化到`configs/skills/`，正式分类见`skill-taxonomy.md`。
+该决定构成30类历史基线。
+
+### 2026-07-20扩展决定
+
+用户确认“不限制总数”，从原40类A/B候选中恢复以下9类：
+
+- `chain_braking`；
+- `late_lane_change_before_diverge`；
+- `zipper_merge_multi_vehicle`；
+- `mutual_yield_deadlock`；
+- `group_pedestrian_crossing`；
+- `cyclist_vehicle_merge`；
+- `abrupt_u_turn_conflict`；
+- `multi_vehicle_gap_squeeze`；
+- `motorcyclist_filtering_conflict`。
+
+`wrong_way_cyclist`继续保留为未实现历史候补。39份完整规则YAML合计A类19个、B类20个；20,000场景增量扫描证明新增9类均获得种子，39规则合并扫描中共有34/39类获得真实触发或兼容基础种子覆盖。
+
+### 扫描后最终定稿
+
+用户根据固定20,000个正式Train场景的扫描证据，确认将命中的34类全部作为正式技能，其中A类14个、B类20个；六个正式技能族分别包含4、4、6、6、7、7类，实现34/34正式技能种子覆盖。
+
+以下5类本轮零命中规则保留为候选，不进入当前正式训练、种子筛选或批量生成范围：
+
+- `lead_hard_brake`；
+- `rear_vehicle_rapid_approach`；
+- `adjacent_vehicle_cut_in`；
+- `narrow_gap_lane_change`；
+- `wrong_way_vehicle`。
+
+这5类仍保留完整YAML、检测映射和自动测试，后续只有在新的固定数据池中获得合格种子、完成人工审核并经用户确认后才能晋级。`wrong_way_cyclist`没有进入39个已实现规则，不属于这5类候选。
+
+最终正式目录、候选目录和完整YAML已经固化到`configs/skills/`，正式与候选分类见`skill-taxonomy.md`。

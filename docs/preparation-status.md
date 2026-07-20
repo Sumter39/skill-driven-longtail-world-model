@@ -2,7 +2,7 @@
 
 更新时间：2026-07-19。
 
-本文件记录01前期准备阶段的验收快照。后续02技能体系设计已经完成，当前状态见`goals/02_SKILL_LIBRARY_DESIGN_GOAL.md`和`skills/skill-taxonomy.md`。
+本文件记录01前期准备阶段的验收快照。后续02技能体系设计和03候选种子检测均已完成；当前34类正式技能、5类候选规则及39规则扫描状态见`goals/02_SKILL_LIBRARY_DESIGN_GOAL.md`、`goals/03_SKILL_SEED_DETECTION_GOAL.md`、`skills/skill-taxonomy.md`和`seed-detection-expanded-review.md`。
 
 ## 已完成
 
@@ -40,7 +40,7 @@
 
 ## 环境与样例验证结论
 
-- `uv sync --extra dev --extra av2`已完成并产生`uv.lock`和Linux `.venv`。
+- `uv sync`已完成并产生`uv.lock`和Linux `.venv`。
 - AV2 API所需的数据类字段和读取入口已通过自动测试。
 - 官方小型测试场景的parquet和地图JSON能够加载。
 - 历史/未来`observed`掩码能够保留。
