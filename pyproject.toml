@@ -8,14 +8,17 @@ version = "0.1.0"
 description = "Preparation utilities for skill-driven long-tail trajectory scenario generation."
 requires-python = ">=3.10,<3.12"
 dependencies = [
+  "av2>=0.3.5,<1",
   "matplotlib>=3.8,<4",
   "numpy>=1.26,<3",
   "PyYAML>=6,<7",
 ]
 
-[project.optional-dependencies]
-av2 = ["av2>=0.3.5,<1"]
+[dependency-groups]
 dev = ["pytest>=7.4,<9"]
+
+[tool.uv]
+default-groups = ["dev"]
 
 [tool.setuptools.packages.find]
 include = ["skilldrive*"]

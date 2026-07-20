@@ -30,7 +30,7 @@ source ~/.bashrc
 cd "/mnt/d/同济大学/Course/032 大三下/大数据智能分析"
 uv python install 3.10
 uv python pin 3.10
-uv sync --extra dev --extra av2
+uv sync
 ```
 
 `uv sync`会自动创建项目根目录下的`.venv`。通常不需要激活环境，直接使用：
@@ -40,6 +40,8 @@ uv run python --version
 uv run pytest -q
 uv run python -m scripts.visualization.render_synthetic_bev
 ```
+
+`av2`是项目正式依赖；`pytest`位于`dependency-groups.dev`，并由`tool.uv.default-groups`默认启用。因此普通`uv sync`和`uv run`都会保留二者，不需要`--extra`或`--all-extras`。
 
 项目位于`/mnt/d`的NTFS文件系统，而`uv`缓存位于WSL的Linux文件系统。首次同步可能出现“Failed to hardlink files; falling back to full copy”警告。这不影响安装结果，可设置复制模式消除警告：
 

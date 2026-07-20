@@ -1410,6 +1410,7 @@ name = "skilldrive"
 version = "0.1.0"
 source = { editable = "." }
 dependencies = [
+    { name = "av2" },
     { name = "matplotlib", version = "3.10.9", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
     { name = "matplotlib", version = "3.11.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
     { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
@@ -1417,23 +1418,21 @@ dependencies = [
     { name = "pyyaml" },
 ]
 
-[package.optional-dependencies]
-av2 = [
-    { name = "av2" },
-]
+[package.dev-dependencies]
 dev = [
     { name = "pytest" },
 ]
 
 [package.metadata]
 requires-dist = [
-    { name = "av2", marker = "extra == 'av2'", specifier = ">=0.3.5,<1" },
+    { name = "av2", specifier = ">=0.3.5,<1" },
     { name = "matplotlib", specifier = ">=3.8,<4" },
     { name = "numpy", specifier = ">=1.26,<3" },
-    { name = "pytest", marker = "extra == 'dev'", specifier = ">=7.4,<9" },
     { name = "pyyaml", specifier = ">=6,<7" },
 ]
-provides-extras = ["av2", "dev"]
+
+[package.metadata.requires-dev]
+dev = [{ name = "pytest", specifier = ">=7.4,<9" }]
 
 [[package]]
 name = "sympy"
