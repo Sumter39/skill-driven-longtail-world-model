@@ -1,0 +1,42 @@
+skill_id: abrupt_u_turn_conflict
+name_zh: 突然掉头冲突
+family: atypical_composite
+definition: 车辆在路口或宽阔可行驶区域内快速改变方向并进入对向车辆路径。
+source: [traffic_rule, train_pattern]
+data_support:
+  feasibility: B
+  required_tracks: [vehicle]
+  required_map: [lane_centerline, intersection_lane, drivable_area, lane_direction]
+  development_evidence: 路口、对向车流和可行驶区域可提供掉头反事实生成的兼容种子。
+seed_requirements:
+  description: 一辆可掉头车辆靠近路口，附近存在航向相反的机动车。
+  threshold_source: semantic
+  minimum_history_steps: 30
+trigger:
+  description: 车辆在短时间内完成大航向变化并进入对向车辆路径。
+  threshold_source: semantic
+  conditions: [turning_vehicle, oncoming_vehicle_present, vehicle_path_conflict]
+detection:
+  mode: compatible_seed
+  conditions: [near_intersection_entry, oncoming_vehicle_present, holding_space_available]
+  thresholds:
+    maximum_entry_distance_m: {value: 12.0, source: semantic}
+    minimum_moving_speed_mps: {value: 0.5, source: semantic}
+    maximum_oncoming_distance_m: {value: 45.0, source: semantic}
+    minimum_opposing_heading_difference_deg: {value: 120.0, source: semantic}
+    minimum_current_separation_m: {value: 2.0, source: semantic}
+actors:
+  initiator_types: [vehicle, bus]
+  responder_types: [vehicle, bus]
+  generated_roles: [u_turning_vehicle, conflicting_vehicle]
+parameters:
+  turn_start_s: {range: [0.5, 2.5], source: semantic}
+  turn_radius_m: {range: [5.0, 15.0], source: semantic}
+  angular_speed_deg_s: {range: [20.0, 70.0], source: semantic}
+generation_operators: [LANE_CHANGE, CONFLICT_POINT]
+constraints: {remain_in_drivable_area: true, smooth_turning_motion: true, nonnegative_speed: true, forbid_unavoidable_collision: true}
+risk_definition: {metric: head_on_time_to_collision, target_range: [1.0, 4.0], source: reference, direction: lower_is_riskier}
+expected_behavior: [wait_for_safe_gap, yield_to_oncoming_vehicle, abort_unsafe_u_turn]
+validation_metrics: [head_on_time_to_collision, turning_radius, minimum_distance]
+known_limitations: [地图没有合法掉头标记，只评价运动学和冲突合理性]
+output_labels: [skill_id, turning_track_id, conflicting_track_id, turn_radius_m, risk_level]

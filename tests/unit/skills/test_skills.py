@@ -7,30 +7,63 @@ from skilldrive.skills import load_skill, validate_skill_dict
 
 
 SKILL_DIR = Path("configs/skills")
+CANDIDATE_SKILL_IDS = {
+    "adjacent_vehicle_cut_in",
+    "lead_hard_brake",
+    "narrow_gap_lane_change",
+    "rear_vehicle_rapid_approach",
+    "wrong_way_vehicle",
+}
+
+
+def _catalog_entries() -> list[dict[str, object]]:
+    catalog = yaml.safe_load((SKILL_DIR / "catalog.yaml").read_text(encoding="utf-8"))
+    return [entry for family in catalog["families"].values() for entry in family]
+
+
+def _candidate_entries() -> list[dict[str, object]]:
+    catalog = yaml.safe_load(
+        (SKILL_DIR / "candidate_catalog.yaml").read_text(encoding="utf-8")
+    )
+    return catalog["skills"]
 
 
 def _skill_data(skill_id: str = "lead_hard_brake") -> dict[str, object]:
     return yaml.safe_load((SKILL_DIR / f"{skill_id}.yaml").read_text(encoding="utf-8"))
 
 
-def test_catalog_has_30_unique_confirmed_skills() -> None:
+def test_catalog_has_34_formal_and_5_candidate_rules() -> None:
     catalog = yaml.safe_load((SKILL_DIR / "catalog.yaml").read_text(encoding="utf-8"))
-    entries = [entry for family in catalog["families"].values() for entry in family]
-    ids = [entry["skill_id"] for entry in entries]
-    assert len(entries) == 30
-    assert len(set(ids)) == 30
-    assert {entry["feasibility"] for entry in entries} <= {"A", "B"}
-    assert sum(entry["feasibility"] == "A" for entry in entries) == 17
-    assert sum(entry["feasibility"] == "B" for entry in entries) == 13
-    assert all((SKILL_DIR / f"{skill_id}.yaml").is_file() for skill_id in ids)
-    yaml_ids = {path.stem for path in SKILL_DIR.glob("*.yaml")} - {"catalog"}
-    assert yaml_ids == set(ids)
+    candidate_catalog = yaml.safe_load(
+        (SKILL_DIR / "candidate_catalog.yaml").read_text(encoding="utf-8")
+    )
+    entries = _catalog_entries()
+    candidates = _candidate_entries()
+    formal_ids = {entry["skill_id"] for entry in entries}
+    candidate_ids = {entry["skill_id"] for entry in candidates}
+
+    assert len(entries) == len(formal_ids) == 34
+    assert catalog["candidate_catalog"] == "candidate_catalog.yaml"
+    assert candidate_catalog["status"] == "candidate_no_formal_seed"
+    assert sum(entry["feasibility"] == "A" for entry in entries) == 14
+    assert sum(entry["feasibility"] == "B" for entry in entries) == 20
+    assert candidate_ids == CANDIDATE_SKILL_IDS
+    assert all(entry["feasibility"] == "A" for entry in candidates)
+    assert all(entry["formal_scan_hits"] == 0 for entry in candidates)
+    assert formal_ids.isdisjoint(candidate_ids)
+
+    implemented_ids = formal_ids | candidate_ids
+    yaml_ids = {
+        path.stem
+        for path in SKILL_DIR.glob("*.yaml")
+        if path.name not in {"catalog.yaml", "candidate_catalog.yaml"}
+    }
+    assert len(implemented_ids) == 39
+    assert yaml_ids == implemented_ids
 
 
-def test_all_catalog_skills_are_complete_and_valid() -> None:
-    catalog = yaml.safe_load((SKILL_DIR / "catalog.yaml").read_text(encoding="utf-8"))
-    entries = [entry for family in catalog["families"].values() for entry in family]
-    for entry in entries:
+def test_all_formal_and_candidate_rules_are_complete_and_valid() -> None:
+    for entry in [*_catalog_entries(), *_candidate_entries()]:
         skill = load_skill(SKILL_DIR / f"{entry['skill_id']}.yaml")
         assert skill.skill_id == entry["skill_id"]
         assert skill.family == entry["family"]
@@ -50,11 +83,16 @@ def test_all_catalog_skills_are_complete_and_valid() -> None:
         assert type(skill).from_dict(skill.to_dict()) == skill
 
 
-def test_catalog_families_are_balanced() -> None:
+def test_catalog_family_sizes_match_the_data_backed_contract() -> None:
     catalog = yaml.safe_load((SKILL_DIR / "catalog.yaml").read_text(encoding="utf-8"))
     assert len(catalog["families"]) == 6
     assert {family: len(entries) for family, entries in catalog["families"].items()} == {
-        family: 5 for family in catalog["families"]
+        "longitudinal_interaction": 4,
+        "lane_change_interaction": 4,
+        "merge_topology": 6,
+        "intersection_interaction": 6,
+        "vulnerable_road_user": 7,
+        "atypical_composite": 7,
     }
 
 
@@ -78,8 +116,7 @@ def test_parameter_source_and_range_are_validated() -> None:
 
 
 def test_detection_modes_and_risk_directions_follow_confirmed_contract() -> None:
-    catalog = yaml.safe_load((SKILL_DIR / "catalog.yaml").read_text(encoding="utf-8"))
-    entries = [entry for family in catalog["families"].values() for entry in family]
+    entries = _catalog_entries()
     modes = {"observed_trigger": 0, "compatible_seed": 0}
     for entry in entries:
         data = _skill_data(entry["skill_id"])
@@ -92,7 +129,11 @@ def test_detection_modes_and_risk_directions_follow_confirmed_contract() -> None
             else "lower_is_riskier"
         )
         assert data["risk_definition"]["direction"] == expected_direction
-    assert modes == {"observed_trigger": 17, "compatible_seed": 13}
+    assert modes == {"observed_trigger": 14, "compatible_seed": 20}
+    assert all(
+        _skill_data(entry["skill_id"])["detection"]["mode"] == "observed_trigger"
+        for entry in _candidate_entries()
+    )
 
 
 @pytest.mark.parametrize(
@@ -184,7 +225,7 @@ def test_required_track_actor_and_map_vocabularies_are_explicit() -> None:
     actor_types: set[str] = set()
     required_map: set[str] = set()
     for path in SKILL_DIR.glob("*.yaml"):
-        if path.name == "catalog.yaml":
+        if path.name in {"catalog.yaml", "candidate_catalog.yaml"}:
             continue
         data = yaml.safe_load(path.read_text(encoding="utf-8"))
         required_tracks.update(data["data_support"]["required_tracks"])
@@ -196,10 +237,19 @@ def test_required_track_actor_and_map_vocabularies_are_explicit() -> None:
         "vehicle",
         "pedestrian",
         "cyclist",
+        "motorcyclist",
         "static",
         "construction",
     }
-    assert actor_types == {"vehicle", "bus", "pedestrian", "cyclist", "static", "construction"}
+    assert actor_types == {
+        "vehicle",
+        "bus",
+        "pedestrian",
+        "cyclist",
+        "motorcyclist",
+        "static",
+        "construction",
+    }
     assert required_map == {
         "lane_centerline",
         "lane_successor",
@@ -232,7 +282,7 @@ def test_seed_detection_config_contains_only_engine_and_geometry_controls() -> N
     }
     skill_thresholds: set[str] = set()
     for path in SKILL_DIR.glob("*.yaml"):
-        if path.name != "catalog.yaml":
+        if path.name not in {"catalog.yaml", "candidate_catalog.yaml"}:
             data = yaml.safe_load(path.read_text(encoding="utf-8"))
             skill_thresholds.update(data["detection"]["thresholds"])
     assert set(config["thresholds"]).isdisjoint(skill_thresholds)
@@ -245,7 +295,7 @@ def test_seed_detection_config_contains_only_engine_and_geometry_controls() -> N
         ("seed_requirements", "minimum_history_steps", True, "positive integer"),
         ("data_support", "required_tracks", ["aircraft"], "unknown values"),
         ("data_support", "required_map", ["traffic_light_phase"], "unknown values"),
-        ("actors", "initiator_types", ["motorcyclist"], "unknown values"),
+        ("actors", "initiator_types", ["aircraft"], "unknown values"),
         ("trigger", "conditions", ["misspelled_condition"], "unknown values"),
         ("detection", "conditions", ["misspelled_condition"], "unknown values"),
         ("risk_definition", "direction", "unknown", "direction"),

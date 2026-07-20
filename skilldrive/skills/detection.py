@@ -1,10 +1,11 @@
-"""Executable, deterministic seed detection for the confirmed skill catalog."""
+"""Executable, deterministic seed detection for implemented skill rules."""
 
 from __future__ import annotations
 
 import math
 from collections import Counter
 from dataclasses import dataclass
+from itertools import combinations
 from pathlib import Path
 from typing import Any, Callable, Iterable, Sequence
 
@@ -1082,6 +1083,21 @@ def _threshold_evidence(
             "maximum_initial_gap_m": evidence["longitudinal_gap_m"],
             "maximum_time_to_collision_s": evidence["time_to_collision_s"],
         }
+    elif skill_id == "chain_braking":
+        measured = {
+            "minimum_queue_gap_m": min(
+                evidence["front_middle_gap_m"],
+                evidence["middle_rear_gap_m"],
+            ),
+            "maximum_queue_gap_m": max(
+                evidence["front_middle_gap_m"],
+                evidence["middle_rear_gap_m"],
+            ),
+            "minimum_moving_speed_mps": evidence["minimum_vehicle_speed_mps"],
+            "minimum_vehicle_center_distance_m": evidence[
+                "minimum_vehicle_center_distance_m"
+            ],
+        }
     elif skill_id == "adjacent_vehicle_cut_in":
         measured = {
             "minimum_lateral_displacement_m": abs(evidence["future_lateral_displacement_m"]),
@@ -1125,6 +1141,13 @@ def _threshold_evidence(
                 "vehicle_center_distance_m"
             ],
         }
+    elif skill_id == "late_lane_change_before_diverge":
+        measured = {
+            "maximum_distance_to_diverge_m": evidence["distance_to_diverge_m"],
+            "maximum_target_gap_m": evidence["target_vehicle_longitudinal_gap_m"],
+            "minimum_adjacent_lane_length_m": evidence["adjacent_lane_length_m"],
+            "minimum_current_separation_m": evidence["current_separation_m"],
+        }
     elif skill_id == "ramp_merge_small_gap":
         measured = {
             "maximum_convergence_distance_m": evidence["convergence_distance_m"],
@@ -1152,6 +1175,17 @@ def _threshold_evidence(
         measured = {
             "maximum_arrival_time_gap_s": evidence["arrival_time_gap_s"],
             "maximum_conflict_distance_m": evidence["minimum_trajectory_distance_m"],
+        }
+    elif skill_id == "zipper_merge_multi_vehicle":
+        measured = {
+            "maximum_convergence_distance_m": evidence["convergence_distance_m"],
+            "maximum_competing_vehicle_gap_m": evidence[
+                "main_flow_vehicle_gap_m"
+            ],
+            "maximum_arrival_time_gap_s": evidence["maximum_arrival_time_gap_s"],
+            "minimum_current_separation_m": evidence[
+                "minimum_current_separation_m"
+            ],
         }
     elif skill_id == "unprotected_left_turn_conflict":
         measured = {
@@ -1198,6 +1232,20 @@ def _threshold_evidence(
             ],
             "minimum_current_separation_m": evidence["current_separation_m"],
         }
+    elif skill_id == "mutual_yield_deadlock":
+        measured = {
+            "maximum_entry_distance_m": max(
+                evidence["first_intersection_entry_distance_m"],
+                evidence["second_intersection_entry_distance_m"],
+            ),
+            "maximum_creep_speed_mps": max(
+                evidence["first_vehicle_speed_mps"],
+                evidence["second_vehicle_speed_mps"],
+            ),
+            "minimum_crossing_angle_deg": evidence["crossing_angle_deg"],
+            "maximum_crossing_angle_deg": evidence["crossing_angle_deg"],
+            "minimum_current_separation_m": evidence["current_separation_m"],
+        }
     elif skill_id == "crosswalk_pedestrian_crossing":
         measured = {
             "maximum_crosswalk_distance_m": evidence["crosswalk_distance_m"],
@@ -1235,6 +1283,28 @@ def _threshold_evidence(
             "maximum_crosswalk_distance_m": evidence["crosswalk_distance_m"],
             "maximum_arrival_time_gap_s": evidence["arrival_time_gap_s"],
             "maximum_conflict_distance_m": evidence["minimum_trajectory_distance_m"],
+        }
+    elif skill_id == "group_pedestrian_crossing":
+        measured = {
+            "maximum_group_member_distance_m": evidence["group_member_distance_m"],
+            "maximum_group_heading_difference_deg": evidence[
+                "group_heading_difference_deg"
+            ],
+            "maximum_arrival_time_gap_s": evidence["maximum_arrival_time_gap_s"],
+            "maximum_conflict_distance_m": evidence[
+                "maximum_minimum_trajectory_distance_m"
+            ],
+        }
+    elif skill_id == "cyclist_vehicle_merge":
+        measured = {
+            "minimum_lateral_displacement_m": abs(
+                evidence["future_lateral_displacement_m"]
+            ),
+            "maximum_front_gap_m": evidence["front_gap_m"],
+            "maximum_rear_gap_m": evidence["rear_gap_m"],
+            "maximum_merge_heading_difference_deg": evidence[
+                "merge_heading_difference_deg"
+            ],
         }
     elif skill_id == "wrong_way_vehicle":
         measured = {
@@ -1275,6 +1345,38 @@ def _threshold_evidence(
             "maximum_target_gap_m": evidence["relative_longitudinal_position_m"],
             "minimum_post_cut_in_braking_distance_m": evidence[
                 "post_cut_in_braking_distance_m"
+            ],
+        }
+    elif skill_id == "abrupt_u_turn_conflict":
+        measured = {
+            "maximum_entry_distance_m": evidence["intersection_entry_distance_m"],
+            "minimum_moving_speed_mps": evidence["initiator_speed_mps"],
+            "maximum_oncoming_distance_m": evidence["oncoming_vehicle_distance_m"],
+            "minimum_opposing_heading_difference_deg": evidence[
+                "actor_heading_difference_deg"
+            ],
+            "minimum_current_separation_m": evidence["current_separation_m"],
+        }
+    elif skill_id == "multi_vehicle_gap_squeeze":
+        measured = {
+            "maximum_front_gap_m": evidence["front_gap_m"],
+            "maximum_rear_gap_m": evidence["rear_gap_m"],
+            "minimum_combined_closing_speed_mps": evidence[
+                "combined_closing_speed_mps"
+            ],
+            "minimum_current_separation_m": evidence[
+                "minimum_vehicle_center_distance_m"
+            ],
+        }
+    elif skill_id == "motorcyclist_filtering_conflict":
+        measured = {
+            "minimum_moving_speed_mps": evidence["motorcyclist_speed_mps"],
+            "maximum_filtering_vehicle_gap_m": evidence["vehicle_gap_m"],
+            "maximum_motorcyclist_vehicle_distance_m": evidence[
+                "maximum_motorcyclist_vehicle_distance_m"
+            ],
+            "minimum_current_separation_m": evidence[
+                "minimum_current_separation_m"
             ],
         }
     else:
@@ -1538,6 +1640,162 @@ def _longitudinal_pair(
     return results
 
 
+def _longitudinal_triple(
+    context: ScenarioDetectionContext,
+    skill: SkillSpec,
+    initiators: Sequence[ActorState],
+    responders: Sequence[ActorState],
+) -> list[RuleMatch]:
+    """Find the nearest ordered front-middle-rear vehicle triple."""
+
+    results: list[RuleMatch] = []
+    actors = {
+        state.track_id: state
+        for state in (*initiators, *responders)
+    }
+    ordered_actors = [actors[track_id] for track_id in sorted(actors)]
+    if skill.skill_id == "chain_braking":
+        maximum_front_gap = maximum_rear_gap = _skill_threshold(
+            skill,
+            "maximum_queue_gap_m",
+        )
+        minimum_front_gap = minimum_rear_gap = _skill_threshold(
+            skill,
+            "minimum_queue_gap_m",
+        )
+        minimum_speed = _skill_threshold(skill, "minimum_moving_speed_mps")
+        minimum_center_distance = _skill_threshold(
+            skill,
+            "minimum_vehicle_center_distance_m",
+        )
+        minimum_combined_closing = None
+    elif skill.skill_id == "multi_vehicle_gap_squeeze":
+        maximum_front_gap = _skill_threshold(skill, "maximum_front_gap_m")
+        maximum_rear_gap = _skill_threshold(skill, "maximum_rear_gap_m")
+        minimum_front_gap = minimum_rear_gap = _skill_threshold(
+            skill,
+            "minimum_current_separation_m",
+        )
+        minimum_speed = 0.0
+        minimum_center_distance = _skill_threshold(
+            skill,
+            "minimum_current_separation_m",
+        )
+        minimum_combined_closing = _skill_threshold(
+            skill,
+            "minimum_combined_closing_speed_mps",
+        )
+    else:
+        raise ValueError(f"unsupported longitudinal triple skill: {skill.skill_id}")
+
+    for middle in ordered_actors:
+        front_candidates: list[tuple[float, ActorState]] = []
+        rear_candidates: list[tuple[float, ActorState]] = []
+        for other in ordered_actors:
+            if other.track_id == middle.track_id:
+                continue
+            if not context.lanes_same_or_successor(other, middle):
+                continue
+            front_gap = _longitudinal_gap(context, other, middle)
+            if minimum_front_gap <= front_gap <= maximum_front_gap:
+                front_candidates.append((front_gap, other))
+            rear_gap = _longitudinal_gap(context, middle, other)
+            if minimum_rear_gap <= rear_gap <= maximum_rear_gap:
+                rear_candidates.append((rear_gap, other))
+        if not front_candidates or not rear_candidates:
+            continue
+        front_gap, front = min(
+            front_candidates,
+            key=lambda item: (item[0], item[1].track_id),
+        )
+        rear_gap, rear = min(
+            rear_candidates,
+            key=lambda item: (item[0], item[1].track_id),
+        )
+        if front.track_id == rear.track_id:
+            continue
+        front_distance = _distance(front, middle)
+        rear_distance = _distance(middle, rear)
+        minimum_distance = min(front_distance, rear_distance)
+        minimum_vehicle_speed = min(
+            front.speed_mps,
+            middle.speed_mps,
+            rear.speed_mps,
+        )
+        if (
+            minimum_distance < minimum_center_distance
+            or minimum_vehicle_speed < minimum_speed
+        ):
+            continue
+        front_closing = middle.speed_mps - front.speed_mps
+        rear_closing = rear.speed_mps - middle.speed_mps
+        combined_closing = max(0.0, front_closing) + max(0.0, rear_closing)
+        if (
+            minimum_combined_closing is not None
+            and combined_closing < minimum_combined_closing
+        ):
+            continue
+        if skill.skill_id == "chain_braking" and max(front_closing, rear_closing) <= 0:
+            continue
+
+        front_ttc = _minimum_future_ttc(middle, front)
+        rear_ttc = _minimum_future_ttc(rear, middle)
+        risk_value = min(front_gap, rear_gap)
+        common_evidence = {
+            **_lane_evidence(context, front, middle),
+            "front_middle_gap_m": front_gap,
+            "middle_rear_gap_m": rear_gap,
+            "front_gap_m": front_gap,
+            "rear_gap_m": rear_gap,
+            "front_closing_speed_mps": front_closing,
+            "rear_closing_speed_mps": rear_closing,
+            "combined_closing_speed_mps": combined_closing,
+            "front_time_to_collision_s": _finite_or_none(front_ttc),
+            "rear_time_to_collision_s": _finite_or_none(rear_ttc),
+            "minimum_vehicle_speed_mps": minimum_vehicle_speed,
+            "minimum_vehicle_center_distance_m": minimum_distance,
+        }
+        if skill.skill_id == "chain_braking":
+            results.append(
+                _make_match(
+                    front,
+                    middle,
+                    additional_actors=(rear,),
+                    score=(
+                        _score_small(
+                            front_gap + rear_gap,
+                            maximum_front_gap + maximum_rear_gap,
+                        )
+                        + _score_large(max(front_closing, rear_closing), 0.5)
+                    )
+                    / 2,
+                    risk_metric=str(skill.risk_definition["metric"]),
+                    risk_value=risk_value,
+                    evidence=common_evidence,
+                )
+            )
+        else:
+            results.append(
+                _make_match(
+                    middle,
+                    front,
+                    additional_actors=(rear,),
+                    score=(
+                        _score_small(
+                            front_gap + rear_gap,
+                            maximum_front_gap + maximum_rear_gap,
+                        )
+                        + _score_large(combined_closing, minimum_combined_closing or 0.5)
+                    )
+                    / 2,
+                    risk_metric=str(skill.risk_definition["metric"]),
+                    risk_value=risk_value,
+                    evidence=common_evidence,
+                )
+            )
+    return results
+
+
 def _lane_change_pair(
     context: ScenarioDetectionContext,
     skill: SkillSpec,
@@ -1597,12 +1855,267 @@ def _lane_change_pair(
     return results
 
 
+def _cyclist_lane_change_gap(
+    context: ScenarioDetectionContext,
+    skill: SkillSpec,
+    initiators: Sequence[ActorState],
+    responders: Sequence[ActorState],
+) -> list[RuleMatch]:
+    results: list[RuleMatch] = []
+    lateral_threshold = _skill_threshold(skill, "minimum_lateral_displacement_m")
+    maximum_front_gap = _skill_threshold(skill, "maximum_front_gap_m")
+    maximum_rear_gap = _skill_threshold(skill, "maximum_rear_gap_m")
+    maximum_heading_difference = math.radians(
+        _skill_threshold(skill, "maximum_merge_heading_difference_deg")
+    )
+    for cyclist in initiators:
+        cyclist_match = context.lane_match(cyclist)
+        endpoint = _future_endpoint(cyclist)
+        lateral = _future_lateral_displacement(cyclist)
+        if cyclist_match is None or endpoint is None or abs(lateral) < lateral_threshold:
+            continue
+        by_target_lane: dict[str, list[tuple[LaneMatch, ActorState]]] = {}
+        for vehicle in responders:
+            if vehicle.track_id == cyclist.track_id or not context.lanes_adjacent(
+                cyclist,
+                vehicle,
+            ):
+                continue
+            vehicle_match = context.lane_match(vehicle)
+            if vehicle_match is None or not vehicle_match.lane.lane_id:
+                continue
+            by_target_lane.setdefault(vehicle_match.lane.lane_id, []).append(
+                (vehicle_match, vehicle)
+            )
+        for target_lane_id, target_vehicles in sorted(by_target_lane.items()):
+            target_lane = context.lane_by_id[target_lane_id]
+            current_projection = point_to_polyline_projection(
+                cyclist.position,
+                target_lane.points,
+            )
+            endpoint_projection = point_to_polyline_projection(
+                endpoint[0],
+                target_lane.points,
+            )
+            merge_heading_difference = abs(
+                heading_difference(endpoint[2], endpoint_projection.heading_rad)
+            )
+            if (
+                endpoint_projection.distance_m
+                > context.config.threshold("lane_match_distance_m")
+                or endpoint_projection.distance_m >= current_projection.distance_m
+                or merge_heading_difference > maximum_heading_difference
+            ):
+                continue
+            front = sorted(
+                (
+                    (match.arc_length_m - current_projection.arc_length_m, vehicle)
+                    for match, vehicle in target_vehicles
+                    if 0
+                    < match.arc_length_m - current_projection.arc_length_m
+                    <= maximum_front_gap
+                ),
+                key=lambda item: (item[0], item[1].track_id),
+            )
+            rear = sorted(
+                (
+                    (current_projection.arc_length_m - match.arc_length_m, vehicle)
+                    for match, vehicle in target_vehicles
+                    if 0
+                    < current_projection.arc_length_m - match.arc_length_m
+                    <= maximum_rear_gap
+                ),
+                key=lambda item: (item[0], item[1].track_id),
+            )
+            if not front or not rear:
+                continue
+            front_gap, front_vehicle = front[0]
+            rear_gap, rear_vehicle = rear[0]
+            if front_vehicle.track_id == rear_vehicle.track_id:
+                continue
+            front_ttc = _minimum_future_ttc(cyclist, front_vehicle)
+            rear_ttc = _minimum_future_ttc(rear_vehicle, cyclist)
+            finite_ttc = [
+                value
+                for value in (front_ttc, rear_ttc)
+                if _ttc_within_risk_horizon(context, value)
+            ]
+            front_minimum_distance = _future_minimum_distance(
+                context,
+                cyclist,
+                front_vehicle,
+            )
+            rear_minimum_distance = _future_minimum_distance(
+                context,
+                cyclist,
+                rear_vehicle,
+            )
+            observed_ttc = bool(finite_ttc)
+            finite_minimum_distances = [
+                value
+                for value in (front_minimum_distance, rear_minimum_distance)
+                if math.isfinite(value)
+            ]
+            if not observed_ttc and not finite_minimum_distances:
+                continue
+            risk_value = (
+                min(finite_ttc)
+                if observed_ttc
+                else min(finite_minimum_distances)
+            )
+            results.append(
+                _make_match(
+                    cyclist,
+                    front_vehicle,
+                    additional_actors=(rear_vehicle,),
+                    score=(
+                        _score_large(abs(lateral), lateral_threshold)
+                        + _score_small(
+                            front_gap + rear_gap,
+                            maximum_front_gap + maximum_rear_gap,
+                        )
+                        + (
+                            _risk_score(risk_value, skill)
+                            if observed_ttc
+                            else _score_small(
+                                risk_value,
+                                context.config.threshold("maximum_actor_distance_m"),
+                            )
+                        )
+                    )
+                    / 3,
+                    risk_metric=(
+                        str(skill.risk_definition["metric"])
+                        if observed_ttc
+                        else "minimum_front_rear_trajectory_distance"
+                    ),
+                    risk_value=risk_value,
+                    evidence={
+                        **_lane_evidence(context, cyclist, front_vehicle),
+                        "target_lane_id": target_lane_id,
+                        "future_lateral_displacement_m": lateral,
+                        "front_gap_m": front_gap,
+                        "rear_gap_m": rear_gap,
+                        "rear_vehicle_track_id": rear_vehicle.track_id,
+                        "merge_heading_difference_deg": math.degrees(
+                            merge_heading_difference
+                        ),
+                        "front_time_to_collision_s": _finite_or_none(front_ttc),
+                        "rear_time_to_collision_s": _finite_or_none(rear_ttc),
+                        "front_minimum_trajectory_distance_m": _finite_or_none(
+                            front_minimum_distance
+                        ),
+                        "rear_minimum_trajectory_distance_m": _finite_or_none(
+                            rear_minimum_distance
+                        ),
+                    },
+                )
+            )
+    return results
+
+
+def _motorcyclist_filtering_gap(
+    context: ScenarioDetectionContext,
+    skill: SkillSpec,
+    initiators: Sequence[ActorState],
+    responders: Sequence[ActorState],
+) -> list[RuleMatch]:
+    results: list[RuleMatch] = []
+    minimum_speed = _skill_threshold(skill, "minimum_moving_speed_mps")
+    maximum_vehicle_gap = _skill_threshold(
+        skill,
+        "maximum_filtering_vehicle_gap_m",
+    )
+    maximum_motor_distance = _skill_threshold(
+        skill,
+        "maximum_motorcyclist_vehicle_distance_m",
+    )
+    minimum_separation = _skill_threshold(skill, "minimum_current_separation_m")
+    for motorcyclist in initiators:
+        if motorcyclist.speed_mps < minimum_speed:
+            continue
+        nearby = sorted(
+            (
+                (_distance(motorcyclist, vehicle), vehicle)
+                for vehicle in responders
+                if vehicle.track_id != motorcyclist.track_id
+                and minimum_separation
+                <= _distance(motorcyclist, vehicle)
+                <= maximum_motor_distance
+            ),
+            key=lambda item: (item[0], item[1].track_id),
+        )[:12]
+        for (_, first), (_, second) in combinations(nearby, 2):
+            vehicle_gap = _distance(first, second)
+            if not minimum_separation <= vehicle_gap <= maximum_vehicle_gap:
+                continue
+            segment = second.position - first.position
+            squared_length = float(np.dot(segment, segment))
+            if squared_length <= 1e-9:
+                continue
+            position = float(
+                np.dot(motorcyclist.position - first.position, segment)
+                / squared_length
+            )
+            if not 0.1 <= position <= 0.9:
+                continue
+            corridor_point = first.position + position * segment
+            corridor_offset = float(
+                np.linalg.norm(motorcyclist.position - corridor_point)
+            )
+            if corridor_offset > min(3.0, maximum_vehicle_gap / 2):
+                continue
+            first_distance = _distance(motorcyclist, first)
+            second_distance = _distance(motorcyclist, second)
+            minimum_clearance = min(first_distance, second_distance)
+            maximum_distance = max(first_distance, second_distance)
+            first_ttc = _minimum_future_ttc(motorcyclist, first)
+            second_ttc = _minimum_future_ttc(motorcyclist, second)
+            results.append(
+                _make_match(
+                    motorcyclist,
+                    first,
+                    additional_actors=(second,),
+                    score=(
+                        _score_small(vehicle_gap, maximum_vehicle_gap)
+                        + _score_small(maximum_distance, maximum_motor_distance)
+                    )
+                    / 2,
+                    risk_metric=str(skill.risk_definition["metric"]),
+                    risk_value=minimum_clearance,
+                    evidence={
+                        **_lane_evidence(context, motorcyclist, first),
+                        "motorcyclist_speed_mps": motorcyclist.speed_mps,
+                        "vehicle_gap_m": vehicle_gap,
+                        "first_vehicle_distance_m": first_distance,
+                        "second_vehicle_distance_m": second_distance,
+                        "maximum_motorcyclist_vehicle_distance_m": maximum_distance,
+                        "minimum_current_separation_m": min(
+                            minimum_clearance,
+                            vehicle_gap,
+                        ),
+                        "corridor_projection_fraction": position,
+                        "corridor_offset_m": corridor_offset,
+                        "first_time_to_collision_s": _finite_or_none(first_ttc),
+                        "second_time_to_collision_s": _finite_or_none(second_ttc),
+                    },
+                )
+            )
+    return results
+
+
 def _lane_change_gap(
     context: ScenarioDetectionContext,
     skill: SkillSpec,
     initiators: Sequence[ActorState],
     responders: Sequence[ActorState],
 ) -> list[RuleMatch]:
+    if skill.skill_id == "cyclist_vehicle_merge":
+        return _cyclist_lane_change_gap(context, skill, initiators, responders)
+    if skill.skill_id == "motorcyclist_filtering_conflict":
+        return _motorcyclist_filtering_gap(context, skill, initiators, responders)
+    if skill.skill_id != "narrow_gap_lane_change":
+        raise ValueError(f"unsupported lane-change gap skill: {skill.skill_id}")
     results: list[RuleMatch] = []
     lateral_threshold = _skill_threshold(skill, "minimum_lateral_displacement_m")
     maximum_front_gap = _skill_threshold(skill, "maximum_front_gap_m")
@@ -2294,12 +2807,228 @@ def _merge_pair(
     return results
 
 
+def _merge_triple(
+    context: ScenarioDetectionContext,
+    skill: SkillSpec,
+    initiators: Sequence[ActorState],
+    responders: Sequence[ActorState],
+) -> list[RuleMatch]:
+    if skill.skill_id != "zipper_merge_multi_vehicle":
+        raise ValueError(f"unsupported merge triple skill: {skill.skill_id}")
+    results: list[RuleMatch] = []
+    maximum_convergence = _skill_threshold(
+        skill,
+        "maximum_convergence_distance_m",
+    )
+    maximum_main_gap = _skill_threshold(
+        skill,
+        "maximum_competing_vehicle_gap_m",
+    )
+    maximum_arrival_gap = _skill_threshold(
+        skill,
+        "maximum_arrival_time_gap_s",
+    )
+    minimum_separation = _skill_threshold(skill, "minimum_current_separation_m")
+    actors = {
+        state.track_id: state
+        for state in (*initiators, *responders)
+    }
+    seen: set[tuple[str, str, str]] = set()
+    for raw_first, raw_second in context.nearest_pairs(initiators, responders):
+        convergence = _pair_specific_convergence(
+            context,
+            raw_first,
+            raw_second,
+            require_two_source_lanes=True,
+        )
+        if convergence is None:
+            continue
+        point, relation, target_lane_id, _, _ = convergence
+        ordered_roles = _ordered_merge_roles(
+            context,
+            raw_first,
+            raw_second,
+            target_lane_id=target_lane_id,
+            convergence_relation=relation,
+            allow_counterfactual_priority_assignment=True,
+        )
+        if ordered_roles is None:
+            continue
+        merging, main_flow, role_basis = ordered_roles
+        merging_distance = float(np.linalg.norm(point - merging.position))
+        main_distance = float(np.linalg.norm(point - main_flow.position))
+        convergence_distance = max(merging_distance, main_distance)
+        if convergence_distance > maximum_convergence:
+            continue
+        third_candidates: list[tuple[float, ActorState]] = []
+        for third in actors.values():
+            if third.track_id in {merging.track_id, main_flow.track_id}:
+                continue
+            if not context.lanes_same_or_successor(third, main_flow):
+                continue
+            main_gap = abs(_longitudinal_gap(context, third, main_flow))
+            if minimum_separation <= main_gap <= maximum_main_gap:
+                third_candidates.append((main_gap, third))
+        if not third_candidates:
+            continue
+        main_gap, third = min(
+            third_candidates,
+            key=lambda item: (item[0], item[1].track_id),
+        )
+        if _longitudinal_gap(context, third, main_flow) > 0:
+            leading, trailing = third, main_flow
+        else:
+            leading, trailing = main_flow, third
+        key = (merging.track_id, leading.track_id, trailing.track_id)
+        if key in seen:
+            continue
+        seen.add(key)
+        current_separations = (
+            _distance(merging, leading),
+            _distance(merging, trailing),
+            _distance(leading, trailing),
+        )
+        minimum_current_separation = min(current_separations)
+        if minimum_current_separation < minimum_separation:
+            continue
+        arrivals = {
+            "merging": _arrival_time(point, merging),
+            "leading": _arrival_time(point, leading),
+            "trailing": _arrival_time(point, trailing),
+        }
+        if not all(math.isfinite(value) for value in arrivals.values()):
+            continue
+        maximum_observed_arrival_gap = max(
+            abs(arrivals["merging"] - arrivals["leading"]),
+            abs(arrivals["merging"] - arrivals["trailing"]),
+        )
+        if maximum_observed_arrival_gap > maximum_arrival_gap:
+            continue
+        sorted_arrivals = sorted(arrivals.values())
+        adjacent_arrival_gaps = [
+            second - first
+            for first, second in zip(sorted_arrivals, sorted_arrivals[1:])
+        ]
+        risk_value = min(adjacent_arrival_gaps)
+        results.append(
+            _make_match(
+                merging,
+                leading,
+                additional_actors=(trailing,),
+                score=(
+                    _score_small(convergence_distance, maximum_convergence)
+                    + _score_small(
+                        maximum_observed_arrival_gap,
+                        maximum_arrival_gap,
+                    )
+                )
+                / 2,
+                risk_metric=str(skill.risk_definition["metric"]),
+                risk_value=risk_value,
+                evidence={
+                    **_lane_evidence(context, merging, leading),
+                    "convergence_relation": relation,
+                    "convergence_target_lane_id": target_lane_id,
+                    "role_assignment_basis": role_basis,
+                    "conflict_point_xy": [float(point[0]), float(point[1])],
+                    "convergence_distance_m": convergence_distance,
+                    "main_flow_vehicle_gap_m": main_gap,
+                    "minimum_current_separation_m": minimum_current_separation,
+                    "merging_arrival_time_s": arrivals["merging"],
+                    "leading_arrival_time_s": arrivals["leading"],
+                    "trailing_arrival_time_s": arrivals["trailing"],
+                    "maximum_arrival_time_gap_s": maximum_observed_arrival_gap,
+                    "minimum_adjacent_arrival_gap_s": risk_value,
+                },
+            )
+        )
+    return results
+
+
+def _late_lane_change_before_diverge(
+    context: ScenarioDetectionContext,
+    skill: SkillSpec,
+    initiators: Sequence[ActorState],
+    responders: Sequence[ActorState],
+) -> list[RuleMatch]:
+    results: list[RuleMatch] = []
+    maximum_distance = _skill_threshold(skill, "maximum_distance_to_diverge_m")
+    maximum_target_gap = _skill_threshold(skill, "maximum_target_gap_m")
+    minimum_adjacent_length = _skill_threshold(
+        skill,
+        "minimum_adjacent_lane_length_m",
+    )
+    minimum_separation = _skill_threshold(skill, "minimum_current_separation_m")
+    for initiator, responder in context.nearest_pairs(initiators, responders):
+        if not context.lane_diverges(initiator) or not context.lanes_adjacent(
+            initiator,
+            responder,
+        ):
+            continue
+        distance_to_diverge = context.distance_to_lane_end(initiator)
+        if not 0 < distance_to_diverge <= maximum_distance:
+            continue
+        initiator_match = context.lane_match(initiator)
+        responder_match = context.lane_match(responder)
+        if initiator_match is None or responder_match is None:
+            continue
+        adjacent_length = float(
+            np.linalg.norm(
+                np.diff(responder_match.lane.points, axis=0),
+                axis=1,
+            ).sum()
+        )
+        longitudinal_gap = abs(_relative_coordinates(responder, initiator)[0])
+        separation = _distance(initiator, responder)
+        if (
+            adjacent_length < minimum_adjacent_length
+            or longitudinal_gap > maximum_target_gap
+            or separation < minimum_separation
+        ):
+            continue
+        minimum_distance = _future_minimum_distance(context, initiator, responder)
+        results.append(
+            _make_match(
+                initiator,
+                responder,
+                score=(
+                    _score_small(distance_to_diverge, maximum_distance)
+                    + _score_small(longitudinal_gap, maximum_target_gap)
+                )
+                / 2,
+                risk_metric="distance_to_diverge",
+                risk_value=distance_to_diverge,
+                evidence={
+                    **_lane_evidence(context, initiator, responder),
+                    "initiator_lane_diverges": True,
+                    "distance_to_diverge_m": distance_to_diverge,
+                    "target_vehicle_longitudinal_gap_m": longitudinal_gap,
+                    "adjacent_lane_length_m": adjacent_length,
+                    "current_separation_m": separation,
+                    "minimum_trajectory_distance_m": _finite_or_none(
+                        minimum_distance
+                    ),
+                },
+            )
+        )
+    return results
+
+
 def _diverge_crossing(
     context: ScenarioDetectionContext,
     skill: SkillSpec,
     initiators: Sequence[ActorState],
     responders: Sequence[ActorState],
 ) -> list[RuleMatch]:
+    if skill.skill_id == "late_lane_change_before_diverge":
+        return _late_lane_change_before_diverge(
+            context,
+            skill,
+            initiators,
+            responders,
+        )
+    if skill.skill_id != "diverge_lane_crossing_conflict":
+        raise ValueError(f"unsupported diverge skill: {skill.skill_id}")
     results: list[RuleMatch] = []
     maximum_distance_to_diverge = _skill_threshold(skill, "maximum_distance_to_diverge_m")
     maximum_target_gap = _skill_threshold(skill, "maximum_target_gap_m")
@@ -2403,12 +3132,148 @@ def _cross_flow_structure(
     return angle_deg
 
 
+def _mutual_yield_seed(
+    context: ScenarioDetectionContext,
+    skill: SkillSpec,
+    initiators: Sequence[ActorState],
+    responders: Sequence[ActorState],
+) -> list[RuleMatch]:
+    results: list[RuleMatch] = []
+    maximum_entry = _skill_threshold(skill, "maximum_entry_distance_m")
+    maximum_speed = _skill_threshold(skill, "maximum_creep_speed_mps")
+    minimum_angle = _skill_threshold(skill, "minimum_crossing_angle_deg")
+    maximum_angle = _skill_threshold(skill, "maximum_crossing_angle_deg")
+    minimum_separation = _skill_threshold(skill, "minimum_current_separation_m")
+    seen: set[tuple[str, str]] = set()
+    for first, second in context.nearest_pairs(initiators, responders):
+        key = tuple(sorted((first.track_id, second.track_id)))
+        if key in seen:
+            continue
+        seen.add(key)
+        if first.speed_mps > maximum_speed or second.speed_mps > maximum_speed:
+            continue
+        first_entry = context.distance_to_intersection(
+            first,
+            maximum_distance_m=maximum_entry,
+        )
+        second_entry = context.distance_to_intersection(
+            second,
+            maximum_distance_m=maximum_entry,
+        )
+        if first_entry > maximum_entry or second_entry > maximum_entry:
+            continue
+        crossing_angle = _cross_flow_structure(
+            context,
+            first,
+            second,
+            minimum_angle_deg=minimum_angle,
+            maximum_angle_deg=maximum_angle,
+            minimum_second_speed_mps=0.0,
+            minimum_separation_m=minimum_separation,
+        )
+        if crossing_angle is None:
+            continue
+        separation = _distance(first, second)
+        risk_value = max(first_entry, second_entry)
+        results.append(
+            _make_match(
+                first,
+                second,
+                score=(
+                    _score_small(max(first.speed_mps, second.speed_mps), maximum_speed)
+                    + _score_small(risk_value, maximum_entry)
+                )
+                / 2,
+                risk_metric="maximum_distance_to_intersection_entry",
+                risk_value=risk_value,
+                evidence={
+                    **_lane_evidence(context, first, second),
+                    "first_intersection_entry_distance_m": first_entry,
+                    "second_intersection_entry_distance_m": second_entry,
+                    "first_vehicle_speed_mps": first.speed_mps,
+                    "second_vehicle_speed_mps": second.speed_mps,
+                    "crossing_angle_deg": crossing_angle,
+                    "current_separation_m": separation,
+                },
+            )
+        )
+    return results
+
+
+def _u_turn_compatible_seed(
+    context: ScenarioDetectionContext,
+    skill: SkillSpec,
+    initiators: Sequence[ActorState],
+    responders: Sequence[ActorState],
+) -> list[RuleMatch]:
+    results: list[RuleMatch] = []
+    maximum_entry = _skill_threshold(skill, "maximum_entry_distance_m")
+    minimum_speed = _skill_threshold(skill, "minimum_moving_speed_mps")
+    maximum_oncoming = _skill_threshold(skill, "maximum_oncoming_distance_m")
+    minimum_heading = _skill_threshold(
+        skill,
+        "minimum_opposing_heading_difference_deg",
+    )
+    minimum_separation = _skill_threshold(skill, "minimum_current_separation_m")
+    for initiator, responder in context.nearest_pairs(initiators, responders):
+        if initiator.speed_mps < minimum_speed:
+            continue
+        entry_distance = context.distance_to_intersection(
+            initiator,
+            maximum_distance_m=maximum_entry,
+        )
+        separation = _distance(initiator, responder)
+        heading_difference_deg = math.degrees(
+            heading_difference(initiator.heading_rad, responder.heading_rad)
+        )
+        if (
+            entry_distance > maximum_entry
+            or not minimum_separation <= separation <= maximum_oncoming
+            or heading_difference_deg < minimum_heading
+        ):
+            continue
+        ttc = _pair_ttc(initiator, responder, collision_radius_m=0.0)
+        observed_ttc = _ttc_within_risk_horizon(context, ttc)
+        risk_value = ttc if observed_ttc else separation
+        results.append(
+            _make_match(
+                initiator,
+                responder,
+                score=(
+                    _score_small(entry_distance, maximum_entry)
+                    + _score_large(heading_difference_deg, minimum_heading)
+                )
+                / 2,
+                risk_metric=(
+                    str(skill.risk_definition["metric"])
+                    if observed_ttc
+                    else "oncoming_vehicle_distance"
+                ),
+                risk_value=risk_value,
+                evidence={
+                    **_lane_evidence(context, initiator, responder),
+                    "intersection_entry_distance_m": entry_distance,
+                    "initiator_speed_mps": initiator.speed_mps,
+                    "oncoming_vehicle_distance_m": separation,
+                    "current_separation_m": separation,
+                    "actor_heading_difference_deg": heading_difference_deg,
+                    "head_on_time_to_collision_s": _finite_or_none(ttc),
+                },
+            )
+        )
+    return results
+
+
 def _conflict_point_pair(
     context: ScenarioDetectionContext,
     skill: SkillSpec,
     initiators: Sequence[ActorState],
     responders: Sequence[ActorState],
 ) -> list[RuleMatch]:
+    if skill.skill_id == "mutual_yield_deadlock":
+        return _mutual_yield_seed(context, skill, initiators, responders)
+    if skill.skill_id == "abrupt_u_turn_conflict":
+        return _u_turn_compatible_seed(context, skill, initiators, responders)
     results: list[RuleMatch] = []
     for initiator, responder in context.nearest_pairs(initiators, responders):
         if skill.skill_id == "intersection_creep_conflict":
@@ -2677,12 +3542,155 @@ def _future_enters_drivable_area(
     return context._future_drivable_entry_cache[state.track_id]
 
 
+def _group_pedestrian_conflict(
+    context: ScenarioDetectionContext,
+    skill: SkillSpec,
+    initiators: Sequence[ActorState],
+    responders: Sequence[ActorState],
+) -> list[RuleMatch]:
+    results: list[RuleMatch] = []
+    maximum_member_distance = _skill_threshold(
+        skill,
+        "maximum_group_member_distance_m",
+    )
+    maximum_heading_difference = _skill_threshold(
+        skill,
+        "maximum_group_heading_difference_deg",
+    )
+    maximum_arrival_gap = _skill_threshold(skill, "maximum_arrival_time_gap_s")
+    maximum_conflict_distance = _skill_threshold(
+        skill,
+        "maximum_conflict_distance_m",
+    )
+    seen: set[tuple[str, str, str]] = set()
+    for first, vehicle in context.nearest_pairs(initiators, responders):
+        first_conflict = _future_conflict(context, first, vehicle)
+        if first_conflict is None or not math.isfinite(first_conflict.time_gap_s):
+            continue
+        first_minimum_distance = _future_minimum_distance(context, first, vehicle)
+        if (
+            first_conflict.time_gap_s > maximum_arrival_gap
+            or first_minimum_distance > maximum_conflict_distance
+        ):
+            continue
+        second_candidates: list[
+            tuple[float, float, float, str, ActorState, TrajectoryConflict]
+        ] = []
+        for second in initiators:
+            if second.track_id in {first.track_id, vehicle.track_id}:
+                continue
+            member_distance = _distance(first, second)
+            heading_difference_deg = math.degrees(
+                heading_difference(first.heading_rad, second.heading_rad)
+            )
+            if (
+                member_distance > maximum_member_distance
+                or heading_difference_deg > maximum_heading_difference
+            ):
+                continue
+            second_conflict = _future_conflict(context, second, vehicle)
+            if second_conflict is None or not math.isfinite(second_conflict.time_gap_s):
+                continue
+            second_minimum_distance = _future_minimum_distance(
+                context,
+                second,
+                vehicle,
+            )
+            conflict_point_distance = float(
+                np.linalg.norm(first_conflict.point - second_conflict.point)
+            )
+            if (
+                second_conflict.time_gap_s > maximum_arrival_gap
+                or second_minimum_distance > maximum_conflict_distance
+                or conflict_point_distance > maximum_conflict_distance
+            ):
+                continue
+            second_candidates.append(
+                (
+                    member_distance,
+                    heading_difference_deg,
+                    second_minimum_distance,
+                    second.track_id,
+                    second,
+                    second_conflict,
+                )
+            )
+        if not second_candidates:
+            continue
+        (
+            member_distance,
+            group_heading_difference,
+            second_minimum_distance,
+            _,
+            second,
+            second_conflict,
+        ) = min(second_candidates)
+        group_key = (
+            *sorted((first.track_id, second.track_id)),
+            vehicle.track_id,
+        )
+        if group_key in seen:
+            continue
+        seen.add(group_key)
+        maximum_observed_arrival_gap = max(
+            first_conflict.time_gap_s,
+            second_conflict.time_gap_s,
+        )
+        maximum_minimum_distance = max(
+            first_minimum_distance,
+            second_minimum_distance,
+        )
+        risk_value = min(first_conflict.time_gap_s, second_conflict.time_gap_s)
+        results.append(
+            _make_match(
+                first,
+                vehicle,
+                additional_actors=(second,),
+                score=(
+                    _score_small(member_distance, maximum_member_distance)
+                    + _risk_score(risk_value, skill)
+                )
+                / 2,
+                risk_metric=str(skill.risk_definition["metric"]),
+                risk_value=risk_value,
+                evidence={
+                    "group_member_track_id": second.track_id,
+                    "group_member_distance_m": member_distance,
+                    "group_heading_difference_deg": group_heading_difference,
+                    "first_conflict_point_xy": [
+                        float(first_conflict.point[0]),
+                        float(first_conflict.point[1]),
+                    ],
+                    "second_conflict_point_xy": [
+                        float(second_conflict.point[0]),
+                        float(second_conflict.point[1]),
+                    ],
+                    "first_arrival_time_gap_s": first_conflict.time_gap_s,
+                    "second_arrival_time_gap_s": second_conflict.time_gap_s,
+                    "maximum_arrival_time_gap_s": maximum_observed_arrival_gap,
+                    "first_minimum_trajectory_distance_m": first_minimum_distance,
+                    "second_minimum_trajectory_distance_m": second_minimum_distance,
+                    "maximum_minimum_trajectory_distance_m": maximum_minimum_distance,
+                    "group_size": 2,
+                },
+            )
+        )
+    return results
+
+
 def _vru_vehicle_conflict(
     context: ScenarioDetectionContext,
     skill: SkillSpec,
     initiators: Sequence[ActorState],
     responders: Sequence[ActorState],
 ) -> list[RuleMatch]:
+    if skill.skill_id == "group_pedestrian_crossing":
+        return _group_pedestrian_conflict(
+            context,
+            skill,
+            initiators,
+            responders,
+        )
     results: list[RuleMatch] = []
     for vru, vehicle in context.nearest_pairs(initiators, responders):
         crosswalk_distance = context.distance_to_crosswalk(vru)
@@ -3221,7 +4229,9 @@ _STRATEGY_HANDLERS: dict[str, StrategyHandler] = {
     "lane_change_gap": _lane_change_gap,
     "lane_change_pair": _lane_change_pair,
     "longitudinal_pair": _longitudinal_pair,
+    "longitudinal_triple": _longitudinal_triple,
     "merge_pair": _merge_pair,
+    "merge_triple": _merge_triple,
     "simultaneous_lane_change": _simultaneous_lane_change,
     "static_blockage": _static_blockage,
     "stopped_reentry": _stopped_reentry,
@@ -3236,7 +4246,7 @@ def detect_scenario(
     skills: Iterable[SkillSpec],
     config: DetectionConfig,
 ) -> DetectionRun:
-    """Detect deterministic candidate seeds for all supplied confirmed skills."""
+    """Detect deterministic candidate seeds for all supplied skill specifications."""
 
     context = ScenarioDetectionContext(scenario, config)
     skill_list = sorted(skills, key=lambda item: item.skill_id)

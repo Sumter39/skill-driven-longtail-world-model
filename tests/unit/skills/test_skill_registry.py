@@ -21,12 +21,24 @@ def _catalog_entries() -> list[dict[str, str]]:
     return [entry for family in catalog["families"].values() for entry in family]
 
 
-def test_registry_matches_confirmed_catalog_one_to_one() -> None:
-    entries = _catalog_entries()
-    catalog_ids = {entry["skill_id"] for entry in entries}
+def _candidate_entries() -> list[dict[str, object]]:
+    catalog = yaml.safe_load(
+        (SKILL_DIR / "candidate_catalog.yaml").read_text(encoding="utf-8")
+    )
+    return catalog["skills"]
 
-    assert len(entries) == len(catalog_ids) == len(SKILL_RULES) == 30
-    assert set(SKILL_RULES) == catalog_ids
+
+def test_registry_matches_formal_and_candidate_rule_catalogs() -> None:
+    entries = _catalog_entries()
+    candidate_entries = _candidate_entries()
+    formal_ids = {entry["skill_id"] for entry in entries}
+    candidate_ids = {entry["skill_id"] for entry in candidate_entries}
+
+    assert len(entries) == len(formal_ids) == 34
+    assert len(candidate_entries) == len(candidate_ids) == 5
+    assert formal_ids.isdisjoint(candidate_ids)
+    assert len(SKILL_RULES) == 39
+    assert set(SKILL_RULES) == formal_ids | candidate_ids
     assert {entry["feasibility"] for entry in entries} <= {"A", "B"}
     assert all(key == rule.skill_id for key, rule in SKILL_RULES.items())
 

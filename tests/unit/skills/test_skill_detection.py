@@ -35,7 +35,9 @@ STRATEGY_SKILLS = (
     ("lane_change_gap", "narrow_gap_lane_change"),
     ("lane_change_pair", "adjacent_vehicle_cut_in"),
     ("longitudinal_pair", "lead_hard_brake"),
+    ("longitudinal_triple", "chain_braking"),
     ("merge_pair", "ramp_merge_small_gap"),
+    ("merge_triple", "zipper_merge_multi_vehicle"),
     ("simultaneous_lane_change", "simultaneous_lane_change_conflict"),
     ("static_blockage", "static_object_avoidance"),
     ("stopped_reentry", "stopped_vehicle_reentry"),
@@ -2627,3 +2629,480 @@ def test_duplicate_track_across_generated_roles_is_rejected(config, monkeypatch)
 
     assert run.records == []
     assert run.rejection_counts["narrow_gap_lane_change:duplicate_role_actor"] == 1
+
+
+def _assert_single_new_skill_record(config, skill_id, scenario, expected_roles):
+    skill = _skill(skill_id)
+    run = detect_scenario(scenario, [skill], config)
+    assert len(run.records) == 1, run.rejection_counts
+    record = run.records[0]
+    assert record.skill_id == skill_id
+    assert record.role_track_ids == expected_roles
+    assert len(set(record.role_track_ids.values())) == len(record.role_track_ids)
+    assert record.target_risk_definition == skill.risk_definition
+    _assert_evidence_contract(record, skill)
+    return record
+
+
+def test_chain_braking_emits_ordered_three_vehicle_seed(config) -> None:
+    scenario = _scenario(
+        [
+            _constant_agent_at_reference(
+                "front", "vehicle", reference_x=20.0, speed_mps=5.0
+            ),
+            _constant_agent_at_reference(
+                "middle", "vehicle", reference_x=10.0, speed_mps=6.0
+            ),
+            _constant_agent_at_reference(
+                "rear", "vehicle", reference_x=0.0, speed_mps=7.0
+            ),
+        ],
+        map_polylines=_full_map(),
+        scenario_id="chain-braking-positive",
+    )
+
+    record = _assert_single_new_skill_record(
+        config,
+        "chain_braking",
+        scenario,
+        {
+            "front_vehicle": "front",
+            "middle_vehicle": "middle",
+            "rear_vehicle": "rear",
+        },
+    )
+    assert record.evidence["front_middle_gap_m"] == pytest.approx(10.0)
+    assert record.evidence["middle_rear_gap_m"] == pytest.approx(10.0)
+
+
+def test_late_lane_change_seed_requires_diverge_topology(config) -> None:
+    agents = [
+        _constant_agent_at_reference(
+            "late", "vehicle", reference_x=0.0, reference_y=0.0, speed_mps=5.0
+        ),
+        _constant_agent_at_reference(
+            "adjacent", "vehicle", reference_x=5.0, reference_y=4.0, speed_mps=5.0
+        ),
+    ]
+    positive = _scenario(
+        copy.deepcopy(agents),
+        map_polylines=_diverge_map(),
+        scenario_id="late-diverge-positive",
+    )
+    _assert_single_new_skill_record(
+        config,
+        "late_lane_change_before_diverge",
+        positive,
+        {
+            "late_lane_changer": "late",
+            "adjacent_lane_vehicle": "adjacent",
+        },
+    )
+
+    negative = _scenario(
+        copy.deepcopy(agents),
+        map_polylines=_parallel_lane_map(),
+        scenario_id="late-diverge-negative",
+    )
+    assert detect_scenario(
+        negative,
+        [_skill("late_lane_change_before_diverge")],
+        config,
+    ).records == []
+
+
+def test_zipper_merge_emits_fixed_three_vehicle_roles(config) -> None:
+    scenario = _scenario(
+        [
+            _constant_agent_at_reference(
+                "merging",
+                "vehicle",
+                reference_x=0.0,
+                reference_y=3.6,
+                speed_mps=5.0,
+            ),
+            _constant_agent_at_reference(
+                "leading", "vehicle", reference_x=5.0, speed_mps=5.0
+            ),
+            _constant_agent_at_reference(
+                "trailing", "vehicle", reference_x=-5.0, speed_mps=5.0
+            ),
+        ],
+        map_polylines=_pair_merge_map(),
+        scenario_id="zipper-merge-positive",
+    )
+
+    record = _assert_single_new_skill_record(
+        config,
+        "zipper_merge_multi_vehicle",
+        scenario,
+        {
+            "merging_vehicle": "merging",
+            "leading_main_flow_vehicle": "leading",
+            "trailing_main_flow_vehicle": "trailing",
+        },
+    )
+    assert record.evidence["convergence_target_lane_id"] == "merge-target"
+
+
+def test_mutual_yield_seed_requires_both_vehicles_to_be_slow(config) -> None:
+    slow_first = _constant_agent_at_reference(
+        "first", "vehicle", reference_x=-5.0, speed_mps=1.0
+    )
+    slow_second = _constant_agent_at_reference(
+        "second",
+        "vehicle",
+        reference_x=0.0,
+        reference_y=-5.0,
+        speed_mps=1.0,
+        heading_rad=math.pi / 2,
+    )
+    positive = _scenario(
+        [slow_first, slow_second],
+        map_polylines=_intersection_map(),
+        scenario_id="mutual-yield-positive",
+    )
+    _assert_single_new_skill_record(
+        config,
+        "mutual_yield_deadlock",
+        positive,
+        {
+            "first_yielding_vehicle": "first",
+            "second_yielding_vehicle": "second",
+        },
+    )
+
+    fast_second = _constant_agent_at_reference(
+        "second",
+        "vehicle",
+        reference_x=0.0,
+        reference_y=-5.0,
+        speed_mps=5.0,
+        heading_rad=math.pi / 2,
+    )
+    negative = _scenario(
+        [copy.deepcopy(slow_first), fast_second],
+        map_polylines=_intersection_map(),
+        scenario_id="mutual-yield-negative",
+    )
+    assert detect_scenario(
+        negative,
+        [_skill("mutual_yield_deadlock")],
+        config,
+    ).records == []
+
+
+def test_group_pedestrian_crossing_requires_two_conflicting_pedestrians(config) -> None:
+    vehicle = _constant_agent_at_reference(
+        "vehicle", "vehicle", reference_x=-5.0, speed_mps=2.0
+    )
+    first = _constant_agent_at_reference(
+        "first-pedestrian",
+        "pedestrian",
+        reference_x=0.0,
+        reference_y=-5.0,
+        speed_mps=2.0,
+        heading_rad=math.pi / 2,
+    )
+    second = _constant_agent_at_reference(
+        "second-pedestrian",
+        "pedestrian",
+        reference_x=1.0,
+        reference_y=-5.0,
+        speed_mps=2.0,
+        heading_rad=math.pi / 2,
+    )
+    positive = _scenario(
+        [first, vehicle, second],
+        map_polylines=_full_map(),
+        scenario_id="group-pedestrian-positive",
+    )
+    _assert_single_new_skill_record(
+        config,
+        "group_pedestrian_crossing",
+        positive,
+        {
+            "first_crossing_pedestrian": "first-pedestrian",
+            "responding_vehicle": "vehicle",
+            "second_crossing_pedestrian": "second-pedestrian",
+        },
+    )
+
+    negative = _scenario(
+        [copy.deepcopy(first), copy.deepcopy(vehicle)],
+        map_polylines=_full_map(),
+        scenario_id="group-pedestrian-negative",
+    )
+    assert detect_scenario(
+        negative,
+        [_skill("group_pedestrian_crossing")],
+        config,
+    ).records == []
+
+
+def _bike_merge_map() -> list[MapPolyline]:
+    return [
+        MapPolyline(
+            "bike:center",
+            "lane_centerline",
+            np.array([[-50.0, 4.0], [50.0, 4.0]]),
+            direction="bike",
+            lane_id="bike",
+            right_neighbor_id="main",
+        ),
+        MapPolyline(
+            "main:center",
+            "lane_centerline",
+            np.array([[-50.0, 0.0], [100.0, 0.0]]),
+            direction="vehicle",
+            lane_id="main",
+            left_neighbor_id="bike",
+        ),
+    ]
+
+
+def test_cyclist_vehicle_merge_uses_same_target_lane_front_and_rear(config) -> None:
+    observed_x = np.linspace(-15.0, 0.0, 30)
+    future_x = np.linspace(0.5, 30.0, 30)
+    cyclist = _agent_from_positions(
+        "cyclist",
+        "cyclist",
+        np.column_stack(
+            (
+                np.concatenate((observed_x, future_x)),
+                np.concatenate((np.full(30, 4.0), np.linspace(3.9, 0.0, 30))),
+            )
+        ),
+        observed_steps=30,
+    )
+    front = _constant_agent_at_reference(
+        "front", "vehicle", reference_x=10.0, speed_mps=2.0
+    )
+    rear = _constant_agent_at_reference(
+        "rear", "vehicle", reference_x=-10.0, speed_mps=7.0
+    )
+    scenario = _scenario(
+        [cyclist, front, rear],
+        map_polylines=_bike_merge_map(),
+        scenario_id="cyclist-merge-positive",
+    )
+
+    record = _assert_single_new_skill_record(
+        config,
+        "cyclist_vehicle_merge",
+        scenario,
+        {
+            "merging_cyclist": "cyclist",
+            "front_motor_vehicle": "front",
+            "rear_motor_vehicle": "rear",
+        },
+    )
+    assert record.evidence["target_lane_id"] == "main"
+
+
+def test_cyclist_vehicle_merge_serializes_unavailable_auxiliary_distance_as_null(
+    config,
+    monkeypatch,
+) -> None:
+    observed_x = np.linspace(-15.0, 0.0, 30)
+    future_x = np.linspace(0.5, 30.0, 30)
+    cyclist = _agent_from_positions(
+        "cyclist",
+        "cyclist",
+        np.column_stack(
+            (
+                np.concatenate((observed_x, future_x)),
+                np.concatenate((np.full(30, 4.0), np.linspace(3.9, 0.0, 30))),
+            )
+        ),
+        observed_steps=30,
+    )
+    front = _constant_agent_at_reference(
+        "front", "vehicle", reference_x=10.0, speed_mps=2.0
+    )
+    rear = _constant_agent_at_reference(
+        "rear", "vehicle", reference_x=-10.0, speed_mps=7.0
+    )
+    scenario = _scenario(
+        [cyclist, front, rear],
+        map_polylines=_bike_merge_map(),
+        scenario_id="cyclist-merge-unavailable-distance",
+    )
+    original = detection._future_minimum_distance
+
+    def unavailable_front_distance(context, first, second):
+        if second.track_id == "front":
+            return float("inf")
+        return original(context, first, second)
+
+    monkeypatch.setattr(
+        detection,
+        "_future_minimum_distance",
+        unavailable_front_distance,
+    )
+
+    record = _assert_single_new_skill_record(
+        config,
+        "cyclist_vehicle_merge",
+        scenario,
+        {
+            "merging_cyclist": "cyclist",
+            "front_motor_vehicle": "front",
+            "rear_motor_vehicle": "rear",
+        },
+    )
+    assert record.evidence["front_minimum_trajectory_distance_m"] is None
+    assert math.isfinite(record.evidence["rear_minimum_trajectory_distance_m"])
+
+    monkeypatch.setattr(
+        detection,
+        "_future_minimum_distance",
+        lambda context, first, second: float("inf"),
+    )
+    assert detect_scenario(
+        scenario,
+        [_skill("cyclist_vehicle_merge")],
+        config,
+    ).records == []
+
+
+def _u_turn_seed_map() -> list[MapPolyline]:
+    return [
+        MapPolyline(
+            "eastbound:center",
+            "lane_centerline",
+            np.array([[-30.0, 0.0], [30.0, 0.0]]),
+            direction="vehicle",
+            is_intersection=True,
+            lane_id="eastbound",
+        ),
+        MapPolyline(
+            "westbound:center",
+            "lane_centerline",
+            np.array([[30.0, 4.0], [-30.0, 4.0]]),
+            direction="vehicle",
+            is_intersection=True,
+            lane_id="westbound",
+        ),
+        _intersection_map()[-1],
+    ]
+
+
+def test_abrupt_u_turn_seed_requires_oncoming_heading(config) -> None:
+    initiator = _constant_agent_at_reference(
+        "a-turning", "vehicle", reference_x=-5.0, speed_mps=2.0
+    )
+    oncoming = _constant_agent_at_reference(
+        "b-oncoming",
+        "vehicle",
+        reference_x=5.0,
+        reference_y=4.0,
+        speed_mps=2.0,
+        heading_rad=math.pi,
+    )
+    positive = _scenario(
+        [initiator, oncoming],
+        map_polylines=_u_turn_seed_map(),
+        scenario_id="u-turn-positive",
+    )
+    _assert_single_new_skill_record(
+        config,
+        "abrupt_u_turn_conflict",
+        positive,
+        {
+            "u_turning_vehicle": "a-turning",
+            "conflicting_vehicle": "b-oncoming",
+        },
+    )
+
+    same_direction = _constant_agent_at_reference(
+        "b-oncoming",
+        "vehicle",
+        reference_x=5.0,
+        reference_y=0.0,
+        speed_mps=2.0,
+    )
+    negative = _scenario(
+        [copy.deepcopy(initiator), same_direction],
+        map_polylines=_u_turn_seed_map(),
+        scenario_id="u-turn-negative",
+    )
+    assert detect_scenario(
+        negative,
+        [_skill("abrupt_u_turn_conflict")],
+        config,
+    ).records == []
+
+
+def test_multi_vehicle_gap_squeeze_requires_front_and_rear_closing(config) -> None:
+    scenario = _scenario(
+        [
+            _constant_agent_at_reference(
+                "target", "vehicle", reference_x=10.0, speed_mps=5.0
+            ),
+            _constant_agent_at_reference(
+                "front", "vehicle", reference_x=20.0, speed_mps=4.0
+            ),
+            _constant_agent_at_reference(
+                "rear", "vehicle", reference_x=0.0, speed_mps=6.0
+            ),
+        ],
+        map_polylines=_full_map(),
+        scenario_id="gap-squeeze-positive",
+    )
+    record = _assert_single_new_skill_record(
+        config,
+        "multi_vehicle_gap_squeeze",
+        scenario,
+        {
+            "squeezed_vehicle": "target",
+            "front_pressure_vehicle": "front",
+            "rear_pressure_vehicle": "rear",
+        },
+    )
+    assert record.evidence["combined_closing_speed_mps"] == pytest.approx(2.0)
+
+
+def test_motorcyclist_filtering_requires_exact_type_and_two_vehicles(config) -> None:
+    motorcyclist = _constant_agent_at_reference(
+        "motorcyclist", "motorcyclist", reference_x=0.0, speed_mps=5.0
+    )
+    first = _constant_agent_at_reference(
+        "first", "vehicle", reference_x=-3.0, speed_mps=4.0
+    )
+    second = _constant_agent_at_reference(
+        "second", "vehicle", reference_x=3.0, speed_mps=4.0
+    )
+    positive = _scenario(
+        [motorcyclist, first, second],
+        map_polylines=_full_map(),
+        scenario_id="motorcyclist-filtering-positive",
+    )
+    _assert_single_new_skill_record(
+        config,
+        "motorcyclist_filtering_conflict",
+        positive,
+        {
+            "filtering_motorcyclist": "motorcyclist",
+            "first_vehicle": "first",
+            "second_vehicle": "second",
+        },
+    )
+
+    cyclist = _constant_agent_at_reference(
+        "motorcyclist", "cyclist", reference_x=0.0, speed_mps=5.0
+    )
+    negative = _scenario(
+        [cyclist, copy.deepcopy(first), copy.deepcopy(second)],
+        map_polylines=_full_map(),
+        scenario_id="motorcyclist-filtering-negative",
+    )
+    run = detect_scenario(
+        negative,
+        [_skill("motorcyclist_filtering_conflict")],
+        config,
+    )
+    assert run.records == []
+    assert run.rejection_counts == {
+        "motorcyclist_filtering_conflict:missing_track:motorcyclist": 1
+    }

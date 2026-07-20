@@ -1,0 +1,41 @@
+skill_id: motorcyclist_filtering_conflict
+name_zh: 摩托车狭缝穿行冲突
+family: atypical_composite
+definition: 摩托车手在两辆机动车形成的有限间隙之间穿行，并逼近至少一辆车的安全边界。
+source: [traffic_rule, train_pattern, safety_metric]
+data_support:
+  feasibility: B
+  required_tracks: [motorcyclist, vehicle]
+  required_map: [lane_centerline, drivable_area]
+  development_evidence: 开发数据中存在车辆与motorcyclist共同出现的场景，可筛选狭缝穿行兼容结构。
+seed_requirements:
+  description: 一名摩托车手靠近两辆机动车，三者具有足够共同历史。
+  threshold_source: semantic
+  minimum_history_steps: 20
+trigger:
+  description: 摩托车手进入两车间隙并继续向前穿行，使侧向或纵向净距降低。
+  threshold_source: semantic
+  conditions: [motorcyclist_between_vehicles, positive_relative_speed, safety_buffer_violation_predicted]
+detection:
+  mode: compatible_seed
+  conditions: [motorcyclist_between_vehicles, filtering_gap_available, response_space_available]
+  thresholds:
+    minimum_moving_speed_mps: {value: 1.0, source: semantic}
+    maximum_filtering_vehicle_gap_m: {value: 10.0, source: semantic}
+    maximum_motorcyclist_vehicle_distance_m: {value: 7.0, source: semantic}
+    minimum_current_separation_m: {value: 1.0, source: semantic}
+actors:
+  initiator_types: [motorcyclist]
+  responder_types: [vehicle, bus]
+  generated_roles: [filtering_motorcyclist, first_vehicle, second_vehicle]
+parameters:
+  filtering_speed_mps: {range: [2.0, 10.0], source: train_statistics}
+  lateral_offset_m: {range: [-1.5, 1.5], source: semantic}
+  entry_delay_s: {range: [0.2, 2.0], source: semantic}
+generation_operators: [LANE_CHANGE, LONGITUDINAL, MULTI_AGENT]
+constraints: {remain_in_drivable_area: true, smooth_lateral_motion: true, class_specific_speed_limit: true, forbid_unavoidable_collision: true}
+risk_definition: {metric: minimum_combined_clearance, target_range: [1.0, 4.0], source: semantic, direction: lower_is_riskier}
+expected_behavior: [maintain_predictable_motion, preserve_lateral_clearance, avoid_abrupt_lane_change]
+validation_metrics: [minimum_combined_clearance, time_to_collision, filtering_speed]
+known_limitations: [AV2摩托车手种子稀少，兼容种子只证明几何间隙并需在生成后验证穿行动作]
+output_labels: [skill_id, motorcyclist_track_id, first_vehicle_track_id, second_vehicle_track_id, risk_level]

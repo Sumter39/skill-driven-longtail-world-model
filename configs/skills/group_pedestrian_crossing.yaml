@@ -1,0 +1,41 @@
+skill_id: group_pedestrian_crossing
+name_zh: 多人群体横穿
+family: vulnerable_road_user
+definition: 至少两名行人以相近方向和时序进入同一车辆冲突区域，延长车辆让行时间。
+source: [course_example, train_pattern, safety_metric]
+data_support:
+  feasibility: A
+  required_tracks: [pedestrian, vehicle]
+  required_map: [drivable_area]
+  development_evidence: 行人覆盖广，可从共同横穿轨迹中直接识别最小两人群体。
+seed_requirements:
+  description: 两名行人与一辆车具有共同历史并接近同一未来冲突区域。
+  threshold_source: semantic
+  minimum_history_steps: 20
+trigger:
+  description: 群体成员连续进入车辆路径且到达窗口重叠。
+  threshold_source: reference
+  conditions: [pedestrian_group_crossing, crossing_vehicle_path, overlapping_arrival_window]
+detection:
+  mode: observed_trigger
+  conditions: [group_members_present, crossing_vehicle_path, overlapping_arrival_window]
+  thresholds:
+    maximum_group_member_distance_m: {value: 5.0, source: semantic}
+    maximum_group_heading_difference_deg: {value: 45.0, source: semantic}
+    maximum_arrival_time_gap_s: {value: 4.0, source: reference}
+    maximum_conflict_distance_m: {value: 6.0, source: semantic}
+actors:
+  initiator_types: [pedestrian]
+  responder_types: [vehicle, bus]
+  generated_roles: [first_crossing_pedestrian, responding_vehicle, second_crossing_pedestrian]
+parameters:
+  group_spacing_m: {range: [0.5, 4.0], source: train_statistics}
+  crossing_speed_mps: {range: [0.5, 2.5], source: train_statistics}
+  second_entry_delay_s: {range: [0.0, 2.0], source: semantic}
+generation_operators: [VRU_CROSSING, CONFLICT_POINT, MULTI_AGENT]
+constraints: {continuous_crossing_motion: true, class_specific_speed_limit: true, maintain_role_consistency: true, forbid_unavoidable_collision: true}
+risk_definition: {metric: post_encroachment_time, target_range: [0.5, 4.0], source: reference, direction: lower_is_riskier}
+expected_behavior: [yield_until_group_clears, decelerate, preserve_lateral_clearance]
+validation_metrics: [post_encroachment_time, group_occupancy_duration, minimum_distance]
+known_limitations: [固定两个关键行人作为最小群体角色，其他成员仅记录在场景上下文]
+output_labels: [skill_id, first_pedestrian_track_id, second_pedestrian_track_id, vehicle_track_id, risk_level]

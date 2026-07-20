@@ -1,0 +1,41 @@
+skill_id: multi_vehicle_gap_squeeze
+name_zh: 多车间隙夹逼
+family: atypical_composite
+definition: 目标车辆的前后安全间隙同时被多车压缩，使可用纵向空间持续减小。
+source: [literature, safety_metric, train_pattern]
+data_support:
+  feasibility: B
+  required_tracks: [vehicle]
+  required_map: [lane_centerline, lane_successor]
+  development_evidence: 密集多车跟驰场景可提供前后间隙同时收缩的基础结构。
+seed_requirements:
+  description: 目标车辆位于同车道或连续车道的前后两车之间。
+  threshold_source: semantic
+  minimum_history_steps: 30
+trigger:
+  description: 前车减速或后车加速，使目标车辆前后间隙同步缩小。
+  threshold_source: semantic
+  conditions: [front_gap_small, rear_gap_small, multi_direction_gap_closing]
+detection:
+  mode: compatible_seed
+  conditions: [front_gap_small, rear_gap_small, competing_vehicles_present]
+  thresholds:
+    maximum_front_gap_m: {value: 25.0, source: semantic}
+    maximum_rear_gap_m: {value: 25.0, source: semantic}
+    minimum_combined_closing_speed_mps: {value: 0.5, source: semantic}
+    minimum_current_separation_m: {value: 2.0, source: semantic}
+actors:
+  initiator_types: [vehicle, bus]
+  responder_types: [vehicle, bus]
+  generated_roles: [squeezed_vehicle, front_pressure_vehicle, rear_pressure_vehicle]
+parameters:
+  front_speed_scale: {range: [0.3, 0.9], source: semantic}
+  rear_speed_scale: {range: [1.05, 1.5], source: semantic}
+  squeeze_start_s: {range: [0.5, 2.5], source: semantic}
+generation_operators: [LONGITUDINAL, MULTI_AGENT]
+constraints: {remain_in_drivable_area: true, preserve_lane_direction: true, nonnegative_speed: true, maintain_role_consistency: true, forbid_unavoidable_collision: true}
+risk_definition: {metric: minimum_combined_clearance, target_range: [1.0, 6.0], source: semantic, direction: lower_is_riskier}
+expected_behavior: [maintain_stable_motion, avoid_aggressive_acceleration, preserve_escape_space]
+validation_metrics: [minimum_front_gap, minimum_rear_gap, minimum_combined_clearance]
+known_limitations: [当前最小实现聚焦纵向前后夹逼，横纵向联合夹逼留待后续扩展]
+output_labels: [skill_id, target_track_id, front_track_id, rear_track_id, risk_level]

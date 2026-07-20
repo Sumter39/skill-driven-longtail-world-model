@@ -1,0 +1,41 @@
+skill_id: zipper_merge_multi_vehicle
+name_zh: 多车交替汇入
+family: merge_topology
+definition: 两条收敛车道中的三辆关键车辆需要按交替顺序汇入，错误时序会压缩前后间隙。
+source: [traffic_rule, literature, train_pattern]
+data_support:
+  feasibility: B
+  required_tracks: [vehicle]
+  required_map: [lane_centerline, converging_lane]
+  development_evidence: 收敛车道和多车流可提供交替汇入的三车基础结构。
+seed_requirements:
+  description: 一辆汇入车和同一主车流中的前后两辆车共同接近收敛点。
+  threshold_source: semantic
+  minimum_history_steps: 30
+trigger:
+  description: 三车到达时序偏离交替秩序并同时压缩前后间隙。
+  threshold_source: semantic
+  conditions: [converging_lanes, competing_vehicles_present, delayed_entry]
+detection:
+  mode: compatible_seed
+  conditions: [converging_lanes, competing_vehicles_present, priority_roles_assignable]
+  thresholds:
+    maximum_convergence_distance_m: {value: 60.0, source: semantic}
+    maximum_competing_vehicle_gap_m: {value: 35.0, source: semantic}
+    maximum_arrival_time_gap_s: {value: 5.0, source: reference}
+    minimum_current_separation_m: {value: 2.0, source: semantic}
+actors:
+  initiator_types: [vehicle, bus]
+  responder_types: [vehicle, bus]
+  generated_roles: [merging_vehicle, leading_main_flow_vehicle, trailing_main_flow_vehicle]
+parameters:
+  merge_order_offset_s: {range: [-1.5, 1.5], source: semantic}
+  leading_gap_s: {range: [0.8, 3.0], source: semantic}
+  trailing_gap_s: {range: [0.8, 3.0], source: semantic}
+generation_operators: [MERGE, YIELD_PRIORITY, MULTI_AGENT]
+constraints: {remain_in_drivable_area: true, maintain_role_consistency: true, smooth_acceleration: true, forbid_unavoidable_collision: true}
+risk_definition: {metric: convergence_time_gap, target_range: [0.5, 3.0], source: reference, direction: lower_is_riskier}
+expected_behavior: [preserve_alternating_order, yield_when_required, maintain_safe_gap]
+validation_metrics: [convergence_time_gap, minimum_front_rear_gap, merge_order_consistency]
+known_limitations: [固定三个关键角色表达最小交替汇入单元，其余车辆仅作为上下文]
+output_labels: [skill_id, merging_track_id, leading_track_id, trailing_track_id, risk_level]

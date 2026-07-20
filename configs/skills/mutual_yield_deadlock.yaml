@@ -1,0 +1,42 @@
+skill_id: mutual_yield_deadlock
+name_zh: 双方互让僵持
+family: intersection_interaction
+definition: 两辆具有交叉路径的车辆同时低速或停车让行，导致双方长期不通过冲突区域。
+source: [course_example, traffic_rule, literature]
+data_support:
+  feasibility: B
+  required_tracks: [vehicle]
+  required_map: [lane_centerline, intersection_lane, drivable_area]
+  development_evidence: 路口低速交互可提供双方互让的兼容基础种子。
+seed_requirements:
+  description: 两辆低速车辆位于交叉车流入口附近且具有明确的冲突方向。
+  threshold_source: semantic
+  minimum_history_steps: 30
+trigger:
+  description: 双方同时延迟进入冲突区并保持低速或停车。
+  threshold_source: semantic
+  conditions: [shared_conflict_point, sustained_low_speed_or_stop, delayed_entry]
+detection:
+  mode: compatible_seed
+  conditions: [near_intersection_entry, crossing_flow_present, holding_space_available]
+  thresholds:
+    maximum_entry_distance_m: {value: 12.0, source: semantic}
+    maximum_creep_speed_mps: {value: 3.0, source: semantic}
+    minimum_crossing_angle_deg: {value: 30.0, source: semantic}
+    maximum_crossing_angle_deg: {value: 150.0, source: semantic}
+    minimum_current_separation_m: {value: 2.0, source: semantic}
+actors:
+  initiator_types: [vehicle, bus]
+  responder_types: [vehicle, bus]
+  generated_roles: [first_yielding_vehicle, second_yielding_vehicle]
+parameters:
+  first_wait_duration_s: {range: [1.0, 6.0], source: semantic}
+  second_wait_duration_s: {range: [1.0, 6.0], source: semantic}
+  restart_order: {choices: [first_then_second, second_then_first], source: semantic}
+generation_operators: [YIELD_PRIORITY, CONFLICT_POINT, MULTI_AGENT]
+constraints: {remain_in_drivable_area: true, low_speed_motion: true, allow_safe_stop: true, role_assignment_fixed: true}
+risk_definition: {metric: conflict_point_time_gap, target_range: [0.5, 3.0], source: reference, direction: lower_is_riskier}
+expected_behavior: [resolve_priority, proceed_cautiously, avoid_simultaneous_restart]
+validation_metrics: [waiting_duration, restart_order_consistency, minimum_distance]
+known_limitations: [种子风险使用路口距离代理，生成后需单独评价僵持时长]
+output_labels: [skill_id, first_vehicle_track_id, second_vehicle_track_id, wait_duration_s, risk_level]

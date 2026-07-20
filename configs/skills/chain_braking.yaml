@@ -1,0 +1,41 @@
+skill_id: chain_braking
+name_zh: 多车制动传播
+family: longitudinal_interaction
+definition: 三辆纵向排列车辆具备由前向后传播制动的结构，延迟响应会形成连锁追尾风险。
+source: [literature, safety_metric, train_pattern]
+data_support:
+  feasibility: B
+  required_tracks: [vehicle]
+  required_map: [lane_centerline, lane_successor]
+  development_evidence: 多车跟驰队列可由车辆轨迹和车道纵向顺序稳定筛选。
+seed_requirements:
+  description: 同车道或连续车道上存在前、中、后三辆具有共同历史的车辆。
+  threshold_source: semantic
+  minimum_history_steps: 30
+trigger:
+  description: 前车制动后中车和后车以不同响应延迟依次制动。
+  threshold_source: semantic
+  conditions: [three_vehicle_queue, leader_decelerating, delayed_braking_response]
+detection:
+  mode: compatible_seed
+  conditions: [three_vehicle_queue, response_space_available, follower_closing]
+  thresholds:
+    minimum_queue_gap_m: {value: 2.0, source: semantic}
+    maximum_queue_gap_m: {value: 45.0, source: semantic}
+    minimum_moving_speed_mps: {value: 1.0, source: semantic}
+    minimum_vehicle_center_distance_m: {value: 2.0, source: semantic}
+actors:
+  initiator_types: [vehicle, bus]
+  responder_types: [vehicle, bus]
+  generated_roles: [front_vehicle, middle_vehicle, rear_vehicle]
+parameters:
+  front_brake_onset_s: {range: [0.5, 2.0], source: semantic}
+  propagation_delay_s: {range: [0.2, 1.5], source: semantic}
+  peak_deceleration_mps2: {range: [2.0, 6.0], source: train_statistics}
+generation_operators: [LONGITUDINAL, MULTI_AGENT]
+constraints: {remain_in_drivable_area: true, preserve_lane_direction: true, nonnegative_speed: true, smooth_acceleration: true, forbid_unavoidable_collision: true}
+risk_definition: {metric: minimum_longitudinal_gap, target_range: [3.0, 15.0], source: semantic, direction: lower_is_riskier}
+expected_behavior: [propagate_braking, maintain_safe_gap, avoid_collision]
+validation_metrics: [minimum_longitudinal_gap, time_to_collision, braking_response_delay]
+known_limitations: [兼容种子只证明三车队列和响应空间，制动传播由生成条件注入]
+output_labels: [skill_id, front_track_id, middle_track_id, rear_track_id, risk_level]

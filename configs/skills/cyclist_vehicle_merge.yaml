@@ -1,0 +1,41 @@
+skill_id: cyclist_vehicle_merge
+name_zh: 骑行者并入机动车流
+family: vulnerable_road_user
+definition: 骑行者沿自行车路径进入机动车行驶空间，并与机动车形成收敛时间冲突。
+source: [traffic_rule, train_pattern, safety_metric]
+data_support:
+  feasibility: A
+  required_tracks: [cyclist, vehicle]
+  required_map: [lane_centerline, bike_lane, adjacent_lane]
+  development_evidence: 自行车道和轨迹关系可识别拓扑明确的骑行者主动汇入。
+seed_requirements:
+  description: 骑行者朝机动车目标车道横向并入，目标车道中存在前后两辆机动车。
+  threshold_source: semantic
+  minimum_history_steps: 20
+trigger:
+  description: 骑行者进入共同目标车道且双方到达收敛点的时间接近。
+  threshold_source: reference
+  conditions: [lateral_entry, enters_main_flow, overlapping_arrival_window]
+detection:
+  mode: observed_trigger
+  conditions: [lateral_entry, front_and_rear_main_flow_vehicles_present, overlapping_arrival_window]
+  thresholds:
+    minimum_lateral_displacement_m: {value: 0.5, source: semantic}
+    maximum_front_gap_m: {value: 30.0, source: semantic}
+    maximum_rear_gap_m: {value: 30.0, source: semantic}
+    maximum_merge_heading_difference_deg: {value: 45.0, source: semantic}
+actors:
+  initiator_types: [cyclist]
+  responder_types: [vehicle, bus]
+  generated_roles: [merging_cyclist, front_motor_vehicle, rear_motor_vehicle]
+parameters:
+  merge_start_s: {range: [0.5, 3.0], source: semantic}
+  cyclist_speed_mps: {range: [2.0, 7.0], source: train_statistics}
+  accepted_gap_s: {range: [0.8, 3.0], source: semantic}
+generation_operators: [MERGE, VRU_CROSSING, MULTI_AGENT]
+constraints: {continuous_entry_motion: true, class_specific_speed_limit: true, remain_in_drivable_area: true, forbid_unavoidable_collision: true}
+risk_definition: {metric: minimum_front_rear_time_to_collision, target_range: [1.0, 4.0], source: reference, direction: lower_is_riskier}
+expected_behavior: [yield_to_cyclist, create_safe_gap, preserve_lateral_clearance]
+validation_metrics: [minimum_front_rear_time_to_collision, minimum_distance, cyclist_speed]
+known_limitations: [必须验证横移方向朝向同一机动车目标车道，避免把横穿或道路自然弯曲误判为并入]
+output_labels: [skill_id, cyclist_track_id, front_vehicle_track_id, rear_vehicle_track_id, risk_level]

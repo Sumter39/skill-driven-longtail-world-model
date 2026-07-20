@@ -1,4 +1,8 @@
-"""Explicit mapping from confirmed skills to reusable detection strategies."""
+"""Explicit mapping from implemented rules to reusable detection strategies.
+
+Formal membership is defined by ``configs/skills/catalog.yaml``. This registry
+also keeps executable mappings for candidate rules so they remain testable.
+"""
 
 from __future__ import annotations
 
@@ -42,7 +46,9 @@ DETECTION_STRATEGIES = frozenset(
         "lane_change_gap",
         "lane_change_pair",
         "longitudinal_pair",
+        "longitudinal_triple",
         "merge_pair",
+        "merge_triple",
         "simultaneous_lane_change",
         "static_blockage",
         "stopped_reentry",
@@ -55,7 +61,7 @@ DETECTION_STRATEGIES = frozenset(
 
 @dataclass(frozen=True)
 class SkillDetectionRule:
-    """Dispatch metadata for one confirmed skill.
+    """Dispatch metadata for one implemented rule.
 
     ``strategy`` names the reusable detector family. ``required_capabilities``
     lists the shared computations that family must provide, while
@@ -151,6 +157,19 @@ _SKILL_RULES = {
                 "time_to_collision",
             ),
         ),
+        _rule(
+            "chain_braking",
+            "longitudinal_triple",
+            (
+                "track_history",
+                "lane_assignment",
+                "longitudinal_order",
+                "kinematics",
+                "multi_actor_relation",
+                "time_to_collision",
+            ),
+            primary_actor_count=3,
+        ),
         # Lane-change interaction.
         _rule(
             "adjacent_vehicle_cut_in",
@@ -217,6 +236,18 @@ _SKILL_RULES = {
                 "stationary_detection",
             ),
         ),
+        _rule(
+            "late_lane_change_before_diverge",
+            "diverge_crossing",
+            (
+                "track_history",
+                "lane_assignment",
+                "lane_topology",
+                "lane_change",
+                "longitudinal_order",
+                "minimum_distance",
+            ),
+        ),
         # Merge and lane-topology interaction.
         _rule(
             "ramp_merge_small_gap",
@@ -276,6 +307,19 @@ _SKILL_RULES = {
                 "conflict_point",
                 "post_encroachment_time",
             ),
+        ),
+        _rule(
+            "zipper_merge_multi_vehicle",
+            "merge_triple",
+            (
+                "track_history",
+                "lane_assignment",
+                "lane_topology",
+                "longitudinal_order",
+                "multi_actor_relation",
+                "post_encroachment_time",
+            ),
+            primary_actor_count=3,
         ),
         # Intersection vehicle interaction.
         _rule(
@@ -337,6 +381,18 @@ _SKILL_RULES = {
                 "minimum_distance",
             ),
         ),
+        _rule(
+            "mutual_yield_deadlock",
+            "conflict_point_pair",
+            (
+                "track_history",
+                "lane_assignment",
+                "intersection_relation",
+                "kinematics",
+                "conflict_point",
+                "multi_actor_relation",
+            ),
+        ),
         # Vulnerable road-user interaction.
         _rule(
             "crosswalk_pedestrian_crossing",
@@ -394,6 +450,33 @@ _SKILL_RULES = {
                 "conflict_point",
                 "post_encroachment_time",
             ),
+        ),
+        _rule(
+            "group_pedestrian_crossing",
+            "vru_vehicle_conflict",
+            (
+                "track_history",
+                "actor_type_filter",
+                "conflict_point",
+                "post_encroachment_time",
+                "multi_actor_relation",
+            ),
+            primary_actor_count=3,
+        ),
+        _rule(
+            "cyclist_vehicle_merge",
+            "lane_change_gap",
+            (
+                "track_history",
+                "actor_type_filter",
+                "lane_assignment",
+                "lane_topology",
+                "lane_change",
+                "longitudinal_order",
+                "conflict_point",
+                "post_encroachment_time",
+            ),
+            primary_actor_count=3,
         ),
         # Atypical, obstruction, and composite interaction.
         _rule(
@@ -458,6 +541,43 @@ _SKILL_RULES = {
                 "kinematics",
                 "time_to_collision",
             ),
+        ),
+        _rule(
+            "abrupt_u_turn_conflict",
+            "conflict_point_pair",
+            (
+                "track_history",
+                "lane_assignment",
+                "intersection_relation",
+                "heading_alignment",
+                "conflict_point",
+                "time_to_collision",
+            ),
+        ),
+        _rule(
+            "multi_vehicle_gap_squeeze",
+            "longitudinal_triple",
+            (
+                "track_history",
+                "lane_assignment",
+                "longitudinal_order",
+                "kinematics",
+                "multi_actor_relation",
+                "minimum_distance",
+            ),
+            primary_actor_count=3,
+        ),
+        _rule(
+            "motorcyclist_filtering_conflict",
+            "lane_change_gap",
+            (
+                "track_history",
+                "actor_type_filter",
+                "lane_assignment",
+                "minimum_distance",
+                "multi_actor_relation",
+            ),
+            primary_actor_count=3,
         ),
     )
 }

@@ -1,0 +1,10 @@
+version: 1
+status: candidate_no_formal_seed
+reviewed_on: 2026-07-20
+reason: 20,000个正式Train场景中未检测到真实或兼容种子，因此不计入正式技能库。
+skills:
+  - {skill_id: lead_hard_brake, family: longitudinal_interaction, feasibility: A, formal_scan_hits: 0}
+  - {skill_id: rear_vehicle_rapid_approach, family: longitudinal_interaction, feasibility: A, formal_scan_hits: 0}
+  - {skill_id: adjacent_vehicle_cut_in, family: lane_change_interaction, feasibility: A, formal_scan_hits: 0}
+  - {skill_id: narrow_gap_lane_change, family: lane_change_interaction, feasibility: A, formal_scan_hits: 0}
+  - {skill_id: wrong_way_vehicle, family: atypical_composite, feasibility: A, formal_scan_hits: 0}

@@ -1,0 +1,41 @@
+skill_id: late_lane_change_before_diverge
+name_zh: 分流前晚换道
+family: lane_change_interaction
+definition: 车辆接近分流点时才横向进入邻道，使剩余换道距离和可接受间隙同时受限。
+source: [traffic_rule, train_pattern]
+data_support:
+  feasibility: B
+  required_tracks: [vehicle]
+  required_map: [lane_centerline, adjacent_lane, diverging_lane]
+  development_evidence: AV2地图包含分流后继关系和相邻车道，可构造晚换道基础种子。
+seed_requirements:
+  description: 分流车道上的车辆接近车道末端，邻道存在可交互车辆。
+  threshold_source: semantic
+  minimum_history_steps: 30
+trigger:
+  description: 在较短剩余距离内开始横向换道并逼近邻道车辆。
+  threshold_source: semantic
+  conditions: [diverging_topology, late_lateral_crossing, conflicting_vehicle_present]
+detection:
+  mode: compatible_seed
+  conditions: [diverging_topology, adjacent_lane_available, close_longitudinal_position]
+  thresholds:
+    maximum_distance_to_diverge_m: {value: 60.0, source: semantic}
+    maximum_target_gap_m: {value: 20.0, source: semantic}
+    minimum_adjacent_lane_length_m: {value: 20.0, source: semantic}
+    minimum_current_separation_m: {value: 2.0, source: semantic}
+actors:
+  initiator_types: [vehicle, bus]
+  responder_types: [vehicle, bus]
+  generated_roles: [late_lane_changer, adjacent_lane_vehicle]
+parameters:
+  lane_change_start_distance_m: {range: [5.0, 35.0], source: semantic}
+  lane_change_duration_s: {range: [1.5, 4.0], source: train_statistics}
+  target_gap_m: {range: [4.0, 18.0], source: semantic}
+generation_operators: [LANE_CHANGE, MERGE]
+constraints: {remain_in_drivable_area: true, smooth_lateral_motion: true, preserve_path_direction: true, forbid_unavoidable_collision: true}
+risk_definition: {metric: minimum_crossing_time_to_collision, target_range: [1.0, 4.0], source: reference, direction: lower_is_riskier}
+expected_behavior: [change_lane_early, yield_if_gap_is_small, abandon_unsafe_lane_change]
+validation_metrics: [distance_to_diverge, lateral_acceleration, minimum_distance]
+known_limitations: [AV2没有导航路线，因此只描述分流前横向冲突而不判断是否走错出口]
+output_labels: [skill_id, lane_changer_track_id, adjacent_vehicle_track_id, distance_to_diverge_m, risk_level]
