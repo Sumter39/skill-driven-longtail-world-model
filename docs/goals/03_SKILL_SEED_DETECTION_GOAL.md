@@ -2,7 +2,7 @@
 
 ## 1. 当前目标
 
-本阶段只针对`02_SKILL_LIBRARY_DESIGN_GOAL.md`中经用户确认的技能体系，实现可复用的规则执行、参数采样和候选种子检测流程，从正式Train数据中筛选2,000–5,000个可解释、可复现的真实场景种子。
+本阶段只针对`02_SKILL_LIBRARY_DESIGN_GOAL.md`中经用户确认的技能体系，实现可复用的规则执行、参数采样和候选种子检测流程。正式Train扫描先保留完整原始候选池，再确定性筛选5,000个可解释、可复现的唯一真实场景种子；选中场景的全部技能标签必须保留。
 
 本阶段不重新决定技能类别，不训练条件CVAE，也不生成大规模反事实轨迹。
 
@@ -33,8 +33,9 @@ skill_id
 initiator_track_id
 responder_track_id
 trigger_score
-risk_metric
-risk_value
+seed_risk_metric
+seed_risk_value
+target_risk_definition_json
 source_path
 evidence_json
 sampled_parameters_json
@@ -45,12 +46,16 @@ sampled_parameters_json
 建议输出：
 
 ```text
-manifests/seeds/development_candidates.csv
+outputs/seed_detection/development_candidate_pool.csv
+outputs/seed_detection/formal_candidate_pool.csv
 manifests/seeds/formal_candidates.csv
 outputs/seed_detection/development_summary.json
+outputs/seed_detection/formal_pool_summary.json
 outputs/seed_detection/formal_summary.json
 outputs/seed_detection/review/
 ```
+
+开发与正式原始候选池和checkpoint属于可再生成的大体积产物，放在被Git忽略的`outputs/`目录；最终5,000场景种子清单放在`manifests/seeds/`中。
 
 ## 5. 执行步骤
 
@@ -70,7 +75,7 @@ outputs/seed_detection/review/
 
 ### 阶段C：500个开发场景扫描
 
-- 扫描`manifests/development_train.csv`；
+- 扫描`manifests/development/development_train.csv`；
 - 输出每类命中数、拒绝原因、城市、参与者和风险分布；
 - 记录运行时间和峰值内存；
 - 分层选择至少100个候选，并尽量覆盖全部技能，生成BEV审核材料。
@@ -83,12 +88,14 @@ outputs/seed_detection/review/
 
 ### 阶段E：20,000个正式训练场景扫描
 
-- 扫描`manifests/formal_train.csv`；
-- 输出2,000–5,000个唯一真实场景种子及技能匹配关系；
+- 扫描`manifests/splits/formal_train.csv`；
+- 先输出完整原始候选池和可续跑checkpoint；
+- 按`skill_id`、种子风险指标和风险值四分位进行确定性分层轮转，筛选恰好5,000个唯一真实场景；
+- 同一场景一旦入选，保留该场景的全部技能匹配关系；
 - 汇报每类技能、城市、参与者和风险区间覆盖；
 - 检查与内部验证、最终Validation的场景ID零交集。
 
-如果种子数量或技能覆盖不足，不自动降低规则标准，也不自动下载更多数据。必须先报告原因，并由用户决定调整规则、接受稀有技能少种子、复用兼容种子或增量下载Train场景。
+如果原始候选池不足5,000个唯一场景，不自动降低规则标准，也不自动下载更多数据；停止正式选择并报告证据。
 
 ### 阶段F：固化与交付
 
@@ -104,7 +111,7 @@ outputs/seed_detection/review/
 - 500个开发场景完成扫描并输出分层BEV审核材料；
 - 用户已经确认规则方向；
 - 20,000个正式训练场景完成扫描；
-- 获得2,000–5,000个候选种子，或对不足形成经用户确认的证据说明；
+- 获得恰好5,000个唯一候选种子，且保留这些场景的全部技能标签；若候选不足则形成明确证据说明并停止；
 - 候选种子不包含内部验证和最终Validation场景；
 - 输出可复现，全部自动测试通过；
 - 没有训练模型或批量生成反事实轨迹。
@@ -114,11 +121,30 @@ outputs/seed_detection/review/
 1. 读取本文件、02 Goal和FULL计划，不重新设计技能目录。
 2. 先实现共享规则能力，再组合技能，避免复制30套近似代码。
 3. 先测试，再扫描500个开发场景，用户确认后才扫描20,000个正式场景。
-4. 遇到规则、阈值或角色分歧时提供证据和选项，不静默决定。
+4. 用户已授权后续技术分歧默认采用推荐方案：记录证据和取舍后直接执行；只有扩大任务范围、删除数据、Commit、Push或其他需要新权限的操作才暂停确认。
 5. 不读取内部验证或最终Validation调规则。
 6. 不训练模型，不扩大下载规模。
 7. 未经用户明确授权，不提交或推送Git。
 
 ## 8. 当前状态
 
-截至2026-07-19，本Goal尚未开始，必须等待02 Goal完成并确认最终技能体系。
+截至2026-07-20，本Goal的阶段A至阶段F均已完成：
+
+- 30类技能YAML均已具有可执行`detection`配置，其中17类为`observed_trigger`、13类为`compatible_seed`；
+- 已完成共享几何、地图拓扑、风险计算、规则注册、参数采样、候选CSV、确定性续跑、泄漏审计和BEV审核工具；
+- 用户已确认`1A + 2A + 3A + 4A + 5A`，结构收紧、三角色重入、多标签、零命中不放宽和双风险契约均已实现；
+- WSL项目`.venv`已恢复`dev+av2`依赖；全套299项自动测试、真实AV2单场景烟测、编译检查和`git diff --check`通过；
+- 已按固定清单重新扫描500个开发Train场景，得到1,461条候选，覆盖442个唯一场景和22/30类技能；
+- A类得到383条已观察触发候选，覆盖9/17类；B类得到1,078条兼容基础种子，覆盖13/13类；
+- 739条候选使用种子代理风险，722条直接观测目标风险；超出6秒风险时域的浮点TTC不再冒充目标指标；
+- 候选与2,000个内部验证场景、5,000个最终Validation场景的重叠均为0；
+- 已重新生成100张分层BEV，覆盖72个唯一场景；审核目录恰好保留100张有效PNG；
+- 正式扫描采用10进程，20,000场景实际总墙钟约12分47秒，生成55,322条候选、覆盖17,039个唯一场景和25/30类技能；
+- `lead_sudden_stop`的停车前速度谓词与阈值证据口径已统一；真实失败场景和其附近200个正式场景回归通过；
+- 正式checkpoint恰好包含20,000个场景，完成态复跑直接恢复且未重新扫描；
+- 确定性筛选得到恰好5,000个唯一场景和21,408条技能标签，并保留入选场景的全部标签；
+- 正式候选池和最终清单均不包含内部验证或最终Validation场景，反向输入顺序确定性检查和CSV schema round trip均通过；
+- 合流、分流、路口、同步换道、cut-out和三角色重入的系统性误检已消除或显著收紧；
+- 用户授权采用推荐方案6A，`forced_lane_change_around_blockage`已增加2米最小前向距离；最终203条该类候选的最小前向距离为2.044米；
+- 完整证据见`docs/seed-detection-development-review.md`；
+- 固定开发审核、20,000场景正式扫描、5,000场景最终筛选和交付验证均已完成；未训练模型，未生成反事实轨迹，也未Push。

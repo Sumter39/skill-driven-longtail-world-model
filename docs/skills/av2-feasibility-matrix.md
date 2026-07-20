@@ -8,7 +8,7 @@
 
 - 课程题目5原文；
 - AV2 Motion Forecasting数据结构和静态地图；
-- `manifests/development_train.csv`中的500个Train开发场景；
+- `manifests/development/development_train.csv`中的500个Train开发场景；
 - 仓库已核验的AV2、Trajectron++、AdvSim、KING和STRIVE资料；
 - 交通规则语义和TTC、PET、时距、最小间距等安全代理指标。
 

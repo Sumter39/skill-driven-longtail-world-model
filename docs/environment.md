@@ -38,7 +38,7 @@ uv sync --extra dev --extra av2
 ```bash
 uv run python --version
 uv run pytest -q
-uv run python -m scripts.render_synthetic_bev
+uv run python -m scripts.visualization.render_synthetic_bev
 ```
 
 项目位于`/mnt/d`的NTFS文件系统，而`uv`缓存位于WSL的Linux文件系统。首次同步可能出现“Failed to hardlink files; falling back to full copy”警告。这不影响安装结果，可设置复制模式消除警告：

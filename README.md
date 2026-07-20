@@ -68,7 +68,7 @@ uv run pytest -q
 生成一个合成场景BEV检查图：
 
 ```bash
-uv run python -m scripts.render_synthetic_bev
+uv run python -m scripts.visualization.render_synthetic_bev
 ```
 
 输出文件位于`outputs/synthetic_bev.png`，该目录不会提交Git。
@@ -76,8 +76,8 @@ uv run python -m scripts.render_synthetic_bev
 验证官方AV2小型测试场景：
 
 ```bash
-uv run python -m scripts.download_av2_test_sample
-uv run python -m scripts.render_av2_sample \
+uv run python -m scripts.data.download_av2_test_sample
+uv run python -m scripts.visualization.render_av2_sample \
   data/sample/av2/0a1e6f0a-1817-4a98-b02e-db8c9327d151/scenario_0a1e6f0a-1817-4a98-b02e-db8c9327d151.parquet
 ```
 
@@ -86,13 +86,13 @@ uv run python -m scripts.render_av2_sample \
 真实数据采用确定性子集，不下载完整58GB数据集。Train准备流程为：
 
 ```bash
-uv run python -m scripts.download_av2_subset \
+uv run python -m scripts.data.download_av2_subset \
   --s5cmd /mnt/c/Users/123456/.local/bin/s5cmd.exe \
   --split train --count 22000 --seed 2026 \
-  --manifest manifests/formal_train_pool.csv \
+  --manifest manifests/acquisition/formal_train_pool.csv \
   --execute
 
-uv run python -m scripts.split_av2_train_pool
+uv run python -m scripts.data.split_av2_train_pool
 ```
 
 第二条命令不下载或复制数据，只从正式Train清单固定划分20,000个训练、2,000个内部验证，并派生500/100开发子集。
@@ -111,15 +111,22 @@ skilldrive/data/          坐标、清单和单场景AV2适配器
 skilldrive/schemas/       公共数据结构
 skilldrive/skills/        技能YAML加载与校验
 skilldrive/visualization/ BEV绘图
-scripts/                  无训练检查脚本
-tests/                    合成数据单元和冒烟测试
+manifests/acquisition/    AV2下载池和后续扩容清单
+manifests/splits/         正式训练、内部验证和最终Validation清单
+manifests/development/    固定的500/100开发子集
+manifests/seeds/          最终确定性种子清单
+scripts/data/             AV2下载、划分和完整性验证命令
+scripts/seed_detection/   候选扫描和正式种子筛选命令
+scripts/visualization/    AV2、合成BEV和候选审核渲染命令
+tests/unit/               按模块职责组织的单元测试
+tests/workflows/          数据准备和种子检测流程测试
 ```
 
 ## 文档入口
 
 - [01 前期准备Goal（已完成）](docs/goals/01_PREPARATION_GOAL.md)
 - [02 30类技能体系设计Goal（已完成）](docs/goals/02_SKILL_LIBRARY_DESIGN_GOAL.md)
-- [03 规则执行与候选种子检测Goal（下一阶段）](docs/goals/03_SKILL_SEED_DETECTION_GOAL.md)
+- [03 规则执行与候选种子检测Goal（已完成）](docs/goals/03_SKILL_SEED_DETECTION_GOAL.md)
 - [最终30类技能体系](docs/skills/skill-taxonomy.md)
 - [技能候选与决策记录](docs/skills/skill-candidates.md)
 - [AV2技能可行性矩阵](docs/skills/av2-feasibility-matrix.md)

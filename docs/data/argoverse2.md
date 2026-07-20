@@ -119,20 +119,20 @@ Expand-Archive -Force $zip $install
 
 总量约7 GB。实际大小以下载结果为准。如果经确认的30类技能存在真实种子覆盖不足，再以5,000个Train场景为一批讨论是否增量扩展。
 
-`scripts/download_av2_subset.py`先使用`s5cmd ls`列出官方场景，通过固定随机种子选择ID，写出可提交的CSV清单，然后可选执行下载。S3对象列表缓存在被Git忽略的`data/metadata/`。
+`scripts/data/download_av2_subset.py`先使用`s5cmd ls`列出官方场景，通过固定随机种子选择ID，写出可提交的CSV清单，然后可选执行下载。S3对象列表缓存在被Git忽略的`data/metadata/`。
 
 正式Train池下载和清单划分示例：
 
 ```bash
-uv run python -m scripts.download_av2_subset \
+uv run python -m scripts.data.download_av2_subset \
   --s5cmd /mnt/c/Users/123456/.local/bin/s5cmd.exe \
   --split train \
   --count 22000 \
   --seed 2026 \
-  --manifest manifests/formal_train_pool.csv \
+  --manifest manifests/acquisition/formal_train_pool.csv \
   --execute
 
-uv run python -m scripts.split_av2_train_pool
+uv run python -m scripts.data.split_av2_train_pool
 ```
 
 划分脚本不下载或复制数据。它将22,000个场景固定划分为20,000个正式训练场景和2,000个内部验证场景，并从两者分别派生500/100开发清单。正式训练与内部验证按`scenario_id`互斥；两个开发清单则分别是它们的子集。
@@ -140,12 +140,12 @@ uv run python -m scripts.split_av2_train_pool
 最终Validation下载示例：
 
 ```bash
-uv run python -m scripts.download_av2_subset \
+uv run python -m scripts.data.download_av2_subset \
   --s5cmd /mnt/c/Users/123456/.local/bin/s5cmd.exe \
   --split val \
   --count 5000 \
   --seed 2026 \
-  --manifest manifests/final_validation.csv \
+  --manifest manifests/splits/final_validation.csv \
   --execute
 ```
 
@@ -167,7 +167,7 @@ uv run python -m scripts.download_av2_subset \
 前期接口验证使用AV2 API官方GitHub仓库中的测试数据，不属于正式训练数据：
 
 ```bash
-uv run python -m scripts.download_av2_test_sample
+uv run python -m scripts.data.download_av2_test_sample
 ```
 
 该脚本只下载一个场景的parquet和地图JSON，总大小约220 KB，并校验文件大小。文件保存在被Git忽略的：
@@ -179,7 +179,7 @@ data/sample/av2/0a1e6f0a-1817-4a98-b02e-db8c9327d151/
 渲染命令：
 
 ```bash
-uv run python -m scripts.render_av2_sample \
+uv run python -m scripts.visualization.render_av2_sample \
   data/sample/av2/0a1e6f0a-1817-4a98-b02e-db8c9327d151/scenario_0a1e6f0a-1817-4a98-b02e-db8c9327d151.parquet
 ```
 

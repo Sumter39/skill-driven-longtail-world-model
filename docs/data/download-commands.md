@@ -48,12 +48,12 @@ Remove-Item $zip
 export HTTP_PROXY=http://127.0.0.1:7890
 export HTTPS_PROXY=http://127.0.0.1:7890
 
-uv run python -m scripts.download_av2_subset \
+uv run python -m scripts.data.download_av2_subset \
   --s5cmd /mnt/c/Users/123456/.local/bin/s5cmd.exe \
   --split train \
   --count 22000 \
   --seed 2026 \
-  --manifest manifests/formal_train_pool.csv \
+  --manifest manifests/acquisition/formal_train_pool.csv \
   --execute
 ```
 
@@ -77,7 +77,7 @@ data/av2/motion-forecasting/train/
 Train下载完成后执行：
 
 ```bash
-uv run python -m scripts.split_av2_train_pool
+uv run python -m scripts.data.split_av2_train_pool
 ```
 
 这一步不联网、不下载、不复制原始数据，只生成以下名单：
@@ -99,12 +99,12 @@ uv run python -m scripts.split_av2_train_pool
 这一步不用急着做。等数据读取、技能规则、模型和实验方案基本确定后再执行：
 
 ```bash
-uv run python -m scripts.download_av2_subset \
+uv run python -m scripts.data.download_av2_subset \
   --s5cmd /mnt/c/Users/123456/.local/bin/s5cmd.exe \
   --split val \
   --count 5000 \
   --seed 2026 \
-  --manifest manifests/final_validation.csv \
+  --manifest manifests/splits/final_validation.csv \
   --execute
 ```
 
@@ -139,11 +139,11 @@ git check-ignore -v data/av2/motion-forecasting/train
 完整下载后执行全量完整性检查：
 
 ```bash
-uv run python -m scripts.verify_av2_download \
-  --manifest manifests/formal_train_pool.csv
+uv run python -m scripts.data.verify_av2_download \
+  --manifest manifests/acquisition/formal_train_pool.csv
 
-uv run python -m scripts.verify_av2_download \
-  --manifest manifests/final_validation.csv
+uv run python -m scripts.data.verify_av2_download \
+  --manifest manifests/splits/final_validation.csv
 ```
 
 检查会逐一确认清单中的场景文件和地图文件存在、非零，并验证Parquet页脚可读、JSON可解析。只有显示`verification passed`才视为数据准备完成。
@@ -153,12 +153,12 @@ uv run python -m scripts.verify_av2_download \
 直接重新执行完全相同的原下载命令。脚本默认自动复用已有CSV清单，跳过场景枚举；大小一致的完整文件会跳过，缺失或大小不一致的文件会重新下载。例如Train：
 
 ```bash
-uv run python -m scripts.download_av2_subset \
+uv run python -m scripts.data.download_av2_subset \
   --s5cmd /mnt/c/Users/123456/.local/bin/s5cmd.exe \
   --split train \
   --count 22000 \
   --seed 2026 \
-  --manifest manifests/formal_train_pool.csv \
+  --manifest manifests/acquisition/formal_train_pool.csv \
   --execute
 ```
 
@@ -171,13 +171,13 @@ uv run python -m scripts.download_av2_subset \
 现在不需要执行本节。只有长尾场景不足时，才额外下载5,000个不重复Train场景：
 
 ```bash
-uv run python -m scripts.download_av2_subset \
+uv run python -m scripts.data.download_av2_subset \
   --s5cmd /mnt/c/Users/123456/.local/bin/s5cmd.exe \
   --split train \
   --count 5000 \
   --seed 2027 \
-  --exclude-manifest manifests/formal_train_pool.csv \
-  --manifest manifests/formal_train_expansion_01.csv \
+  --exclude-manifest manifests/acquisition/formal_train_pool.csv \
+  --manifest manifests/acquisition/formal_train_expansion_01.csv \
   --execute
 ```
 

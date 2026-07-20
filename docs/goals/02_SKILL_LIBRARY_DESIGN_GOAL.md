@@ -141,7 +141,7 @@ docs/skills/av2-feasibility-matrix.md
 docs/skills/skill-taxonomy.md
 configs/skills/catalog.yaml
 configs/skills/<经确认的技能>.yaml
-tests/test_skill_catalog.py
+tests/unit/skills/test_skills.py
 ```
 
 `skill-candidates.md`记录提交给用户的候选方案和取舍过程；`skill-taxonomy.md`只记录用户确认后的最终体系。

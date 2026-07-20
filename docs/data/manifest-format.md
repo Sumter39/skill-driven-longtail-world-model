@@ -1,5 +1,14 @@
 # 场景清单与防泄漏规则
 
+## 目录职责
+
+- `manifests/acquisition/`：下载池和增量下载清单；
+- `manifests/splits/`：正式训练、内部验证和最终Validation；
+- `manifests/development/`：固定开发子集；
+- `manifests/seeds/`：最终确定性种子清单。
+
+开发和正式扫描产生的原始候选池、summary与checkpoint均放在被Git忽略的 `outputs/seed_detection/`，不混入场景划分清单。
+
 ## 字段
 
 | 字段 | 含义 |
@@ -24,8 +33,8 @@
 ```python
 from skilldrive.data.manifests import assert_disjoint, read_manifest
 
-train = read_manifest("manifests/formal_train.csv")
-internal_validation = read_manifest("manifests/internal_validation.csv")
-final_validation = read_manifest("manifests/final_validation.csv")
+train = read_manifest("manifests/splits/formal_train.csv")
+internal_validation = read_manifest("manifests/splits/internal_validation.csv")
+final_validation = read_manifest("manifests/splits/final_validation.csv")
 assert_disjoint(train, internal_validation, final_validation)
 ```
