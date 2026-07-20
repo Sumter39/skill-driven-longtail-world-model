@@ -16,6 +16,12 @@ trigger:
   description: 双方到达汇合区域的时间差进入PET风险区间。
   threshold_source: reference
   conditions: [bike_vehicle_paths_merge, overlapping_arrival_window]
+detection:
+  mode: observed_trigger
+  conditions: [bike_vehicle_paths_merge, overlapping_arrival_window]
+  thresholds:
+    maximum_arrival_time_gap_s: {value: 3.0, source: reference}
+    maximum_conflict_distance_m: {value: 6.0, source: semantic}
 actors:
   initiator_types: [cyclist]
   responder_types: [vehicle]
@@ -26,7 +32,7 @@ parameters:
   arrival_time_gap_s: {range: [0.5, 3.0], source: reference}
 generation_operators: [MERGE, CONFLICT_POINT]
 constraints: {class_specific_speed_limit: true, remain_in_drivable_area: true, preserve_lane_direction: true, forbid_unavoidable_collision: true}
-risk_definition: {metric: post_encroachment_time, target_range: [0.5, 3.0], source: reference}
+risk_definition: {metric: post_encroachment_time, target_range: [0.5, 3.0], source: reference, direction: lower_is_riskier}
 expected_behavior: [yield_to_vulnerable_user, reduce_speed, maintain_lateral_clearance]
 validation_metrics: [post_encroachment_time, minimum_distance, lateral_clearance]
 known_limitations: [骑行者种子数量低于车辆类技能]

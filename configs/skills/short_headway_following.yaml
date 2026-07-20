@@ -16,6 +16,13 @@ trigger:
   description: 车头时距进入Train非拥堵跟车尾部分布并持续超过最小时长。
   threshold_source: train_statistics
   conditions: [same_lane, non_congested_speed, sustained_short_headway]
+detection:
+  mode: observed_trigger
+  conditions: [same_lane, non_congested_speed, sustained_short_headway]
+  thresholds:
+    minimum_follower_speed_mps: {value: 2.0, source: semantic}
+    maximum_time_headway_s: {value: 1.2, source: reference}
+    minimum_duration_s: {value: 1.0, source: semantic}
 actors:
   initiator_types: [vehicle]
   responder_types: [vehicle]
@@ -26,7 +33,7 @@ parameters:
   follower_speed_scale: {range: [0.9, 1.2], source: semantic}
 generation_operators: [LONGITUDINAL]
 constraints: {remain_in_drivable_area: true, preserve_lane_direction: true, forbid_unavoidable_collision: true}
-risk_definition: {metric: time_headway, target_range: [0.4, 1.2], source: reference}
+risk_definition: {metric: time_headway, target_range: [0.4, 1.2], source: reference, direction: lower_is_riskier}
 expected_behavior: [increase_following_gap, avoid_aggressive_acceleration]
 validation_metrics: [time_headway, time_to_collision, minimum_longitudinal_gap]
 known_limitations: [必须排除低速排队场景中的自然短空间距离]

@@ -16,6 +16,13 @@ trigger:
   description: 横跨车辆在距分流点较短距离内进入其他车辆路径。
   threshold_source: semantic
   conditions: [diverging_topology, late_lateral_crossing, conflicting_vehicle_present]
+detection:
+  mode: compatible_seed
+  conditions: [diverging_topology, conflicting_vehicle_present, lateral_crossing_feasible]
+  thresholds:
+    maximum_distance_to_diverge_m: {value: 60.0, source: semantic}
+    maximum_target_gap_m: {value: 18.0, source: semantic}
+    minimum_lateral_displacement_m: {value: 0.25, source: semantic}
 actors:
   initiator_types: [vehicle]
   responder_types: [vehicle]
@@ -26,7 +33,7 @@ parameters:
   target_gap_m: {range: [4.0, 18.0], source: train_statistics}
 generation_operators: [LANE_CHANGE, MERGE, MULTI_AGENT]
 constraints: {remain_in_drivable_area: true, smooth_lateral_motion: true, forbid_unavoidable_collision: true}
-risk_definition: {metric: minimum_crossing_time_to_collision, target_range: [1.0, 4.0], source: reference}
+risk_definition: {metric: minimum_crossing_time_to_collision, target_range: [1.0, 4.0], source: reference, direction: lower_is_riskier}
 expected_behavior: [plan_lane_change_early, wait_for_safe_gap, avoid_crossing_multiple_paths_aggressively]
 validation_metrics: [time_to_diverge, minimum_time_to_collision, lateral_acceleration]
 known_limitations: [AV2不提供导航意图不能声称车辆错过出口]

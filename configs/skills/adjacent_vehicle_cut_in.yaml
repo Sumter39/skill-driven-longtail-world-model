@@ -16,6 +16,13 @@ trigger:
   description: 发起车辆由相邻车道向目标车辆前方间隙横移。
   threshold_source: train_statistics
   conditions: [adjacent_lane, lateral_entry, target_gap_ahead]
+detection:
+  mode: observed_trigger
+  conditions: [adjacent_lane, lateral_entry, target_gap_ahead]
+  thresholds:
+    minimum_lateral_displacement_m: {value: 2.0, source: semantic}
+    minimum_target_gap_m: {value: 4.0, source: semantic}
+    maximum_target_gap_m: {value: 18.0, source: semantic}
 actors:
   initiator_types: [vehicle]
   responder_types: [vehicle]
@@ -26,7 +33,7 @@ parameters:
   target_gap_m: {range: [4.0, 18.0], source: train_statistics}
 generation_operators: [LANE_CHANGE]
 constraints: {remain_in_drivable_area: true, preserve_lane_direction: true, smooth_lateral_motion: true, forbid_unavoidable_collision: true}
-risk_definition: {metric: post_cut_in_time_to_collision, target_range: [1.0, 4.0], source: reference}
+risk_definition: {metric: post_cut_in_time_to_collision, target_range: [1.0, 4.0], source: reference, direction: lower_is_riskier}
 expected_behavior: [decelerate, increase_following_gap, avoid_collision]
 validation_metrics: [post_cut_in_time_to_collision, lateral_clearance, lateral_acceleration]
 known_limitations: [需要稳定识别车辆跨越车道边界的时刻]

@@ -64,9 +64,25 @@ class MapPolyline:
     points: np.ndarray
     direction: str = "unknown"
     is_intersection: bool = False
+    lane_id: str | None = None
+    mark_type: str = "unknown"
+    left_mark_type: str = "unknown"
+    right_mark_type: str = "unknown"
+    predecessor_ids: list[str] = field(default_factory=list)
+    successor_ids: list[str] = field(default_factory=list)
+    left_neighbor_id: str | None = None
+    right_neighbor_id: str | None = None
 
     def __post_init__(self) -> None:
         self.points = _points(self.points, "points")
+        self.predecessor_ids = [str(value) for value in self.predecessor_ids]
+        self.successor_ids = [str(value) for value in self.successor_ids]
+        if self.lane_id is not None:
+            self.lane_id = str(self.lane_id)
+        if self.left_neighbor_id is not None:
+            self.left_neighbor_id = str(self.left_neighbor_id)
+        if self.right_neighbor_id is not None:
+            self.right_neighbor_id = str(self.right_neighbor_id)
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -75,6 +91,14 @@ class MapPolyline:
             "points": self.points.tolist(),
             "direction": self.direction,
             "is_intersection": self.is_intersection,
+            "lane_id": self.lane_id,
+            "mark_type": self.mark_type,
+            "left_mark_type": self.left_mark_type,
+            "right_mark_type": self.right_mark_type,
+            "predecessor_ids": list(self.predecessor_ids),
+            "successor_ids": list(self.successor_ids),
+            "left_neighbor_id": self.left_neighbor_id,
+            "right_neighbor_id": self.right_neighbor_id,
         }
 
     @classmethod
@@ -130,6 +154,7 @@ class SkillSpec:
     data_support: dict[str, Any]
     seed_requirements: dict[str, Any]
     trigger: dict[str, Any]
+    detection: dict[str, Any]
     actors: dict[str, Any]
     parameters: dict[str, Any]
     generation_operators: list[str]
@@ -150,6 +175,7 @@ class SkillSpec:
             "data_support": self.data_support,
             "seed_requirements": self.seed_requirements,
             "trigger": self.trigger,
+            "detection": self.detection,
             "actors": self.actors,
             "parameters": self.parameters,
             "generation_operators": self.generation_operators,

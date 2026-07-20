@@ -16,6 +16,12 @@ trigger:
   description: 让行角色未降低冲突点占用优先级且时间差不足。
   threshold_source: semantic
   conditions: [converging_lanes, explicit_priority_role, yielding_actor_continues]
+detection:
+  mode: compatible_seed
+  conditions: [converging_lanes, priority_roles_assignable]
+  thresholds:
+    maximum_convergence_distance_m: {value: 60.0, source: semantic}
+    maximum_arrival_time_gap_s: {value: 4.0, source: reference}
 actors:
   initiator_types: [vehicle]
   responder_types: [vehicle]
@@ -26,7 +32,7 @@ parameters:
   priority_role: {choices: [initiator, responder], source: semantic}
 generation_operators: [MERGE, YIELD_PRIORITY]
 constraints: {remain_in_drivable_area: true, preserve_lane_direction: true, role_assignment_fixed: true, forbid_unavoidable_collision: true}
-risk_definition: {metric: conflict_point_time_gap, target_range: [0.5, 2.5], source: reference}
+risk_definition: {metric: conflict_point_time_gap, target_range: [0.5, 2.5], source: reference, direction: lower_is_riskier}
 expected_behavior: [yield_to_priority_vehicle, reduce_speed, enter_only_with_safe_gap]
 validation_metrics: [conflict_point_time_gap, priority_consistency, minimum_distance]
 known_limitations: [法律优先权不能从运动结果倒推必须由技能条件指定]

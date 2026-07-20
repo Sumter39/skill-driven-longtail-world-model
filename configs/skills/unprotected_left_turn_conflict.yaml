@@ -16,6 +16,14 @@ trigger:
   description: 左转与对向直行车辆到达冲突点的时间差进入风险区间。
   threshold_source: reference
   conditions: [left_turn_path, opposing_through_path, small_arrival_time_gap]
+detection:
+  mode: observed_trigger
+  conditions: [left_turn_path, opposing_through_path, small_arrival_time_gap]
+  thresholds:
+    minimum_turn_heading_change_deg: {value: 25.0, source: semantic}
+    minimum_opposing_heading_difference_deg: {value: 120.0, source: semantic}
+    maximum_arrival_time_gap_s: {value: 3.0, source: reference}
+    maximum_conflict_distance_m: {value: 6.0, source: semantic}
 actors:
   initiator_types: [vehicle]
   responder_types: [vehicle]
@@ -26,7 +34,7 @@ parameters:
   accepted_gap_s: {range: [1.0, 4.0], source: reference}
 generation_operators: [CONFLICT_POINT, YIELD_PRIORITY]
 constraints: {remain_in_drivable_area: true, smooth_turning_motion: true, role_assignment_fixed: true, forbid_unavoidable_collision: true}
-risk_definition: {metric: post_encroachment_time, target_range: [0.5, 3.0], source: reference}
+risk_definition: {metric: post_encroachment_time, target_range: [0.5, 3.0], source: reference, direction: lower_is_riskier}
 expected_behavior: [yield_to_opposing_traffic, wait_for_safe_gap, complete_turn_smoothly]
 validation_metrics: [post_encroachment_time, minimum_distance, turn_curvature]
 known_limitations: [无动态信号相位仅表达几何和让行意义上的无保护冲突]

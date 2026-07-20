@@ -16,6 +16,12 @@ trigger:
   description: 两车到达收敛位置的时间相近且可用纵向间隙不足。
   threshold_source: semantic
   conditions: [lane_successors_converge, competing_arrival, insufficient_gap]
+detection:
+  mode: compatible_seed
+  conditions: [lane_successors_converge, competing_vehicles_present]
+  thresholds:
+    maximum_convergence_distance_m: {value: 60.0, source: semantic}
+    maximum_competing_vehicle_gap_m: {value: 55.0, source: semantic}
 actors:
   initiator_types: [vehicle]
   responder_types: [vehicle]
@@ -26,7 +32,7 @@ parameters:
   accepted_gap_s: {range: [1.0, 4.0], source: reference}
 generation_operators: [MERGE, YIELD_PRIORITY]
 constraints: {remain_in_drivable_area: true, preserve_lane_direction: true, maintain_role_consistency: true, forbid_unavoidable_collision: true}
-risk_definition: {metric: convergence_time_gap, target_range: [0.5, 3.0], source: reference}
+risk_definition: {metric: convergence_time_gap, target_range: [0.5, 3.0], source: reference, direction: lower_is_riskier}
 expected_behavior: [coordinate_merge, yield_if_required, avoid_side_swipe]
 validation_metrics: [convergence_time_gap, lateral_clearance, final_lane_order]
 known_limitations: [地图不能证明车道收敛由施工或永久道路设计导致]

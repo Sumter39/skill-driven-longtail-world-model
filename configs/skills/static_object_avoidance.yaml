@@ -16,6 +16,13 @@ trigger:
   description: 车辆当前路径预计侵入static对象保守安全缓冲。
   threshold_source: semantic
   conditions: [static_actor_near_path, predicted_buffer_intrusion, response_space_available]
+detection:
+  mode: compatible_seed
+  conditions: [static_actor_near_path, vehicle_approaching, response_space_available]
+  thresholds:
+    maximum_object_speed_mps: {value: 0.5, source: semantic}
+    maximum_object_path_distance_m: {value: 8.0, source: semantic}
+    maximum_vehicle_arrival_s: {value: 6.0, source: reference}
 actors:
   initiator_types: [static]
   responder_types: [vehicle]
@@ -26,7 +33,7 @@ parameters:
   response_start_s: {range: [0.5, 3.0], source: semantic}
 generation_operators: [BLOCKAGE_RESPONSE, LANE_CHANGE]
 constraints: {static_actor_stationary: true, remain_in_drivable_area: true, respect_object_buffer: true, forbid_unavoidable_collision: true}
-risk_definition: {metric: minimum_object_clearance, target_range: [1.0, 4.0], source: semantic}
+risk_definition: {metric: minimum_object_clearance, target_range: [1.0, 4.0], source: semantic, direction: lower_is_riskier}
 expected_behavior: [decelerate, avoid_object, remain_within_road_boundary]
 validation_metrics: [minimum_object_clearance, lateral_acceleration, road_boundary_margin]
 known_limitations: [对象类型形状和尺寸未知只能使用粗粒度名称和保守缓冲]

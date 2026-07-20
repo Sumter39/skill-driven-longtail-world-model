@@ -16,6 +16,12 @@ trigger:
   description: 两车预计到达汇合点的时间差进入风险区间。
   threshold_source: reference
   conditions: [converging_lanes, shared_conflict_point, small_arrival_time_gap]
+detection:
+  mode: observed_trigger
+  conditions: [converging_lanes, shared_conflict_point, small_arrival_time_gap]
+  thresholds:
+    maximum_convergence_distance_m: {value: 60.0, source: semantic}
+    maximum_arrival_time_gap_s: {value: 3.0, source: reference}
 actors:
   initiator_types: [vehicle]
   responder_types: [vehicle]
@@ -26,7 +32,7 @@ parameters:
   merge_speed_scale: {range: [0.8, 1.2], source: train_statistics}
 generation_operators: [MERGE, CONFLICT_POINT]
 constraints: {remain_in_drivable_area: true, preserve_lane_direction: true, maintain_role_consistency: true, forbid_unavoidable_collision: true}
-risk_definition: {metric: conflict_point_time_gap, target_range: [0.5, 3.0], source: reference}
+risk_definition: {metric: conflict_point_time_gap, target_range: [0.5, 3.0], source: reference, direction: lower_is_riskier}
 expected_behavior: [yield_according_to_role, maintain_safe_gap, avoid_collision]
 validation_metrics: [conflict_point_time_gap, minimum_distance, merge_completion]
 known_limitations: [法律优先权需由地图和规则显式定义]

@@ -16,6 +16,13 @@ trigger:
   description: 车辆继续当前路径将进入construction对象保守安全缓冲。
   threshold_source: semantic
   conditions: [construction_actor_near_path, vehicle_approaching, safety_buffer_violation_predicted]
+detection:
+  mode: compatible_seed
+  conditions: [construction_actor_near_path, vehicle_approaching, response_space_available]
+  thresholds:
+    maximum_object_speed_mps: {value: 0.5, source: semantic}
+    maximum_object_path_distance_m: {value: 8.0, source: semantic}
+    maximum_vehicle_arrival_s: {value: 6.0, source: reference}
 actors:
   initiator_types: [construction]
   responder_types: [vehicle]
@@ -26,7 +33,7 @@ parameters:
   speed_scale: {range: [0.2, 0.8], source: semantic}
 generation_operators: [BLOCKAGE_RESPONSE]
 constraints: {construction_actor_static: true, remain_in_drivable_area: true, respect_object_buffer: true, forbid_unavoidable_collision: true}
-risk_definition: {metric: minimum_object_clearance, target_range: [1.0, 4.0], source: semantic}
+risk_definition: {metric: minimum_object_clearance, target_range: [1.0, 4.0], source: semantic, direction: lower_is_riskier}
 expected_behavior: [decelerate, maintain_conservative_clearance, stop_or_pass_if_safe]
 validation_metrics: [minimum_object_clearance, stopping_distance_margin, road_boundary_margin]
 known_limitations: [对象类别粗且无轮廓尺寸不能声称是锥桶施工牌或低矮障碍]

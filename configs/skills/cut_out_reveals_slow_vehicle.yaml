@@ -16,6 +16,13 @@ trigger:
   description: 直接前车切出后，次前车成为低速或停车主风险对象。
   threshold_source: train_statistics
   conditions: [three_vehicle_queue, lead_vehicle_cuts_out, newly_exposed_slow_vehicle]
+detection:
+  mode: compatible_seed
+  conditions: [three_vehicle_queue, adjacent_lane_available, slow_vehicle_ahead]
+  thresholds:
+    maximum_slow_vehicle_speed_mps: {value: 2.0, source: semantic}
+    maximum_queue_gap_m: {value: 55.0, source: semantic}
+    minimum_queue_gap_m: {value: 2.0, source: semantic}
 actors:
   initiator_types: [vehicle]
   responder_types: [vehicle]
@@ -26,7 +33,7 @@ parameters:
   response_delay_s: {range: [0.2, 1.2], source: semantic}
 generation_operators: [LANE_CHANGE, BLOCKAGE_RESPONSE, MULTI_AGENT]
 constraints: {remain_in_drivable_area: true, preserve_lane_direction: true, forbid_unavoidable_collision: true}
-risk_definition: {metric: newly_exposed_time_to_collision, target_range: [1.0, 4.0], source: reference}
+risk_definition: {metric: newly_exposed_time_to_collision, target_range: [1.0, 4.0], source: reference, direction: lower_is_riskier}
 expected_behavior: [detect_new_leader, brake, maintain_safe_gap]
 validation_metrics: [newly_exposed_time_to_collision, stopping_distance_margin, minimum_longitudinal_gap]
 known_limitations: [只表达轨迹层面的风险暴露不能证明视觉遮挡]

@@ -16,6 +16,13 @@ trigger:
   description: 行人正在进入或穿越人行横道且车辆预计同期到达。
   threshold_source: reference
   conditions: [pedestrian_near_crosswalk, crossing_vehicle_path, overlapping_arrival_window]
+detection:
+  mode: observed_trigger
+  conditions: [pedestrian_near_crosswalk, crossing_vehicle_path, overlapping_arrival_window]
+  thresholds:
+    maximum_crosswalk_distance_m: {value: 8.0, source: semantic}
+    maximum_arrival_time_gap_s: {value: 4.0, source: reference}
+    maximum_conflict_distance_m: {value: 6.0, source: semantic}
 actors:
   initiator_types: [pedestrian]
   responder_types: [vehicle]
@@ -26,7 +33,7 @@ parameters:
   arrival_time_gap_s: {range: [0.5, 4.0], source: reference}
 generation_operators: [VRU_CROSSING, CONFLICT_POINT]
 constraints: {continuous_crossing_motion: true, class_specific_speed_limit: true, vehicle_remains_in_drivable_area: true, forbid_unavoidable_collision: true}
-risk_definition: {metric: post_encroachment_time, target_range: [0.5, 4.0], source: reference}
+risk_definition: {metric: post_encroachment_time, target_range: [0.5, 4.0], source: reference, direction: lower_is_riskier}
 expected_behavior: [yield, decelerate, stop_if_needed]
 validation_metrics: [post_encroachment_time, minimum_distance, crossing_completion]
 known_limitations: [当前场景适配器需要补充人行横道几何]

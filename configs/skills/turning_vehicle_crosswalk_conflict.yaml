@@ -16,6 +16,14 @@ trigger:
   description: 转向车辆与行人到达横道冲突点的时间差较小。
   threshold_source: reference
   conditions: [turning_vehicle, pedestrian_on_crosswalk, shared_conflict_point]
+detection:
+  mode: observed_trigger
+  conditions: [turning_vehicle, pedestrian_on_crosswalk, shared_conflict_point]
+  thresholds:
+    minimum_turn_heading_change_deg: {value: 25.0, source: semantic}
+    maximum_crosswalk_distance_m: {value: 8.0, source: semantic}
+    maximum_arrival_time_gap_s: {value: 4.0, source: reference}
+    maximum_conflict_distance_m: {value: 6.0, source: semantic}
 actors:
   initiator_types: [pedestrian]
   responder_types: [vehicle]
@@ -26,7 +34,7 @@ parameters:
   arrival_time_gap_s: {range: [0.5, 4.0], source: reference}
 generation_operators: [CONFLICT_POINT, VRU_CROSSING, YIELD_PRIORITY]
 constraints: {remain_in_drivable_area: true, class_specific_speed_limit: true, smooth_turning_motion: true, forbid_unavoidable_collision: true}
-risk_definition: {metric: post_encroachment_time, target_range: [0.5, 4.0], source: reference}
+risk_definition: {metric: post_encroachment_time, target_range: [0.5, 4.0], source: reference, direction: lower_is_riskier}
 expected_behavior: [turning_vehicle_yields, reduce_turn_speed, stop_if_needed]
 validation_metrics: [post_encroachment_time, minimum_distance, crosswalk_occupancy]
 known_limitations: [无动态信号相位仅评价几何冲突和让行]

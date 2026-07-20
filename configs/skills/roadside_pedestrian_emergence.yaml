@@ -16,6 +16,13 @@ trigger:
   description: 行人在延迟后首次侵入可行驶区域并接近车辆路径。
   threshold_source: semantic
   conditions: [pedestrian_near_drivable_boundary, delayed_entry, vehicle_approaching]
+detection:
+  mode: compatible_seed
+  conditions: [pedestrian_near_drivable_boundary, vehicle_approaching, drivable_entry_available]
+  thresholds:
+    maximum_boundary_distance_m: {value: 8.0, source: semantic}
+    maximum_vehicle_arrival_s: {value: 4.0, source: reference}
+    maximum_conflict_distance_m: {value: 6.0, source: semantic}
 actors:
   initiator_types: [pedestrian]
   responder_types: [vehicle]
@@ -26,7 +33,7 @@ parameters:
   initial_boundary_distance_m: {range: [0.5, 8.0], source: semantic}
 generation_operators: [VRU_CROSSING, CONFLICT_POINT]
 constraints: {continuous_entry_motion: true, class_specific_speed_limit: true, forbid_unavoidable_collision: true}
-risk_definition: {metric: first_intrusion_time_to_collision, target_range: [1.0, 4.0], source: reference}
+risk_definition: {metric: first_intrusion_time_to_collision, target_range: [1.0, 4.0], source: reference, direction: lower_is_riskier}
 expected_behavior: [rapidly_decelerate, maintain_lateral_clearance, stop_if_needed]
 validation_metrics: [first_intrusion_time_to_collision, minimum_distance, boundary_crossing_time]
 known_limitations: [不声称行人此前被视觉遮挡]

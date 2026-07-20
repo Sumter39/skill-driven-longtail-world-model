@@ -16,6 +16,14 @@ trigger:
   description: 车辆航向与车道方向长期相反并沿车道持续移动。
   threshold_source: train_statistics
   conditions: [stable_lane_match, sustained_opposite_heading, oncoming_vehicle_present]
+detection:
+  mode: observed_trigger
+  conditions: [stable_lane_match, sustained_opposite_heading, oncoming_vehicle_present]
+  thresholds:
+    minimum_opposite_heading_difference_deg: {value: 120.0, source: semantic}
+    minimum_moving_speed_mps: {value: 2.0, source: semantic}
+    minimum_opposite_heading_duration_s: {value: 1.0, source: semantic}
+    maximum_oncoming_distance_m: {value: 60.0, source: semantic}
 actors:
   initiator_types: [vehicle]
   responder_types: [vehicle]
@@ -26,7 +34,7 @@ parameters:
   initial_distance_m: {range: [15.0, 60.0], source: semantic}
 generation_operators: [CONFLICT_POINT]
 constraints: {remain_near_lane_centerline: true, sustained_opposite_direction: true, forbid_unavoidable_collision: true}
-risk_definition: {metric: head_on_time_to_collision, target_range: [1.0, 5.0], source: reference}
+risk_definition: {metric: head_on_time_to_collision, target_range: [1.0, 5.0], source: reference, direction: lower_is_riskier}
 expected_behavior: [decelerate, avoid_head_on_path, preserve_escape_space]
 validation_metrics: [head_on_time_to_collision, heading_difference, minimum_distance]
 known_limitations: [必须排除倒车路口转弯和地图匹配错误]

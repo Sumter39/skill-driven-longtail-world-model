@@ -16,6 +16,16 @@ trigger:
   description: 前车速度相对同场景车流处于低分位并持续占据目标车道。
   threshold_source: train_statistics
   conditions: [same_lane, sustained_low_speed, follower_approaching]
+detection:
+  mode: observed_trigger
+  conditions: [same_lane, sustained_low_speed, follower_approaching]
+  thresholds:
+    maximum_leader_speed_mps: {value: 2.0, source: semantic}
+    minimum_low_speed_duration_s: {value: 2.0, source: semantic}
+    maximum_pair_gap_m: {value: 45.0, source: semantic}
+    minimum_follower_speed_mps: {value: 1.0, source: semantic}
+    minimum_closing_speed_mps: {value: 0.5, source: semantic}
+    minimum_pair_gap_m: {value: 2.0, source: semantic}
 actors:
   initiator_types: [vehicle, bus]
   responder_types: [vehicle]
@@ -26,7 +36,7 @@ parameters:
   initial_gap_m: {range: [8.0, 45.0], source: train_statistics}
 generation_operators: [LONGITUDINAL, BLOCKAGE_RESPONSE]
 constraints: {remain_in_drivable_area: true, preserve_lane_direction: true, forbid_unavoidable_collision: true}
-risk_definition: {metric: minimum_longitudinal_gap, target_range: [3.0, 15.0], source: semantic}
+risk_definition: {metric: minimum_longitudinal_gap, target_range: [3.0, 15.0], source: semantic, direction: lower_is_riskier}
 expected_behavior: [decelerate, follow_safely, pass_only_if_legal]
 validation_metrics: [minimum_longitudinal_gap, speed_ratio, response_delay]
 known_limitations: [无法从轨迹确定前车低速的真实原因]

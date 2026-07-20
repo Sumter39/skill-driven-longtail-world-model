@@ -16,6 +16,13 @@ trigger:
   description: 切入完成后在短延迟内启动明显制动并压缩后车间距。
   threshold_source: semantic
   conditions: [adjacent_vehicle_cuts_in, short_post_cut_in_delay, initiator_brakes]
+detection:
+  mode: compatible_seed
+  conditions: [adjacent_lane, target_gap_ahead, post_cut_in_braking_space]
+  thresholds:
+    minimum_target_gap_m: {value: 4.0, source: semantic}
+    maximum_target_gap_m: {value: 18.0, source: semantic}
+    minimum_post_cut_in_braking_distance_m: {value: 10.0, source: semantic}
 actors:
   initiator_types: [vehicle]
   responder_types: [vehicle]
@@ -26,7 +33,7 @@ parameters:
   peak_deceleration_mps2: {range: [2.0, 6.0], source: train_statistics}
 generation_operators: [LANE_CHANGE, LONGITUDINAL]
 constraints: {remain_in_drivable_area: true, smooth_lateral_motion: true, nonnegative_speed: true, forbid_unavoidable_collision: true}
-risk_definition: {metric: minimum_stage_time_to_collision, target_range: [1.0, 4.0], source: reference}
+risk_definition: {metric: minimum_stage_time_to_collision, target_range: [1.0, 4.0], source: reference, direction: lower_is_riskier}
 expected_behavior: [track_behavior_change, brake_promptly, maintain_control]
 validation_metrics: [post_cut_in_time_to_collision, peak_deceleration, minimum_longitudinal_gap]
 known_limitations: [组合技能必须在消融中与单独切入和急减速区分]

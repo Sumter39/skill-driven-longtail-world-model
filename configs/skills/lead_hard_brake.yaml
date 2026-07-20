@@ -16,6 +16,13 @@ trigger:
   description: 前车减速度进入Train车辆减速度尾部分布且后车正在闭合。
   threshold_source: train_statistics
   conditions: [same_or_successor_lane, leader_decelerating, follower_closing]
+detection:
+  mode: observed_trigger
+  conditions: [same_or_successor_lane, leader_decelerating, follower_closing]
+  thresholds:
+    minimum_deceleration_mps2: {value: 2.0, source: semantic}
+    minimum_closing_speed_mps: {value: 1.0, source: semantic}
+    maximum_pair_gap_m: {value: 55.0, source: semantic}
 actors:
   initiator_types: [vehicle]
   responder_types: [vehicle]
@@ -26,7 +33,7 @@ parameters:
   braking_duration_s: {range: [0.8, 3.0], source: semantic}
 generation_operators: [LONGITUDINAL]
 constraints: {remain_in_drivable_area: true, preserve_lane_direction: true, nonnegative_speed: true, forbid_unavoidable_collision: true}
-risk_definition: {metric: time_to_collision, target_range: [1.0, 4.0], source: reference}
+risk_definition: {metric: time_to_collision, target_range: [1.0, 4.0], source: reference, direction: lower_is_riskier}
 expected_behavior: [brake, maintain_control, avoid_collision]
 validation_metrics: [time_to_collision, required_deceleration, minimum_longitudinal_gap]
 known_limitations: [减速度阈值必须在Train统计后冻结]

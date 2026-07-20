@@ -1,0 +1,10 @@
+version: 1
+global_seed: 2026
+max_candidates_per_skill_per_scenario: 1
+thresholds:
+  maximum_actor_distance_m: {value: 70.0, source: semantic}
+  lane_match_distance_m: {value: 5.0, source: semantic}
+  lane_heading_tolerance_deg: {value: 60.0, source: semantic}
+  same_lane_lateral_tolerance_m: {value: 3.5, source: semantic}
+  conflict_distance_m: {value: 6.0, source: semantic}
+  risk_time_horizon_s: {value: 6.0, source: reference}

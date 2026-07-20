@@ -16,6 +16,14 @@ trigger:
   description: 骑行者和机动车到达路径交点的时间差进入风险区间。
   threshold_source: reference
   conditions: [cyclist_crosses_vehicle_path, overlapping_arrival_window]
+detection:
+  mode: observed_trigger
+  conditions: [cyclist_crosses_vehicle_path, overlapping_arrival_window]
+  thresholds:
+    minimum_crossing_angle_deg: {value: 45.0, source: semantic}
+    maximum_crossing_angle_deg: {value: 135.0, source: semantic}
+    maximum_arrival_time_gap_s: {value: 4.0, source: reference}
+    maximum_conflict_distance_m: {value: 6.0, source: semantic}
 actors:
   initiator_types: [cyclist]
   responder_types: [vehicle]
@@ -26,7 +34,7 @@ parameters:
   cyclist_speed_mps: {range: [2.0, 7.0], source: train_statistics}
 generation_operators: [VRU_CROSSING, CONFLICT_POINT]
 constraints: {continuous_crossing_motion: true, class_specific_speed_limit: true, forbid_unavoidable_collision: true}
-risk_definition: {metric: post_encroachment_time, target_range: [0.5, 4.0], source: reference}
+risk_definition: {metric: post_encroachment_time, target_range: [0.5, 4.0], source: reference, direction: lower_is_riskier}
 expected_behavior: [yield_to_cyclist, decelerate, preserve_lateral_clearance]
 validation_metrics: [post_encroachment_time, minimum_distance, cyclist_speed]
 known_limitations: [真实种子数量低于行人类技能]

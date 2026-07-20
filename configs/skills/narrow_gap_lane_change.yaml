@@ -16,6 +16,13 @@ trigger:
   description: 换道完成时目标车道前后时距同时进入Train低分位。
   threshold_source: train_statistics
   conditions: [lane_change, front_gap_small, rear_gap_small]
+detection:
+  mode: observed_trigger
+  conditions: [lane_change, front_gap_small, rear_gap_small]
+  thresholds:
+    minimum_lateral_displacement_m: {value: 2.0, source: semantic}
+    maximum_front_gap_m: {value: 15.0, source: semantic}
+    maximum_rear_gap_m: {value: 15.0, source: semantic}
 actors:
   initiator_types: [vehicle]
   responder_types: [vehicle]
@@ -26,7 +33,7 @@ parameters:
   rear_gap_m: {range: [4.0, 15.0], source: train_statistics}
 generation_operators: [LANE_CHANGE, MULTI_AGENT]
 constraints: {remain_in_drivable_area: true, smooth_lateral_motion: true, preserve_lane_direction: true, forbid_unavoidable_collision: true}
-risk_definition: {metric: minimum_front_rear_time_to_collision, target_range: [1.0, 4.0], source: reference}
+risk_definition: {metric: minimum_front_rear_time_to_collision, target_range: [1.0, 4.0], source: reference, direction: lower_is_riskier}
 expected_behavior: [wait_for_safe_gap, complete_lane_change_smoothly, avoid_cutting_off_traffic]
 validation_metrics: [front_time_to_collision, rear_time_to_collision, lateral_clearance]
 known_limitations: [必须同时稳定跟踪目标车道前车和后车]
