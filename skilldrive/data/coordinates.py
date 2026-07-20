@@ -80,6 +80,14 @@ def to_focal_frame(scenario: Scenario) -> Scenario:
             points=global_to_local(polyline.points, origin, heading),
             direction=polyline.direction,
             is_intersection=polyline.is_intersection,
+            lane_id=polyline.lane_id,
+            mark_type=polyline.mark_type,
+            left_mark_type=polyline.left_mark_type,
+            right_mark_type=polyline.right_mark_type,
+            predecessor_ids=list(polyline.predecessor_ids),
+            successor_ids=list(polyline.successor_ids),
+            left_neighbor_id=polyline.left_neighbor_id,
+            right_neighbor_id=polyline.right_neighbor_id,
         )
         for polyline in scenario.map_polylines
     ]
