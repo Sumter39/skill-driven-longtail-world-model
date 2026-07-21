@@ -10,6 +10,7 @@ from skilldrive.schemas import SkillSpec
 from skilldrive.seeds import (
     SEED_CSV_FIELDS,
     SeedRecord,
+    iter_seed_records,
     read_seed_records,
     sample_skill_parameters,
     validate_sampled_parameters,
@@ -64,6 +65,41 @@ def test_seed_csv_round_trip_is_sorted_and_byte_deterministic(tmp_path: Path) ->
         '"source":"reference","target_range":[1.0,4.0]}'
     )
     assert rows[0]["evidence_json"] == '{"closing":true,"metrics":{"frames":[10,11],"gap_m":8.5}}'
+
+
+def test_iter_seed_records_preserves_file_order_while_read_remains_sorted(
+    tmp_path: Path,
+) -> None:
+    path = tmp_path / "file-order.csv"
+    records = [_record("scene-b"), _record("scene-a")]
+    with path.open("w", encoding="utf-8", newline="") as handle:
+        writer = csv.DictWriter(handle, fieldnames=SEED_CSV_FIELDS)
+        writer.writeheader()
+        writer.writerows(record.to_csv_row() for record in records)
+
+    assert list(iter_seed_records(path)) == records
+    assert read_seed_records(path) == list(reversed(records))
+
+
+def test_iter_seed_records_validates_rows_lazily_with_file_and_line(
+    tmp_path: Path,
+) -> None:
+    path = tmp_path / "invalid-second-row.csv"
+    valid = _record("scene-a").to_csv_row()
+    invalid = _record("scene-b").to_csv_row()
+    invalid["evidence_json"] = "[]"
+    with path.open("w", encoding="utf-8", newline="") as handle:
+        writer = csv.DictWriter(handle, fieldnames=SEED_CSV_FIELDS)
+        writer.writeheader()
+        writer.writerows([valid, invalid])
+
+    records = iter_seed_records(path)
+    assert next(records) == _record("scene-a")
+    with pytest.raises(
+        ValueError,
+        match=r"invalid seed CSV row 3 in .*invalid-second-row\.csv:.*non-empty JSON object",
+    ):
+        next(records)
 
 
 def test_duplicate_seed_unique_key_is_rejected(tmp_path: Path) -> None:
