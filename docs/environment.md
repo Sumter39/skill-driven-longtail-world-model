@@ -2,7 +2,7 @@
 
 ## 当前机器审计
 
-审计日期：2026-07-19。
+审计日期：2026-07-21。
 
 | 项目 | 当前状态 |
 |---|---|
@@ -13,6 +13,8 @@
 | 项目Python | 3.10.20，位于Linux `.venv` |
 | AV2 API | 0.3.6，导入和单场景读取已验证 |
 | WSL GPU | RTX 4060 Laptop，8188 MiB，可被 `nvidia-smi` 识别 |
+| PyTorch | 2.13.0+cu130，CUDA前向和反向已验证 |
+| GPU驱动 | Windows 610.74，WSL暴露CUDA 13.3能力 |
 | D盘空间 | 随数据下载变化，使用`df -h .`实时检查 |
 
 项目在WSL内使用Linux版Python和依赖，不与Windows Python共享虚拟环境目录。
@@ -41,7 +43,7 @@ uv run pytest -q
 uv run python -m scripts.visualization.render_synthetic_bev
 ```
 
-`av2`是项目正式依赖；`pytest`位于`dependency-groups.dev`，并由`tool.uv.default-groups`默认启用。因此普通`uv sync`和`uv run`都会保留二者，不需要`--extra`或`--all-extras`。
+`av2`和`torch==2.13.0`是项目正式依赖；`pytest`位于`dependency-groups.dev`，并由`tool.uv.default-groups`默认启用。因此普通`uv sync`和`uv run`都会保留数据、GPU训练和测试依赖，不需要`--extra`或`--all-extras`。
 
 项目位于`/mnt/d`的NTFS文件系统，而`uv`缓存位于WSL的Linux文件系统。首次同步可能出现“Failed to hardlink files; falling back to full copy”警告。这不影响安装结果，可设置复制模式消除警告：
 
@@ -65,19 +67,30 @@ source .venv/bin/activate
 ## 快速验证
 
 ```bash
-uv run python -c "import numpy, yaml, matplotlib; print('base dependencies OK')"
+uv run python -c "import numpy, yaml, matplotlib, torch; print('base dependencies OK')"
 uv run python -c "import av2; print('AV2 API OK')"
 nvidia-smi
 uv run pytest -q
 ```
 
-本准备阶段不要求安装PyTorch。进入模型阶段前，再根据[PyTorch官方安装页](https://pytorch.org/get-started/locally/)选择Linux和当前CUDA驱动兼容的轮子，然后检查：
+当前锁文件固定PyTorch 2.13.0，Linux轮子使用CUDA 13.0运行时；Windows驱动向WSL提供的CUDA 13.3能力向后兼容。完整GPU验证为：
 
 ```bash
-uv run python -c "import torch; print(torch.__version__); print(torch.cuda.is_available())"
+uv run python - <<'PY'
+import torch
+
+print(torch.__version__)
+print(torch.version.cuda)
+print(torch.cuda.is_available())
+print(torch.cuda.get_device_name(0))
+
+x = torch.randn(1024, 1024, device="cuda", requires_grad=True)
+x.square().mean().backward()
+print(float(x.grad.abs().mean()))
+PY
 ```
 
-不要在WSL内安装完整NVIDIA显卡驱动；Windows主机驱动负责向WSL提供GPU支持。
+不要在WSL内安装完整NVIDIA显卡驱动或系统级CUDA Toolkit；项目轮子已携带所需CUDA运行库，Windows主机驱动负责向WSL提供GPU支持。
 
 ## Windows与WSL路径
 
