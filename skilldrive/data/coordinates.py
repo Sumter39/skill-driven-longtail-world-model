@@ -43,20 +43,39 @@ def wrap_angle(angle: np.ndarray | float) -> np.ndarray:
     return (array + np.pi) % (2 * np.pi) - np.pi
 
 
-def to_focal_frame(scenario: Scenario) -> Scenario:
-    """Return a copy of a scenario in the focal agent's last observed frame."""
-    focal = next(agent for agent in scenario.agents if agent.track_id == scenario.focal_track_id)
-    valid_observed = focal.observed_mask & np.isfinite(focal.positions).all(axis=1)
-    indices = np.flatnonzero(valid_observed)
-    if not len(indices):
-        raise ValueError("focal agent has no finite observed state")
-    index = int(indices[-1])
-    origin = focal.positions[index].copy()
-    heading = float(focal.headings[index])
+def to_agent_frame(
+    scenario: Scenario,
+    anchor_track_id: str,
+    frame_index: int = 49,
+) -> Scenario:
+    """Return a copy of a scenario in one agent's observed frame."""
+    if isinstance(frame_index, bool) or not isinstance(frame_index, (int, np.integer)):
+        raise ValueError("frame_index must be an integer")
+    index = int(frame_index)
+    if index < 0 or index >= len(scenario.timestamps):
+        raise ValueError(
+            f"frame_index must be between 0 and {len(scenario.timestamps) - 1}"
+        )
+
+    anchor = next(
+        (agent for agent in scenario.agents if agent.track_id == anchor_track_id),
+        None,
+    )
+    if anchor is None:
+        raise ValueError(f"anchor_track_id does not reference an agent: {anchor_track_id}")
+    if index >= len(anchor.positions):
+        raise ValueError(f"anchor agent does not contain frame {index}")
+    if not anchor.observed_mask[index] or not np.isfinite(anchor.positions[index]).all():
+        raise ValueError(f"anchor agent has no finite observed state at frame {index}")
+
+    origin = anchor.positions[index].copy()
+    heading = float(anchor.headings[index])
     if not np.isfinite(heading):
-        velocity = focal.velocities[index]
+        velocity = anchor.velocities[index]
         if not np.isfinite(velocity).all() or np.linalg.norm(velocity) == 0:
-            raise ValueError("focal heading and velocity are unavailable at the frame origin")
+            raise ValueError(
+                "anchor heading and velocity are unavailable at the frame origin"
+            )
         heading = float(np.arctan2(velocity[1], velocity[0]))
 
     cosine, sine = np.cos(heading), np.sin(heading)
@@ -92,7 +111,9 @@ def to_focal_frame(scenario: Scenario) -> Scenario:
         for polyline in scenario.map_polylines
     ]
     metadata = dict(scenario.metadata)
-    metadata["coordinate_frame"] = "focal_agent_at_last_observation"
+    metadata["coordinate_frame"] = "agent_at_frame"
+    metadata["anchor_track_id"] = anchor.track_id
+    metadata["frame_index"] = index
     metadata["frame_origin_global_xy"] = origin.tolist()
     metadata["frame_heading_global_rad"] = heading
     return Scenario(
@@ -104,3 +125,20 @@ def to_focal_frame(scenario: Scenario) -> Scenario:
         map_polylines=map_polylines,
         metadata=metadata,
     )
+
+
+def to_focal_frame(scenario: Scenario) -> Scenario:
+    """Return a copy of a scenario in the focal agent's last observed frame."""
+    focal = next(
+        (agent for agent in scenario.agents if agent.track_id == scenario.focal_track_id),
+        None,
+    )
+    if focal is None:
+        raise ValueError("focal_track_id does not reference an agent")
+    valid_observed = focal.observed_mask & np.isfinite(focal.positions).all(axis=1)
+    indices = np.flatnonzero(valid_observed)
+    if not len(indices):
+        raise ValueError("focal agent has no finite observed state")
+    local = to_agent_frame(scenario, focal.track_id, int(indices[-1]))
+    local.metadata["coordinate_frame"] = "focal_agent_at_last_observation"
+    return local

@@ -7,7 +7,7 @@ import json
 import math
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Iterable, Mapping
+from typing import Any, Iterable, Iterator, Mapping
 
 
 SEED_CSV_FIELDS = (
@@ -282,17 +282,28 @@ def write_seed_records(path: str | Path, records: Iterable[SeedRecord]) -> Path:
     return output
 
 
+def iter_seed_records(path: str | Path) -> Iterator[SeedRecord]:
+    """Yield validated seed records in their original CSV order."""
+
+    source = Path(path)
+    with source.open(encoding="utf-8", newline="") as handle:
+        reader = csv.DictReader(handle)
+        header = tuple(reader.fieldnames or ())
+        if header != SEED_CSV_FIELDS:
+            raise ValueError(
+                f"invalid seed CSV header in {source}: "
+                f"expected {SEED_CSV_FIELDS!r}, got {header!r}"
+            )
+        for line_number, row in enumerate(reader, start=2):
+            try:
+                yield SeedRecord.from_csv_row(row)
+            except ValueError as exc:
+                raise ValueError(
+                    f"invalid seed CSV row {line_number} in {source}: {exc}"
+                ) from exc
+
+
 def read_seed_records(path: str | Path) -> list[SeedRecord]:
     """Read and validate a seed CSV, returning records in canonical order."""
 
-    with Path(path).open(encoding="utf-8", newline="") as handle:
-        reader = csv.DictReader(handle)
-        if tuple(reader.fieldnames or ()) != SEED_CSV_FIELDS:
-            raise ValueError("seed CSV header does not match the required fields")
-        records: list[SeedRecord] = []
-        for line_number, row in enumerate(reader, start=2):
-            try:
-                records.append(SeedRecord.from_csv_row(row))
-            except ValueError as exc:
-                raise ValueError(f"invalid seed CSV row {line_number}: {exc}") from exc
-    return sort_seed_records(records)
+    return sort_seed_records(iter_seed_records(path))

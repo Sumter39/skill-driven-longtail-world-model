@@ -3,6 +3,7 @@
 from skilldrive.seeds.records import (
     SEED_CSV_FIELDS,
     SeedRecord,
+    iter_seed_records,
     read_seed_records,
     sort_seed_records,
     write_seed_records,
@@ -15,6 +16,7 @@ from skilldrive.seeds.sampling import (
 __all__ = [
     "SEED_CSV_FIELDS",
     "SeedRecord",
+    "iter_seed_records",
     "read_seed_records",
     "sample_skill_parameters",
     "sort_seed_records",
