@@ -1,0 +1,114 @@
+version: 1
+
+data:
+  root: data/av2/motion-forecasting
+  skill_dir: configs/skills
+  detection_config: configs/seed_detection.yaml
+  formal_candidate_pool: outputs/seed_detection/formal_candidate_pool.csv
+  manifests:
+    development_train: manifests/development/development_train.csv
+    development_validation: manifests/development/development_validation.csv
+    formal_train: manifests/splits/formal_train.csv
+    internal_validation: manifests/splits/internal_validation.csv
+    final_validation: manifests/splits/final_validation.csv
+
+tensorization:
+  schema_version: 1
+  history_steps: 50
+  future_steps: 60
+  anchor_frame: 49
+  sample_period_s: 0.1
+  minimum_history_steps: 30
+  require_complete_future: true
+  max_actors: 32
+  actor_radius_m: 100.0
+  max_map_polylines: 128
+  map_points_per_polyline: 20
+  map_radius_m: 100.0
+  map_types:
+    - lane_centerline
+    - pedestrian_crossing
+    - drivable_area
+
+cache:
+  root: data/processed/cvae_baseline
+  shard_size: 64
+  in_memory_shards: 2
+  resume: true
+
+model:
+  actor_feature_dim: 6
+  actor_type_embedding_dim: 16
+  actor_role_embedding_dim: 16
+  history_hidden_dim: 128
+  map_feature_dim: 4
+  map_type_embedding_dim: 16
+  map_hidden_dim: 128
+  interaction_hidden_dim: 128
+  interaction_layers: 2
+  interaction_heads: 4
+  skill_embedding_dim: 32
+  parameter_hidden_dim: 32
+  latent_dim: 16
+  decoder_hidden_dim: 128
+  dropout: 0.1
+
+loss:
+  reconstruction: smooth_l1
+  endpoint_weight: 1.0
+  kl_max_weight: 0.1
+  kl_warmup_steps: 1000
+  map_soft_weight: 0.0
+  collision_soft_weight: 0.0
+
+training:
+  seed: 2026
+  device: cuda
+  amp: true
+  allow_tf32: false
+  batch_size: 672
+  gradient_accumulation_steps: 1
+  num_workers: 8
+  prefetch_factor: 2
+  persistent_workers: true
+  pin_memory: true
+  learning_rate: 0.0003
+  weight_decay: 0.0001
+  gradient_clip_norm: 5.0
+  development_max_epochs: 50
+  formal_max_epochs: 50
+  early_stopping_patience: 8
+  validation_every_epochs: 1
+  checkpoint_every_steps: 500
+  prior_samples: 6
+  best_metric: min_fde_6
+
+overfit:
+  skill_id: slow_lead_blockage
+  sample_count: 32
+  batch_size: 32
+  max_steps: 3000
+  learning_rate: 0.001
+
+benchmark:
+  warmup_steps: 20
+  measured_steps: 200
+  repeats: 3
+  worker_candidates:
+    - 0
+    - 4
+    - 8
+  batch_size_candidates:
+    - 16
+    - 128
+    - 512
+    - 640
+    - 672
+    - 688
+    - 704
+
+outputs:
+  root: outputs/modeling/cvae_baseline
+  development: outputs/modeling/cvae_baseline/development
+  benchmarks: outputs/modeling/cvae_baseline/benchmarks
+  formal: outputs/modeling/cvae_baseline/formal
