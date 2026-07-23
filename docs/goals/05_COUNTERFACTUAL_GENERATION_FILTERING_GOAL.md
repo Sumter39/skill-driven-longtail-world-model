@@ -422,6 +422,8 @@ docs/counterfactual-generation-review.md
 - 所有接受overlay、清单、summary和图片记录SHA-256，并验证源场景、checkpoint和配置可追溯；
 - 发现系统性错误时回到小规模固定样本修复；若生成或过滤语义变化，必须提升合同版本并重新执行受影响任务。
 
+当前执行结果：149条代表案例和298张BEV图片已在正式数值流程结束后独立生成；自动审计验证了图片、哈希、清单和Formal Train来源的一致性。平衡清单审计覆盖704个源场景、场景集中度、重复ID、diversity通过证据、角色/风险/参数分布；参数分箱在13个有输出技能中非空。人工审核模板已生成但仍为`pending`，不能用自动图像审计替代人工语义判定。
+
 ### 阶段H：测试、文档与阶段交付
 
 - 输出`docs/counterfactual-generation-review.md`，记录能力矩阵、Pilot、性能优化、正式候选量、过滤漏斗、逐技能合格率、参数实现度、数据规模、审核结果、失败技能和限制；
@@ -429,6 +431,8 @@ docs/counterfactual-generation-review.md
 - 运行全量`pytest`、源码`compileall`和`git diff --check`；
 - 确认生成数据、checkpoint、权重、完整日志和批量图片均被Git忽略；
 - 未经用户明确授权，不Commit或Push。
+
+当前执行结果：审查文档、README、FULL计划、自动审计脚本、人工审查模板和审查/交付归档均已生成；阶段H的代码验证已完成，阶段整体仍受人工审核未完成这一验收项约束。
 
 ## 10. 验收标准
 
@@ -515,12 +519,12 @@ docs/counterfactual-generation-review.md
 
 ## 12. 当前状态
 
-截至2026-07-23，阶段A至E和阶段F正式数值生成/过滤已经完成。正式合同ID为`6b2da617bcf0694b87ea055285f971b58d660ae4591f49d039de1d51de99baf3`：仅使用5,000个Formal Train场景、33,914条技能任务、每任务16条候选和34类正式技能；Internal Validation、Final Validation和BEV绘图均未进入正式计算。
+截至2026-07-23，阶段A至E和阶段F正式数值生成/过滤已经完成，阶段G的BEV自动审计与平衡选择也已完成。正式合同ID为`6b2da617bcf0694b87ea055285f971b58d660ae4591f49d039de1d51de99baf3`：仅使用5,000个Formal Train场景、33,914条技能任务、每任务16条候选和34类正式技能；Internal Validation、Final Validation和BEV绘图均未进入正式数值计算。
 
 正式运行使用CUDA生成、8个CPU过滤进程、地图batch 32、任务batch 64和`resume_mode=auto`。正式摘要记录的总墙钟为4,994.3秒（约83.2分钟）；输出542,624条候选预算，其中508,640条具备有效Prior输入并进入过滤，33,984条因目标在第49帧不可见而写入`invalid-generation`负结果。过滤最终接受1,560条、拒绝507,080条；33,914个任务全部进入`accepted`或`rejected`终态，失败任务数为0。
 
-过滤拒绝的首个阶段统计为：`map` 194,162、`kinematics` 191,792、`collision` 58,958、`target_risk` 44,959、`skill_trigger` 14,142、`parameter_realization` 2,215、`diversity` 852。`group_pedestrian_crossing`的3个任务没有有效Prior输入，已作为明确负结果保留，不创建伪造的过滤提交。BEV审核和逐类代表案例渲染属于阶段G，尚未运行且不计入上述性能。
+过滤拒绝的首个阶段统计为：`map` 194,162、`kinematics` 191,792、`collision` 58,958、`target_risk` 44,959、`skill_trigger` 14,142、`parameter_realization` 2,215、`diversity` 852。`group_pedestrian_crossing`的3个任务没有有效Prior输入，已作为明确负结果保留，不创建伪造的过滤提交。BEV审核在正式数值计算后独立运行，不计入上述性能；当前已渲染149条代表案例并通过298张图片自动审计，人工语义审查仍待完成。
 
 正式结果原始目录位于WSL ext4运行目录，已另存为Git忽略的单文件归档`outputs/generation/formal_v1_6b2da617bcf0694b87ea055285f971b58d660ae4591f49d039de1d51de99baf3.tar`（SHA-256：`3533bfa2212ba5fca48580388a16c02ed93eed088e98303d97835f72af289aa5`）。归档通过Windows `tar`结构校验，原始ext4目录暂不删除。
 
-阶段F的正式数值合同已完成，但阶段G（代表案例BEV/人工审核、逐技能平衡清单）和阶段H（最终审查文档、下游训练入口）仍未完成。后续不得把1,560条接受结果直接宣传为34类技能均已学会；应先完成逐技能接受率和失败边界审查，再决定哪些样本进入下游实验。
+阶段F的正式数值合同已完成，阶段G的代表案例BEV自动审计和逐技能平衡清单已完成，但149条人工语义审核仍待完成；阶段H文档、测试和归档已完成，人工审核完成后才能关闭本Goal并进入下游训练入口。后续不得把1,560条接受结果直接宣传为34类技能均已学会；应先完成逐技能接受率和失败边界审查，再决定哪些样本进入下游实验。
