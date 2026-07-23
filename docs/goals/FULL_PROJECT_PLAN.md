@@ -29,6 +29,7 @@
 - 05批量反事实生成与质量过滤已经完成阶段A至F：34类能力矩阵、完整Prior生成与过滤流水线、断点续传和性能配置均已冻结；正式运行覆盖5,000个Formal Train场景、33,914条任务和542,624条候选预算，接受1,560条、拒绝507,080条，剩余33,984条因Prior上下文无效保留为明确负结果；
 - 正式运行总耗时4,994.3秒（约83.2分钟），使用CUDA生成、8个CPU过滤进程、map batch 32和task batch 64；BEV绘图未进入正式计时，Internal Validation和Final Validation均未访问；
 - 05阶段仍遵循“先正确、再优化、后全量”：正式数值生成与过滤已完成，代表案例BEV自动审计和逐技能平衡清单已完成，149条人工语义审核仍待填写；不能把接受数直接解释为34类技能均已实现可靠控制。
+- 05阶段审查复现入口见`docs/counterfactual-generation-review.md`和README中的运行后命令；人工审核完成后才进入下游预测增强Goal，当前不读取Internal Validation或Final Validation。
 
 ## 2. 系统设计
 

@@ -33,6 +33,13 @@
 
 校验结果：33,914个任务全部为`accepted`或`rejected`，失败任务数为0；34类技能均有任务状态。`group_pedestrian_crossing`的3个任务全部因Prior上下文无效而拒绝，因此没有过滤目录，这是明确负结果而非漏项。
 
+## 阶段A-E证据索引
+
+- 能力矩阵：`outputs/generation/counterfactual_v1/active-v1/ab25dabcef82a9369f594431072a96f77ad0a46db5cde0d6a06534050bc3e631-stage-d-active-pilot-v1/pilot/generation_capability_matrix.json`，记录34类正式技能、33,914条种子标签和5,000个唯一场景；状态为`initial_evidence_only`，不把规则引导搜索结果解释为已学习控制。
+- 分层Pilot：同一运行目录下的`pilot/skill-pilot-v1/.../summary.json`记录670个任务、10,720条候选、37条接受和10,683条拒绝；`group_pedestrian_crossing`没有合格种子，Pilot未访问Validation清单。
+- 性能证据：`configs/generation/performance_v1.yaml`固定512任务/16候选工作负载，正式冻结配置为CUDA生成、8个CPU过滤进程、map batch 32和task batch 64；GPU、CPU过滤和端到端基准均保留3次重复结果，正式墙钟为4,994.3秒。
+- 生成合同：`configs/generation/counterfactual_v1.yaml`、`configs/generation/filters_v1.yaml`和`configs/generation/formal_execution_v1.yaml`共同冻结checkpoint、技能角色、过滤顺序、候选预算、断点续传和输出路径；正式结果归档哈希见上文。
+
 ## 过滤漏斗
 
 拒绝候选的首个失败阶段如下。阶段采用严格短路，后续阶段不对已拒绝候选重复计算。

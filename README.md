@@ -107,6 +107,18 @@ uv run python -m scripts.visualization.render_av2_sample \
 
 样例来自AV2 API官方仓库，总大小约220 KB，保存在被Git忽略的`data/`目录中。
 
+正式生成完成后的审查（只读取已完成运行目录，不重新生成候选）：
+
+```bash
+RUN_ROOT=/home/sumter/skilldrive-runtime-05/outputs/generation/counterfactual_v1/formal/formal_v1/6b2da617bcf0694b87ea055285f971b58d660ae4591f49d039de1d51de99baf3
+PYTHONPATH=. uv run python -m scripts.generation.review_formal_output --run-root "$RUN_ROOT"
+PYTHONPATH=. uv run python -m scripts.generation.select_formal_delivery --run-root "$RUN_ROOT"
+PYTHONPATH=. uv run python -m scripts.generation.audit_formal_review \
+  "$RUN_ROOT/review/formal_review_v1/summary.json"
+```
+
+审查图片、清单和人工审查模板均写入被Git忽略的运行目录；`manual_review.csv`填写完成前，不能关闭05 Goal。
+
 真实数据采用确定性子集，不下载完整58GB数据集。Train准备流程为：
 
 ```bash
@@ -145,6 +157,7 @@ scripts/data/             AV2下载、划分和完整性验证命令
 scripts/modeling/         CVAE预处理、训练、评估、诊断和性能基准
 scripts/seed_detection/   候选扫描和正式种子筛选命令
 scripts/visualization/    AV2、合成BEV和候选审核渲染命令
+scripts/generation/       反事实生成、正式结果审查和交付选择命令
 tests/unit/               按模块职责组织的单元测试
 tests/workflows/          数据准备、种子检测和模型训练流程测试
 ```
