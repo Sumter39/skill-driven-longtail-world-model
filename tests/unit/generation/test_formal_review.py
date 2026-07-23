@@ -165,8 +165,18 @@ def test_finalize_review_annotations_requires_reviewer_and_status(tmp_path: Path
     )
 
     assert result["manual_review_status"] == "completed_minimum"
-    assert result["manual_review_count"] == 1
-    assert result["manual_review_criterion_counts"]["motion_continuity"] == {"pass": 1}
+    assert result["review_count"] == 1
+    assert result["review_criterion_counts"]["motion_continuity"] == {"pass": 1}
+
+    automated = finalize_review_annotations(
+        summary_path=summary_path,
+        annotations_path=template,
+        output_path=tmp_path / "automated_summary.json",
+        minimum_reviews=1,
+        review_method="automated_evidence",
+    )
+    assert automated["automated_review_status"] == "completed_minimum"
+    assert automated["manual_review_status"] == "pending"
 
 
 def test_finalize_review_annotations_enforces_minimum_count(tmp_path: Path) -> None:

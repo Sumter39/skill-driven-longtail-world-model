@@ -611,11 +611,14 @@ def finalize_review_annotations(
     annotations_path: str | Path,
     output_path: str | Path | None = None,
     minimum_reviews: int = 100,
+    review_method: str = "manual",
 ) -> dict[str, Any]:
-    """Validate human annotations and write a separately versioned review summary."""
+    """Validate review annotations and write a separately versioned summary."""
 
     if isinstance(minimum_reviews, bool) or not isinstance(minimum_reviews, int) or minimum_reviews <= 0:
         raise ValueError("minimum_reviews must be a positive integer")
+    if review_method not in {"manual", "automated_evidence"}:
+        raise ValueError("review_method must be manual or automated_evidence")
     summary_file = Path(summary_path).resolve()
     annotations_file = Path(annotations_path).resolve()
     summary = _read_json(summary_file, "formal review summary")
@@ -698,21 +701,29 @@ def finalize_review_annotations(
         for criterion in REVIEW_CRITERIA
     }
     status_counts = Counter(item["review_status"] for item in annotations.values())
-    result = {
+    review_prefix = "manual" if review_method == "manual" else "automated"
+    result: dict[str, Any] = {
         **summary,
-        "status": "manual_review_completed_minimum",
-        "manual_review_status": "completed_minimum",
-        "manual_review_count": reviewed_count,
-        "manual_review_minimum": minimum_reviews,
-        "manual_review_reviewer_counts": dict(sorted(reviewer_counts.items())),
-        "manual_review_status_counts": dict(sorted(status_counts.items())),
-        "manual_review_criterion_counts": criterion_counts,
-        "manual_review_annotations": {
+        "status": f"{review_method}_review_completed_minimum",
+        "review_method": review_method,
+        "review_status": "completed_minimum",
+        "review_count": reviewed_count,
+        "review_minimum": minimum_reviews,
+        "review_reviewer_counts": dict(sorted(reviewer_counts.items())),
+        "review_status_counts": dict(sorted(status_counts.items())),
+        "review_criterion_counts": criterion_counts,
+        "review_annotations": {
             "path": annotations_file.as_posix(),
             "sha256": file_sha256(annotations_file),
         },
         "cases": output_cases,
     }
+    result.update(
+        {
+            f"{review_prefix}_review_status": "completed_minimum",
+            f"{review_prefix}_review_count": reviewed_count,
+        }
+    )
     destination = (
         Path(output_path).resolve()
         if output_path is not None
