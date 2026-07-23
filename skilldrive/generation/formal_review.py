@@ -428,6 +428,16 @@ def render_formal_review(
     return {**result, "output_path": _path_label(root, summary_path)}
 
 
+REVIEW_CRITERIA = (
+    "history_invariants",
+    "road_relation",
+    "motion_continuity",
+    "skill_role",
+    "target_risk",
+    "parameter_realization",
+    "background_interaction",
+    "visual_artifacts",
+)
 REVIEW_TEMPLATE_COLUMNS = (
     "review_rank",
     "case_name",
@@ -438,12 +448,14 @@ REVIEW_TEMPLATE_COLUMNS = (
     "first_failed_stage",
     "source_png",
     "generated_png",
+    *REVIEW_CRITERIA,
     "review_status",
     "reviewer",
     "issue_categories",
     "notes",
 )
 REVIEW_STATUSES = frozenset({"passed", "failed", "uncertain"})
+REVIEW_CRITERION_STATUSES = frozenset({"pass", "fail", "not_applicable", "uncertain"})
 
 
 def _image_reference(path: Path, expected_sha256: str) -> dict[str, Any]:
@@ -572,6 +584,7 @@ def write_review_template(*, summary_path: str | Path, output_path: str | Path |
                 "first_failed_stage": case.get("first_failed_stage") or "",
                 "source_png": case["source_png"]["path"],
                 "generated_png": case["generated_png"]["path"],
+                **{criterion: "" for criterion in REVIEW_CRITERIA},
                 "review_status": case.get("review_status", "pending"),
                 "reviewer": case.get("reviewer", ""),
                 "issue_categories": "",
@@ -580,6 +593,10 @@ def write_review_template(*, summary_path: str | Path, output_path: str | Path |
         )
     destination.parent.mkdir(parents=True, exist_ok=True)
     if destination.exists():
+        with destination.open(encoding="utf-8", newline="") as handle:
+            columns = tuple(csv.DictReader(handle).fieldnames or ())
+        if columns != REVIEW_TEMPLATE_COLUMNS:
+            raise ValueError("existing manual review CSV uses an incompatible column contract")
         return destination
     with destination.open("w", encoding="utf-8", newline="") as handle:
         writer = csv.DictWriter(handle, fieldnames=REVIEW_TEMPLATE_COLUMNS)
@@ -626,14 +643,34 @@ def finalize_review_annotations(
             if row.get("candidate_id", "") != expected[case_name]["candidate_id"]:
                 raise ValueError(f"manual review candidate does not match {case_name}")
             if status in {"", "pending"}:
-                if reviewer:
-                    raise ValueError(f"pending manual review has a reviewer for {case_name}")
+                if reviewer or any(row.get(criterion, "").strip() for criterion in REVIEW_CRITERIA):
+                    raise ValueError(f"pending manual review has completed fields for {case_name}")
                 continue
             if status not in REVIEW_STATUSES:
                 raise ValueError(f"manual review status is invalid for {case_name}: {status}")
             if not reviewer:
                 raise ValueError(f"manual review reviewer is missing for {case_name}")
+            criterion_values = {
+                criterion: row.get(criterion, "").strip().lower()
+                for criterion in REVIEW_CRITERIA
+            }
+            invalid = {
+                criterion: value
+                for criterion, value in criterion_values.items()
+                if value not in REVIEW_CRITERION_STATUSES
+            }
+            if invalid:
+                raise ValueError(f"manual review criteria are invalid for {case_name}: {invalid}")
+            has_failure = "fail" in criterion_values.values()
+            has_uncertain = "uncertain" in criterion_values.values()
+            expected_status = "failed" if has_failure else "uncertain" if has_uncertain else "passed"
+            if status != expected_status:
+                raise ValueError(
+                    f"manual review status disagrees with criteria for {case_name}: "
+                    f"{status} vs {expected_status}"
+                )
             annotations[case_name] = {
+                **criterion_values,
                 "review_status": status,
                 "reviewer": reviewer,
                 "issue_categories": row.get("issue_categories", "").strip(),
@@ -654,6 +691,13 @@ def finalize_review_annotations(
         for case in cases
     ]
     reviewer_counts = Counter(item["reviewer"] for item in annotations.values())
+    criterion_counts = {
+        criterion: dict(
+            sorted(Counter(item[criterion] for item in annotations.values()).items())
+        )
+        for criterion in REVIEW_CRITERIA
+    }
+    status_counts = Counter(item["review_status"] for item in annotations.values())
     result = {
         **summary,
         "status": "manual_review_completed_minimum",
@@ -661,6 +705,8 @@ def finalize_review_annotations(
         "manual_review_count": reviewed_count,
         "manual_review_minimum": minimum_reviews,
         "manual_review_reviewer_counts": dict(sorted(reviewer_counts.items())),
+        "manual_review_status_counts": dict(sorted(status_counts.items())),
+        "manual_review_criterion_counts": criterion_counts,
         "manual_review_annotations": {
             "path": annotations_file.as_posix(),
             "sha256": file_sha256(annotations_file),

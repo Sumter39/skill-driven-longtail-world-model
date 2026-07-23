@@ -142,6 +142,17 @@ def test_finalize_review_annotations_requires_reviewer_and_status(tmp_path: Path
         rows = list(csv.DictReader(handle))
     rows[0]["review_status"] = "passed"
     rows[0]["reviewer"] = "reviewer-a"
+    for column in (
+        "history_invariants",
+        "road_relation",
+        "motion_continuity",
+        "skill_role",
+        "target_risk",
+        "parameter_realization",
+        "background_interaction",
+        "visual_artifacts",
+    ):
+        rows[0][column] = "pass"
     with template.open("w", encoding="utf-8", newline="") as handle:
         writer = csv.DictWriter(handle, fieldnames=list(rows[0]))
         writer.writeheader()
@@ -155,6 +166,7 @@ def test_finalize_review_annotations_requires_reviewer_and_status(tmp_path: Path
 
     assert result["manual_review_status"] == "completed_minimum"
     assert result["manual_review_count"] == 1
+    assert result["manual_review_criterion_counts"]["motion_continuity"] == {"pass": 1}
 
 
 def test_finalize_review_annotations_enforces_minimum_count(tmp_path: Path) -> None:
