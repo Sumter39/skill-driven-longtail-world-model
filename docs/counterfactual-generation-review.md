@@ -116,6 +116,10 @@ PYTHONPATH=. python -m scripts.generation.review_formal_output --run-root "$RUN_
 PYTHONPATH=. python -m scripts.generation.select_formal_delivery --run-root "$RUN_ROOT"
 PYTHONPATH=. python -m scripts.generation.audit_formal_review \
   "$RUN_ROOT/review/formal_review_v1/summary.json"
+# 人工填写 manual_review.csv 后，再固化至少100条人工结论：
+PYTHONPATH=. python -m scripts.generation.finalize_formal_review \
+  "$RUN_ROOT/review/formal_review_v1/summary.json" \
+  "$RUN_ROOT/review/formal_review_v1/manual_review.csv"
 ```
 
 ## 性能与恢复
