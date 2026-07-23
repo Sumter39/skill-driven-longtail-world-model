@@ -517,7 +517,7 @@ docs/counterfactual-generation-review.md
 
 截至2026-07-23，阶段A至E和阶段F正式数值生成/过滤已经完成。正式合同ID为`6b2da617bcf0694b87ea055285f971b58d660ae4591f49d039de1d51de99baf3`：仅使用5,000个Formal Train场景、33,914条技能任务、每任务16条候选和34类正式技能；Internal Validation、Final Validation和BEV绘图均未进入正式计算。
 
-正式运行使用CUDA生成、8个CPU过滤进程、地图batch 32、任务batch 64和`resume_mode=auto`。生成阶段耗时约87.7分钟，过滤阶段合并后的正式墙钟总耗时为4,994.3秒（约83.2分钟）；输出542,624条候选预算，其中508,640条具备有效Prior输入并进入过滤，33,984条因目标在第49帧不可见而写入`invalid-generation`负结果。过滤最终接受1,560条、拒绝507,080条；33,914个任务全部进入`accepted`或`rejected`终态，失败任务数为0。
+正式运行使用CUDA生成、8个CPU过滤进程、地图batch 32、任务batch 64和`resume_mode=auto`。正式摘要记录的总墙钟为4,994.3秒（约83.2分钟）；输出542,624条候选预算，其中508,640条具备有效Prior输入并进入过滤，33,984条因目标在第49帧不可见而写入`invalid-generation`负结果。过滤最终接受1,560条、拒绝507,080条；33,914个任务全部进入`accepted`或`rejected`终态，失败任务数为0。
 
 过滤拒绝的首个阶段统计为：`map` 194,162、`kinematics` 191,792、`collision` 58,958、`target_risk` 44,959、`skill_trigger` 14,142、`parameter_realization` 2,215、`diversity` 852。`group_pedestrian_crossing`的3个任务没有有效Prior输入，已作为明确负结果保留，不创建伪造的过滤提交。BEV审核和逐类代表案例渲染属于阶段G，尚未运行且不计入上述性能。
 
