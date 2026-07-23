@@ -2,12 +2,14 @@ import csv
 import json
 from pathlib import Path
 
+import pytest
 from PIL import Image
 
 from skilldrive.generation.formal_review import (
     _select_accepted,
     _select_representatives,
     audit_formal_review,
+    finalize_review_annotations,
     write_review_template,
 )
 from skilldrive.generation.inference import file_sha256
@@ -131,3 +133,37 @@ def test_formal_review_audit_rejects_changed_image(tmp_path: Path) -> None:
         assert "hash mismatch" in str(error)
     else:
         raise AssertionError("changed review image was accepted")
+
+
+def test_finalize_review_annotations_requires_reviewer_and_status(tmp_path: Path) -> None:
+    summary_path = _review_fixture(tmp_path)
+    template = write_review_template(summary_path=summary_path)
+    with template.open(encoding="utf-8", newline="") as handle:
+        rows = list(csv.DictReader(handle))
+    rows[0]["review_status"] = "passed"
+    rows[0]["reviewer"] = "reviewer-a"
+    with template.open("w", encoding="utf-8", newline="") as handle:
+        writer = csv.DictWriter(handle, fieldnames=list(rows[0]))
+        writer.writeheader()
+        writer.writerows(rows)
+
+    result = finalize_review_annotations(
+        summary_path=summary_path,
+        annotations_path=template,
+        minimum_reviews=1,
+    )
+
+    assert result["manual_review_status"] == "completed_minimum"
+    assert result["manual_review_count"] == 1
+
+
+def test_finalize_review_annotations_enforces_minimum_count(tmp_path: Path) -> None:
+    summary_path = _review_fixture(tmp_path)
+    template = write_review_template(summary_path=summary_path)
+
+    with pytest.raises(ValueError, match="at least 1"):
+        finalize_review_annotations(
+            summary_path=summary_path,
+            annotations_path=template,
+            minimum_reviews=1,
+        )

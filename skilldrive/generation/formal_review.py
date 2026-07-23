@@ -5,7 +5,7 @@ from __future__ import annotations
 import csv
 import json
 import re
-from collections import defaultdict
+from collections import Counter, defaultdict
 from pathlib import Path, PurePosixPath
 from collections.abc import Iterator
 from typing import Any, Mapping
@@ -443,6 +443,7 @@ REVIEW_TEMPLATE_COLUMNS = (
     "issue_categories",
     "notes",
 )
+REVIEW_STATUSES = frozenset({"passed", "failed", "uncertain"})
 
 
 def _image_reference(path: Path, expected_sha256: str) -> dict[str, Any]:
@@ -587,11 +588,105 @@ def write_review_template(*, summary_path: str | Path, output_path: str | Path |
     return destination
 
 
+def finalize_review_annotations(
+    *,
+    summary_path: str | Path,
+    annotations_path: str | Path,
+    output_path: str | Path | None = None,
+    minimum_reviews: int = 100,
+) -> dict[str, Any]:
+    """Validate human annotations and write a separately versioned review summary."""
+
+    if isinstance(minimum_reviews, bool) or not isinstance(minimum_reviews, int) or minimum_reviews <= 0:
+        raise ValueError("minimum_reviews must be a positive integer")
+    summary_file = Path(summary_path).resolve()
+    annotations_file = Path(annotations_path).resolve()
+    summary = _read_json(summary_file, "formal review summary")
+    cases = summary.get("cases")
+    if not isinstance(cases, list) or not cases:
+        raise ValueError("formal review summary has no cases")
+    expected = {case["case_name"]: case for case in cases}
+    annotations: dict[str, dict[str, str]] = {}
+    seen_cases: set[str] = set()
+    try:
+        handle = annotations_file.open("r", encoding="utf-8", newline="")
+    except OSError as error:
+        raise ValueError(f"failed to read manual review CSV: {annotations_file}: {error}") from error
+    with handle:
+        reader = csv.DictReader(handle)
+        if tuple(reader.fieldnames or ()) != REVIEW_TEMPLATE_COLUMNS:
+            raise ValueError("manual review CSV columns do not match the review template")
+        for row in reader:
+            case_name = row.get("case_name", "")
+            if case_name in seen_cases or case_name not in expected:
+                raise ValueError(f"manual review CSV has an unknown or duplicate case: {case_name}")
+            seen_cases.add(case_name)
+            status = row.get("review_status", "").strip().lower()
+            reviewer = row.get("reviewer", "").strip()
+            if row.get("candidate_id", "") != expected[case_name]["candidate_id"]:
+                raise ValueError(f"manual review candidate does not match {case_name}")
+            if status in {"", "pending"}:
+                if reviewer:
+                    raise ValueError(f"pending manual review has a reviewer for {case_name}")
+                continue
+            if status not in REVIEW_STATUSES:
+                raise ValueError(f"manual review status is invalid for {case_name}: {status}")
+            if not reviewer:
+                raise ValueError(f"manual review reviewer is missing for {case_name}")
+            annotations[case_name] = {
+                "review_status": status,
+                "reviewer": reviewer,
+                "issue_categories": row.get("issue_categories", "").strip(),
+                "notes": row.get("notes", "").strip(),
+            }
+    if seen_cases != set(expected):
+        raise ValueError("manual review CSV does not contain every review case")
+    reviewed_count = len(annotations)
+    if reviewed_count < minimum_reviews:
+        raise ValueError(
+            f"manual review has {reviewed_count} completed cases; "
+            f"at least {minimum_reviews} are required"
+        )
+    output_cases = [
+        {**case, **annotations[case["case_name"]]}
+        if case["case_name"] in annotations
+        else case
+        for case in cases
+    ]
+    reviewer_counts = Counter(item["reviewer"] for item in annotations.values())
+    result = {
+        **summary,
+        "status": "manual_review_completed_minimum",
+        "manual_review_status": "completed_minimum",
+        "manual_review_count": reviewed_count,
+        "manual_review_minimum": minimum_reviews,
+        "manual_review_reviewer_counts": dict(sorted(reviewer_counts.items())),
+        "manual_review_annotations": {
+            "path": annotations_file.as_posix(),
+            "sha256": file_sha256(annotations_file),
+        },
+        "cases": output_cases,
+    }
+    destination = (
+        Path(output_path).resolve()
+        if output_path is not None
+        else summary_file.parent / "manual_review_summary.json"
+    )
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    payload = json.dumps(result, ensure_ascii=False, sort_keys=True, indent=2) + "\n"
+    if destination.exists() and destination.read_text(encoding="utf-8") != payload:
+        raise ValueError("existing finalized review summary differs from current annotations")
+    if not destination.exists():
+        destination.write_text(payload, encoding="utf-8")
+    return {**result, "output_path": destination.as_posix()}
+
+
 __all__ = [
     "FORMAL_REVIEW_CONTRACT",
     "FORMAL_REVIEW_SCHEMA_VERSION",
     "build_formal_review_manifest",
     "audit_formal_review",
+    "finalize_review_annotations",
     "render_formal_review",
     "write_review_template",
 ]
