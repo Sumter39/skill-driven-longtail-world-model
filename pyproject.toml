@@ -26,7 +26,8 @@ include = ["skilldrive*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-addopts = "-q"
+pythonpath = ["."]
+addopts = "-q --import-mode=importlib"
 markers = [
   "gpu: tests that require a CUDA-capable GPU",
 ]
