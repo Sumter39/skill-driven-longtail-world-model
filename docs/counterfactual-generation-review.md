@@ -29,7 +29,7 @@
 - 项目归档：`outputs/generation/formal_v1_6b2da617bcf0694b87ea055285f971b58d660ae4591f49d039de1d51de99baf3.tar`
 - 归档SHA-256：`3533bfa2212ba5fca48580388a16c02ed93eed088e98303d97835f72af289aa5`
 - 审查/交付归档：`outputs/generation/formal_review_delivery_v1_6b2da617bcf0694b87ea055285f971b58d660ae4591f49d039de1d51de99baf3.tar`
-- 审查/交付归档SHA-256：`e5142335b7f9c986cd88059ce7d7feb785c2cb1077c64165397ebe2a508c5b69`
+- 审查/交付归档SHA-256：`29418c7364b1a86401e43f96c9f13b2d502b02bdc12b412fd64f38394169c616`
 
 校验结果：33,914个任务全部为`accepted`或`rejected`，失败任务数为0；34类技能均有任务状态。`group_pedestrian_crossing`的3个任务全部因Prior上下文无效而拒绝，因此没有过滤目录，这是明确负结果而非漏项。
 
@@ -101,12 +101,13 @@
 
 - 确定性代表案例：149条（每个有输出技能最多3条accepted和3条rejected，覆盖18个有接受结果的技能）；每条案例同时保存source/generated BEV。
 - 自动图像审计：298张PNG全部存在、可解码、尺寸有效，且与渲染摘要中的SHA-256一致；审计结果位于运行目录的`review/formal_review_v1/audit.json`。
-- 人工审查模板位于`review/formal_review_v1/manual_review.csv`，当前`manual_review_status=pending`。自动图像审计和联系表检查不等同于已经完成轨迹语义人工判定；在人工填写前不得把阶段G标记为完全通过。
+- 人工审查模板位于`review/formal_review_v1/manual_review.csv`，当前仍为`pending`；本轮实际采用的自动证据结果位于`automated_review.csv`和`automated_review_summary.json`，不等同于独立人工语义判定。
 - 平衡交付清单：从1,560条accepted中确定性选择1,512条，18个技能有合格样本；每技能最多300条、同一场景最多3条。`multi_vehicle_gap_squeeze`和`slow_lead_blockage`达到300条上限，其余技能保留全部可用样本。
 - 交付清单审计记录proposal mode分栏：`learned_conditioned_prior=638`、`rule_guided_prior_search=874`，不合并解释为模型控制成功率；重复candidate/filter ID均为0，单场景最多8条。
 - 来源与多样性审计：1,512条候选来自704个源场景，前10个源场景占4.37%；全部1,512条均有`diversity`阶段通过证据，使用同一确定性轨迹/风险/参数摘要策略。
 - 参数覆盖审计：13个有交付样本的技能记录了非空`realized_parameter_bins`；另外5个技能没有可记录的参数分箱，保留为合同边界，不用空值冒充参数覆盖。
 - 人工审查合同：每条已审案例显式填写历史不变量、道路关系、运动连续性、技能角色、目标风险、参数实现度、背景交互和视觉异常8项。单项取值为`pass/fail/not_applicable/uncertain`；总体状态必须与单项结论一致，并记录reviewer。
+- 自动审查结果：用户因案例数量较多明确授权使用自动证据审查替代本轮逐行人工填写。149/149案例已完成，50条accepted通过、98条rejected失败、1条rejected内容检查通过但因`diversity`阶段被过滤；149张source/generated图片均通过PNG解码和哈希校验。审查者标记为`codex-automated-evidence-v1`，该结果不宣称独立人工语义复核。
 
 以下命令只运行正式计算之后的审查步骤，不会重新生成或过滤候选，也不进入正式耗时统计：
 
@@ -121,6 +122,14 @@ PYTHONPATH=. python -m scripts.generation.audit_formal_review \
 PYTHONPATH=. python -m scripts.generation.finalize_formal_review \
   "$RUN_ROOT/review/formal_review_v1/summary.json" \
   "$RUN_ROOT/review/formal_review_v1/manual_review.csv"
+# 用户授权自动审查时：
+PYTHONPATH=. python -m scripts.generation.run_automated_formal_review \
+  "$RUN_ROOT/review/formal_review_v1/summary.json" --run-root "$RUN_ROOT"
+PYTHONPATH=. python -m scripts.generation.finalize_formal_review \
+  "$RUN_ROOT/review/formal_review_v1/summary.json" \
+  "$RUN_ROOT/review/formal_review_v1/automated_review.csv" \
+  --output "$RUN_ROOT/review/formal_review_v1/automated_review_summary.json" \
+  --review-method automated_evidence
 ```
 
 ## 性能与恢复
@@ -131,7 +140,7 @@ PYTHONPATH=. python -m scripts.generation.finalize_formal_review \
 
 ## 未完成与限制
 
-1. 阶段G的自动BEV审计和确定性平衡清单已经完成；逐案例人工语义审核尚未完成，模板保留149条待审记录。
+1. 阶段G的自动BEV审计、自动证据审查和确定性平衡清单已经完成；本轮按用户授权未执行独立人工语义复核，原始`manual_review.csv`仍保留为pending模板。
 2. 1,560条接受候选只表示通过当前过滤合同，不表示34类技能都已被模型可靠控制；必须结合逐技能对照和失败边界分析。
 3. 当前合同是单目标、开放环overlay，背景参与者不会对生成目标重新规划；不能宣传为联合闭环世界模型。
 4. 下游预测器训练、E0-E3对比和最终Validation评估尚未开始；本阶段不读取Validation数据。

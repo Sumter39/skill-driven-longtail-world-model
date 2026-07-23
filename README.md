@@ -4,7 +4,7 @@
 
 SkillDrive研究如何使用技能规则和学习式轨迹世界模型，从真实驾驶片段构造可控、连续并符合交通约束的长尾场景。
 
-当前仓库已经完成**前期准备、39个规则实现、正式候选种子检测、条件CVAE基线正式训练，以及反事实生成与过滤阶段A至F**：34类正式技能与5类候选规则已经定稿，5,000个种子场景、33,914条任务、v5模型、Prior生成闭环、完整质量过滤和正式断点续传均已落地。正式运行共处理542,624条候选预算，接受1,560条、拒绝507,080条，33,984条因Prior上下文无效作为明确负结果保留；正式墙钟约83.2分钟，BEV绘图未进入计时。运行后已完成149条代表案例的BEV渲染、298张图片自动审计和1,512条平衡交付选择；人工语义审核仍由`manual_review.csv`记录，未完成前不把接受数解释为34类技能均已学会。
+当前仓库已经完成**前期准备、39个规则实现、正式候选种子检测、条件CVAE基线正式训练，以及反事实生成与过滤阶段A至F**：34类正式技能与5类候选规则已经定稿，5,000个种子场景、33,914条任务、v5模型、Prior生成闭环、完整质量过滤和正式断点续传均已落地。正式运行共处理542,624条候选预算，接受1,560条、拒绝507,080条，33,984条因Prior上下文无效作为明确负结果保留；正式墙钟约83.2分钟，BEV绘图未进入计时。运行后已完成149条代表案例的BEV渲染、298张图片自动审计、149条自动证据审查和1,512条平衡交付选择；本轮自动审查不宣称独立人工语义复核。
 
 ## 技术路线
 
@@ -119,6 +119,14 @@ PYTHONPATH=. uv run python -m scripts.generation.audit_formal_review \
 PYTHONPATH=. uv run python -m scripts.generation.finalize_formal_review \
   "$RUN_ROOT/review/formal_review_v1/summary.json" \
   "$RUN_ROOT/review/formal_review_v1/manual_review.csv"
+# 用户已授权自动证据审查时：
+PYTHONPATH=. uv run python -m scripts.generation.run_automated_formal_review \
+  "$RUN_ROOT/review/formal_review_v1/summary.json" --run-root "$RUN_ROOT"
+PYTHONPATH=. uv run python -m scripts.generation.finalize_formal_review \
+  "$RUN_ROOT/review/formal_review_v1/summary.json" \
+  "$RUN_ROOT/review/formal_review_v1/automated_review.csv" \
+  --output "$RUN_ROOT/review/formal_review_v1/automated_review_summary.json" \
+  --review-method automated_evidence
 ```
 
 审查图片、清单和人工审查模板均写入被Git忽略的运行目录。每条已审案例必须分别填写历史不变量、道路关系、运动连续性、技能角色、目标风险、参数实现度、背景交互和视觉异常8列，取值为`pass`、`fail`、`not_applicable`或`uncertain`；总体`review_status`使用`passed`、`failed`或`uncertain`。`manual_review.csv`达到至少100条有效人工结论前，不能关闭05 Goal。
@@ -172,7 +180,7 @@ tests/workflows/          数据准备、种子检测和模型训练流程测试
 - [02 技能体系设计Goal（已完成，当前34正式+5候选）](docs/goals/02_SKILL_LIBRARY_DESIGN_GOAL.md)
 - [03 规则执行与候选种子检测Goal（已完成）](docs/goals/03_SKILL_SEED_DETECTION_GOAL.md)
 - [04 条件CVAE基线优化与正式训练Goal（已完成）](docs/goals/04_CONDITIONAL_CVAE_BASELINE_GOAL.md)
-- [05 批量反事实生成与质量过滤Goal（阶段A-F数值流程完成，阶段G自动审计/平衡选择完成，人工审核待完成）](docs/goals/05_COUNTERFACTUAL_GENERATION_FILTERING_GOAL.md)
+- [05 批量反事实生成与质量过滤Goal（阶段A-F数值流程完成，阶段G自动审查/平衡选择完成，人工复核限制已记录）](docs/goals/05_COUNTERFACTUAL_GENERATION_FILTERING_GOAL.md)
 - [05阶段正式生成审查](docs/counterfactual-generation-review.md)
 - [条件CVAE基线阶段审查](docs/cvae-baseline-review.md)
 - [最终34类正式技能与5类候选规则](docs/skills/skill-taxonomy.md)
@@ -191,5 +199,5 @@ tests/workflows/          数据准备、种子检测和模型训练流程测试
 
 - 不提交原始AV2数据、完整权重或大规模生成结果；
 - 不硬编码本地绝对路径；
-- 当前正式数值生成、代表案例BEV自动审计和确定性平衡选择已完成；下一步填写人工审查模板，再构造下游预测增强数据；
+- 当前正式数值生成、代表案例BEV自动审计、自动证据审查和确定性平衡选择已完成；下一步构造下游预测增强数据；本轮自动审查的限制已记录；
 - 当前结果证明39个规则的扫描、34/34类正式技能种子覆盖、5,000场景筛选、条件CVAE基线训练和正式生成过滤闭环可复现，不代表34类技能控制成功率或下游增强收益已经得到验证。

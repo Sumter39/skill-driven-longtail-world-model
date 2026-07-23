@@ -274,6 +274,8 @@ outputs/generation/counterfactual_v1/pilot/
 outputs/generation/counterfactual_v1/benchmarks/
 outputs/generation/counterfactual_v1/formal/
 outputs/generation/counterfactual_v1/review/
+outputs/generation/counterfactual_v1/formal/formal_v1/*/review/formal_review_v1/automated_review.csv
+outputs/generation/counterfactual_v1/formal/formal_v1/*/review/formal_review_v1/automated_review_summary.json
 outputs/modeling/cvae_generation_repair/         # 仅能力门触发重训时使用，Git忽略
 docs/counterfactual-generation-review.md
 ```
@@ -415,6 +417,7 @@ docs/counterfactual-generation-review.md
 
 - 对每个有输出的技能确定性选择最多3条合格和3条代表性拒绝案例，统一在正式生成结束后渲染；
 - 人工审核总量不少于100条；在样本允许时每个有合格输出的技能至少检查2条合格和2条拒绝案例，总量上限默认204条；
+- 本项目用户明确授权以`codex-automated-evidence-v1`自动证据审查替代本轮逐行人工填写；该替代仅适用于本Goal的本轮交付，不改变FULL计划后续人工复核要求，也不把自动结果宣传为人工复核。
 - 检查历史不变量、道路关系、运动连续性、技能角色、目标风险、参数实现度、背景交互和明显视觉异常；
 - 对每类合格样本执行质量排序和多样性平衡，最多选择300条进入阶段输出清单；
 - 审计重复ID、近重复轨迹、来源场景集中度、技能分布、角色分布、风险分布和参数覆盖；
@@ -422,7 +425,7 @@ docs/counterfactual-generation-review.md
 - 所有接受overlay、清单、summary和图片记录SHA-256，并验证源场景、checkpoint和配置可追溯；
 - 发现系统性错误时回到小规模固定样本修复；若生成或过滤语义变化，必须提升合同版本并重新执行受影响任务。
 
-当前执行结果：149条代表案例和298张BEV图片已在正式数值流程结束后独立生成；自动审计验证了图片、哈希、清单和Formal Train来源的一致性。平衡清单审计覆盖704个源场景、场景集中度、重复ID、diversity通过证据、角色/风险/参数分布；参数分箱在13个有输出技能中非空。人工审核模板已按本节8项检查要求建立显式列和结论一致性校验，但149条仍全部为`pending`，不能用自动图像审计替代人工语义判定。
+当前执行结果：149条代表案例和298张BEV图片已在正式数值流程结束后独立生成；自动审计验证了图片、哈希、清单和Formal Train来源的一致性。平衡清单审计覆盖704个源场景、场景集中度、重复ID、diversity通过证据、角色/风险/参数分布；参数分箱在13个有输出技能中非空。用户明确授权使用自动证据审查替代本轮逐行人工填写，149/149案例已完成自动审查（50条accepted通过、98条rejected失败、1条rejected因diversity拒绝但内容检查通过），结果标记为`codex-automated-evidence-v1`，不宣称独立人工语义复核。
 
 ### 阶段H：测试、文档与阶段交付
 
@@ -432,7 +435,7 @@ docs/counterfactual-generation-review.md
 - 确认生成数据、checkpoint、权重、完整日志和批量图片均被Git忽略；
 - 未经用户明确授权，不Commit或Push。
 
-当前执行结果：审查文档、README、FULL计划、自动审计脚本、人工审查模板和审查/交付归档均已生成；阶段H的代码验证已完成，阶段整体仍受人工审核未完成这一验收项约束。
+当前执行结果：审查文档、README、FULL计划、自动审计脚本、自动审查CSV、人工审查模板和审查/交付归档均已生成；阶段H的代码验证已完成。自动审查替代人工审查是用户本轮明确授权的范围变更，报告中已保留该限制。
 
 ## 10. 验收标准
 
@@ -523,8 +526,8 @@ docs/counterfactual-generation-review.md
 
 正式运行使用CUDA生成、8个CPU过滤进程、地图batch 32、任务batch 64和`resume_mode=auto`。正式摘要记录的总墙钟为4,994.3秒（约83.2分钟）；输出542,624条候选预算，其中508,640条具备有效Prior输入并进入过滤，33,984条因目标在第49帧不可见而写入`invalid-generation`负结果。过滤最终接受1,560条、拒绝507,080条；33,914个任务全部进入`accepted`或`rejected`终态，失败任务数为0。
 
-过滤拒绝的首个阶段统计为：`map` 194,162、`kinematics` 191,792、`collision` 58,958、`target_risk` 44,959、`skill_trigger` 14,142、`parameter_realization` 2,215、`diversity` 852。`group_pedestrian_crossing`的3个任务没有有效Prior输入，已作为明确负结果保留，不创建伪造的过滤提交。BEV审核在正式数值计算后独立运行，不计入上述性能；当前已渲染149条代表案例并通过298张图片自动审计，人工语义审查仍待完成。
+过滤拒绝的首个阶段统计为：`map` 194,162、`kinematics` 191,792、`collision` 58,958、`target_risk` 44,959、`skill_trigger` 14,142、`parameter_realization` 2,215、`diversity` 852。`group_pedestrian_crossing`的3个任务没有有效Prior输入，已作为明确负结果保留，不创建伪造的过滤提交。BEV审核在正式数值计算后独立运行，不计入上述性能；当前已渲染149条代表案例并通过298张图片自动审计，149条自动证据审查已完成，但不宣称独立人工语义复核。
 
 正式结果原始目录位于WSL ext4运行目录，已另存为Git忽略的单文件归档`outputs/generation/formal_v1_6b2da617bcf0694b87ea055285f971b58d660ae4591f49d039de1d51de99baf3.tar`（SHA-256：`3533bfa2212ba5fca48580388a16c02ed93eed088e98303d97835f72af289aa5`）。归档通过Windows `tar`结构校验，原始ext4目录暂不删除。
 
-阶段F的正式数值合同已完成，阶段G的代表案例BEV自动审计和逐技能平衡清单已完成，但149条人工语义审核仍待完成；阶段H文档、测试和归档已完成，人工审核完成后才能关闭本Goal并进入下游训练入口。后续不得把1,560条接受结果直接宣传为34类技能均已学会；应先完成逐技能接受率和失败边界审查，再决定哪些样本进入下游实验。
+阶段F的正式数值合同已完成，阶段G的代表案例BEV自动审计、自动证据审查和逐技能平衡清单已完成；本轮自动审查由用户明确授权，未宣称独立人工复核。阶段H文档、测试和归档已完成，本Goal可以进入关闭审计；后续不得把1,560条接受结果直接宣传为34类技能均已学会，应先完成逐技能接受率和失败边界审查，再决定哪些样本进入下游实验。
