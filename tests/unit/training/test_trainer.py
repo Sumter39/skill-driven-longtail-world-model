@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import math
 from dataclasses import replace
+from pathlib import Path
 
 import pytest
 import torch
@@ -9,6 +10,7 @@ from torch import nn
 
 import skilldrive.training.trainer as trainer_module
 from skilldrive.models import CVAEOutput
+from skilldrive.training import load_cvae_config
 from skilldrive.training.config import LossConfig, TrainingConfig
 from skilldrive.training.system_monitor import SystemMetrics
 from skilldrive.training.trainer import (
@@ -81,6 +83,13 @@ class _ToyCVAE(nn.Module):
             posterior_logvar=None,
             latent=torch.zeros(batch_size, num_samples, 1, device=predictions.device),
         )
+
+    def prior_parameters(
+        self,
+        batch: dict[str, torch.Tensor],
+    ) -> tuple[torch.Tensor, torch.Tensor]:
+        zeros = torch.zeros(batch["skill_id"].shape[0], 1, device=self.scale.device)
+        return zeros, zeros
 
 
 def _loss_config(**changes: object) -> LossConfig:
@@ -652,6 +661,49 @@ def test_nonfinite_loss_is_rejected_before_optimizer_step() -> None:
         )
 
 
+def test_nonfinite_gradient_is_rejected_by_the_fused_norm_check() -> None:
+    model = _ToyCVAE()
+    model.scale.register_hook(lambda gradient: torch.full_like(gradient, float("nan")))
+    optimizer = torch.optim.SGD(model.parameters(), lr=0.01)
+
+    with pytest.raises(FloatingPointError, match="gradients contain"):
+        train_optimizer_step(
+            model,
+            optimizer,
+            [_batch()],
+            device="cpu",
+            loss_config=_loss_config(),
+            global_step=0,
+            gradient_clip_norm=5.0,
+            generator=torch.Generator().manual_seed(4),
+        )
+
+
+def test_nonfinite_parameter_is_rejected_after_optimizer_step() -> None:
+    model = _ToyCVAE()
+    optimizer = torch.optim.SGD(model.parameters(), lr=0.01)
+    original_step = optimizer.step
+
+    def corrupt_parameter(*args: object, **kwargs: object) -> object:
+        result = original_step(*args, **kwargs)
+        with torch.no_grad():
+            model.scale.fill_(float("inf"))
+        return result
+
+    optimizer.step = corrupt_parameter  # type: ignore[method-assign]
+    with pytest.raises(FloatingPointError, match="parameters contain"):
+        train_optimizer_step(
+            model,
+            optimizer,
+            [_batch()],
+            device="cpu",
+            loss_config=_loss_config(),
+            global_step=0,
+            gradient_clip_norm=5.0,
+            generator=torch.Generator().manual_seed(4),
+        )
+
+
 def test_benchmark_excludes_startup_and_returns_fixed_stable_steps(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -735,3 +787,43 @@ def test_benchmark_excludes_startup_and_returns_fixed_stable_steps(
         "window_end",
         "monitor_stop",
     ]
+
+
+def test_repair_optimizer_step_records_motion_and_observed_ranking_losses() -> None:
+    repair = load_cvae_config(
+        Path("configs/models/cvae_generation_repair_v1.yaml")
+    ).repair
+    assert repair is not None
+    model = _ToyCVAE()
+    optimizer = torch.optim.SGD(model.parameters(), lr=0.01)
+    batch = _batch(prediction=0.5, batch_size=2, future_steps=4)
+    batch.update(
+        actor_role_id=torch.tensor([[3], [2]]),
+        skill_id=torch.tensor([1, 0]),
+        skill_supervision_mask=torch.tensor([True, False]),
+        skill_parameters=torch.tensor([[1.0], [0.0]]),
+        parameter_mask=torch.tensor([[True], [False]]),
+    )
+
+    result = train_optimizer_step(
+        model,
+        optimizer,
+        [batch],
+        device="cpu",
+        loss_config=_loss_config(),
+        global_step=1,
+        gradient_clip_norm=5.0,
+        generator=torch.Generator().manual_seed(1),
+        repair_config=repair,
+        sample_period_s=0.1,
+    )
+
+    assert result.sums.observed_condition_count == 1
+    assert result.sums.condition_ranking_loss == pytest.approx(
+        repair.condition_ranking.margin_per_latent_dim
+    )
+    assert result.sums.seam_velocity_element_count == 4
+    assert result.sums.velocity_element_count == 16
+    assert result.sums.acceleration_element_count > 0
+    assert result.sums.jerk_element_count > 0
+    assert math.isfinite(result.total_loss)

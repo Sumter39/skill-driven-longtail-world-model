@@ -33,6 +33,15 @@ class TrainingProgress:
             raise ValueError("best_epoch must be nonnegative when present")
 
 
+@dataclass(frozen=True)
+class CheckpointMetadata:
+    """Read-only checkpoint identity without constructing the model."""
+
+    fingerprints: Mapping[str, str]
+    progress: TrainingProgress
+    extra: Mapping[str, Any]
+
+
 def capture_rng_state() -> dict[str, Any]:
     state: dict[str, Any] = {
         "python": random.getstate(),
@@ -180,11 +189,42 @@ def load_checkpoint(
     return progress, dict(payload.get("extra") or {})
 
 
+def read_checkpoint_metadata(
+    path: str | Path,
+    *,
+    map_location: str | torch.device = "cpu",
+) -> CheckpointMetadata:
+    """Validate and inspect checkpoint metadata without loading model weights."""
+
+    source = Path(path)
+    payload = _load_payload(source, map_location=map_location)
+    fingerprints = payload.get("fingerprints")
+    if not isinstance(fingerprints, Mapping) or not all(
+        isinstance(key, str) and isinstance(value, str)
+        for key, value in fingerprints.items()
+    ):
+        raise ValueError(f"checkpoint {source} contains invalid fingerprints")
+    try:
+        progress = TrainingProgress(**payload["progress"])
+    except (TypeError, ValueError) as error:
+        raise ValueError(f"checkpoint {source} contains invalid progress: {error}") from error
+    extra = payload.get("extra") or {}
+    if not isinstance(extra, Mapping):
+        raise ValueError(f"checkpoint {source} contains invalid extra metadata")
+    return CheckpointMetadata(
+        fingerprints=dict(fingerprints),
+        progress=progress,
+        extra=dict(extra),
+    )
+
+
 __all__ = [
     "CHECKPOINT_SCHEMA_VERSION",
+    "CheckpointMetadata",
     "TrainingProgress",
     "capture_rng_state",
     "load_checkpoint",
+    "read_checkpoint_metadata",
     "restore_rng_state",
     "save_checkpoint",
 ]

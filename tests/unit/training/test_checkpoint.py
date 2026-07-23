@@ -10,6 +10,7 @@ import torch
 from skilldrive.training.checkpoint import (
     TrainingProgress,
     load_checkpoint,
+    read_checkpoint_metadata,
     save_checkpoint,
 )
 
@@ -108,6 +109,28 @@ def test_checkpoint_rejects_corrupt_file(tmp_path: Path) -> None:
             optimizer=optimizer,
             expected_fingerprints={},
         )
+
+
+def test_checkpoint_metadata_is_read_only_and_validated(tmp_path: Path) -> None:
+    model, optimizer = _components()
+    path = tmp_path / "candidate.pt"
+    progress = TrainingProgress(3, 0, 21, 1.0, 2)
+    save_checkpoint(
+        path,
+        model=model,
+        optimizer=optimizer,
+        progress=progress,
+        fingerprints={"contract": "repair"},
+        extra={"checkpoint": {"role": "epoch_validation_candidate"}},
+    )
+
+    metadata = read_checkpoint_metadata(path)
+
+    assert metadata.progress == progress
+    assert metadata.fingerprints == {"contract": "repair"}
+    assert metadata.extra == {
+        "checkpoint": {"role": "epoch_validation_candidate"}
+    }
 
 
 def test_training_progress_rejects_negative_counters() -> None:

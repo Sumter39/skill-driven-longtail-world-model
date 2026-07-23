@@ -9,6 +9,7 @@ from skilldrive.data.av2_reader import (
     _map_polylines,
     _resample_polyline,
     discover_map_path,
+    load_av2_history_scenario,
     load_av2_scenario,
 )
 
@@ -155,6 +156,81 @@ def test_load_av2_scenario_reuses_preloaded_dependencies(
     assert scenario.focal_track_id == "focal-id"
     assert scenario.metadata["map_path"] == str(map_path)
     np.testing.assert_allclose(scenario.agents[0].positions, [[1.0, 2.0]])
+
+
+def test_load_av2_history_scenario_does_not_access_future_state_values(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    class PoisonFutureState:
+        timestep = 50
+
+        @property
+        def position(self):
+            raise AssertionError("future position was accessed")
+
+        @property
+        def velocity(self):
+            raise AssertionError("future velocity was accessed")
+
+        @property
+        def heading(self):
+            raise AssertionError("future heading was accessed")
+
+        @property
+        def observed(self):
+            raise AssertionError("future observed flag was accessed")
+
+    raw_scenario = SimpleNamespace(
+        scenario_id="scenario-id",
+        city_name="PIT",
+        timestamps_ns=list(range(110)),
+        focal_track_id="focal-id",
+        tracks=[
+            SimpleNamespace(
+                track_id="focal-id",
+                object_type=SimpleNamespace(value="VEHICLE"),
+                object_states=[
+                    SimpleNamespace(
+                        timestep=0,
+                        position=[1.0, 2.0],
+                        velocity=[3.0, 4.0],
+                        heading=0.25,
+                        observed=True,
+                    ),
+                    PoisonFutureState(),
+                ],
+            )
+        ],
+    )
+    scenario_serialization = SimpleNamespace(
+        load_argoverse_scenario_parquet=lambda path: raw_scenario
+    )
+
+    class FakeArgoverseStaticMap:
+        @classmethod
+        def from_json(cls, path: Path):
+            return SimpleNamespace(
+                get_scenario_lane_segments=lambda: [],
+                get_scenario_ped_crossings=lambda: [],
+                get_scenario_vector_drivable_areas=lambda: [],
+            )
+
+    monkeypatch.setattr(
+        av2_reader,
+        "preload_av2_dependencies",
+        lambda: (scenario_serialization, FakeArgoverseStaticMap),
+    )
+
+    scenario = load_av2_history_scenario(
+        tmp_path / "scenario.parquet",
+        tmp_path / "map.json",
+    )
+
+    assert len(scenario.timestamps) == 50
+    assert len(scenario.agents[0].positions) == 50
+    assert scenario.metadata["temporal_scope"] == "history_only"
+    assert scenario.metadata["timestamp_count"] == 50
 
 
 def test_load_av2_scenario_discovers_map_once_and_reuses_resolved_path(

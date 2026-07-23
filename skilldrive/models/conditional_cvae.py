@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import math
 from dataclasses import dataclass
 from typing import Mapping
 
@@ -48,6 +49,8 @@ class ConditionalCVAE(nn.Module):
         latent_dim: int = 16,
         decoder_hidden_dim: int = 128,
         future_steps: int = 60,
+        decoder_initial_delta_mode: str = "zero",
+        sample_period_s: float = 0.1,
         dropout: float = 0.1,
     ) -> None:
         super().__init__()
@@ -78,6 +81,21 @@ class ConditionalCVAE(nn.Module):
             raise ValueError(f"model dimensions must be positive: {invalid}")
         if interaction_hidden_dim % interaction_heads:
             raise ValueError("interaction_hidden_dim must be divisible by interaction_heads")
+        if decoder_initial_delta_mode not in {"zero", "history_velocity"}:
+            raise ValueError(
+                "decoder_initial_delta_mode must be 'zero' or 'history_velocity'"
+            )
+        if decoder_initial_delta_mode == "history_velocity" and actor_feature_dim < 4:
+            raise ValueError(
+                "history_velocity decoder initialization requires actor_feature_dim >= 4"
+            )
+        if (
+            isinstance(sample_period_s, bool)
+            or not isinstance(sample_period_s, (int, float))
+            or not math.isfinite(float(sample_period_s))
+            or float(sample_period_s) <= 0.0
+        ):
+            raise ValueError("sample_period_s must be a positive finite number")
         if not 0.0 <= dropout < 1.0:
             raise ValueError("dropout must be in [0, 1)")
 
@@ -86,6 +104,8 @@ class ConditionalCVAE(nn.Module):
         self.parameter_dim = parameter_dim
         self.latent_dim = latent_dim
         self.future_steps = future_steps
+        self.decoder_initial_delta_mode = decoder_initial_delta_mode
+        self.sample_period_s = float(sample_period_s)
 
         self.actor_history_cell = nn.GRUCell(actor_feature_dim, history_hidden_dim)
         self.actor_type_embedding = nn.Embedding(num_actor_types, actor_type_embedding_dim)
@@ -408,14 +428,84 @@ class ConditionalCVAE(nn.Module):
         )
         return torch.cat((target_context, skill_condition, parameter_condition), dim=-1)
 
-    def _decode(self, condition: Tensor, latent: Tensor) -> tuple[Tensor, Tensor]:
+    def _decoder_initial_delta(
+        self,
+        batch: Mapping[str, Tensor],
+        condition: Tensor,
+    ) -> Tensor:
+        if self.decoder_initial_delta_mode == "zero":
+            return condition.new_zeros((condition.shape[0], 2))
+
+        actor_history = self._tensor(batch, "actor_history")
+        if actor_history.ndim != 4 or actor_history.shape[-1] != self.actor_feature_dim:
+            raise ValueError(
+                "actor_history must have shape [B, A, H, actor_feature_dim]"
+            )
+        batch_size, actor_count, history_steps, _ = actor_history.shape
+        if batch_size != condition.shape[0] or history_steps <= 0:
+            raise ValueError("actor_history does not match the encoded condition")
+        actor_time_mask = self._boolean_mask(
+            batch,
+            "actor_time_mask",
+            (batch_size, actor_count, history_steps),
+        )
+        actor_mask = self._boolean_mask(
+            batch,
+            "actor_mask",
+            (batch_size, actor_count),
+        )
+        target_actor_index = self._tensor(batch, "target_actor_index")
+        if tuple(target_actor_index.shape) != (batch_size,):
+            raise ValueError(f"target_actor_index must have shape {(batch_size,)}")
+        target_actor_index = target_actor_index.to(
+            device=actor_history.device,
+            dtype=torch.long,
+        )
+        if bool(((target_actor_index < 0) | (target_actor_index >= actor_count)).any()):
+            raise ValueError("target_actor_index is outside the actor dimension")
+        batch_indices = torch.arange(batch_size, device=actor_history.device)
+        final_history_valid = (
+            actor_mask[batch_indices, target_actor_index]
+            & actor_time_mask[batch_indices, target_actor_index, history_steps - 1]
+        )
+        if not bool(final_history_valid.all()):
+            raise ValueError(
+                "history_velocity decoder initialization requires a valid final "
+                "target history timestep"
+            )
+        final_velocity = actor_history[
+            batch_indices,
+            target_actor_index,
+            history_steps - 1,
+            2:4,
+        ]
+        if not bool(torch.isfinite(final_velocity).all()):
+            raise ValueError(
+                "history_velocity decoder initialization requires finite final "
+                "target velocity"
+            )
+        return final_velocity * self.sample_period_s
+
+    def _decode(
+        self,
+        condition: Tensor,
+        latent: Tensor,
+        initial_delta: Tensor,
+    ) -> tuple[Tensor, Tensor]:
         if condition.ndim != 2 or latent.ndim != 2:
             raise ValueError("condition and latent must both be rank-two tensors")
         if condition.shape[0] != latent.shape[0]:
             raise ValueError("condition and latent batch sizes must match")
+        if tuple(initial_delta.shape) != (condition.shape[0], 2):
+            raise ValueError(
+                "initial_delta must have shape "
+                f"{(condition.shape[0], 2)}, got {tuple(initial_delta.shape)}"
+            )
+        if not bool(torch.isfinite(initial_delta).all()):
+            raise ValueError("initial_delta values must be finite")
         decoder_condition = torch.cat((condition, latent), dim=-1)
         hidden = torch.tanh(self.decoder_initial(decoder_condition))
-        previous_delta = condition.new_zeros((condition.shape[0], 2))
+        previous_delta = initial_delta.to(device=condition.device, dtype=condition.dtype)
         deltas: list[Tensor] = []
         for _ in range(self.future_steps):
             hidden = self.decoder_cell(
@@ -427,6 +517,69 @@ class ConditionalCVAE(nn.Module):
         future_delta = torch.stack(deltas, dim=1)
         return future_delta, future_delta.cumsum(dim=1)
 
+    def _prior_output(
+        self,
+        condition: Tensor,
+        prior_mean: Tensor,
+        prior_logvar: Tensor,
+        latent: Tensor,
+        initial_delta: Tensor,
+    ) -> CVAEOutput:
+        if latent.ndim != 3:
+            raise ValueError("Prior latent must have shape [B, S, latent_dim]")
+        batch_size, num_samples, latent_dim = latent.shape
+        if batch_size != condition.shape[0] or latent_dim != self.latent_dim:
+            raise ValueError("Prior latent shape does not match the encoded context")
+        if tuple(initial_delta.shape) != (batch_size, 2):
+            raise ValueError("Prior initial_delta shape does not match the encoded context")
+        expanded_condition = condition[:, None, :].expand(-1, num_samples, -1)
+        expanded_initial_delta = initial_delta[:, None, :].expand(-1, num_samples, -1)
+        flat_delta, flat_position = self._decode(
+            expanded_condition.reshape(batch_size * num_samples, -1),
+            latent.reshape(batch_size * num_samples, self.latent_dim),
+            expanded_initial_delta.reshape(batch_size * num_samples, 2),
+        )
+        return CVAEOutput(
+            future_delta=flat_delta.reshape(
+                batch_size,
+                num_samples,
+                self.future_steps,
+                2,
+            ),
+            future_position_local=flat_position.reshape(
+                batch_size,
+                num_samples,
+                self.future_steps,
+                2,
+            ),
+            prior_mean=prior_mean,
+            prior_logvar=prior_logvar,
+            posterior_mean=None,
+            posterior_logvar=None,
+            latent=latent,
+        )
+
+    def _condition_and_prior_parameters(
+        self,
+        context_batch: Mapping[str, Tensor],
+    ) -> tuple[Tensor, Tensor, Tensor]:
+        condition = self._encode_context(context_batch)
+        prior_mean, prior_logvar = self._gaussian_parameters(
+            self.prior_head(condition)
+        )
+        return condition, prior_mean, prior_logvar
+
+    def prior_parameters(
+        self,
+        context_batch: Mapping[str, Tensor],
+    ) -> tuple[Tensor, Tensor]:
+        """Return condition-prior Gaussian parameters without decoding a future."""
+
+        _, prior_mean, prior_logvar = self._condition_and_prior_parameters(
+            context_batch
+        )
+        return prior_mean, prior_logvar
+
     def forward_train(
         self,
         batch: Mapping[str, Tensor],
@@ -434,8 +587,9 @@ class ConditionalCVAE(nn.Module):
     ) -> CVAEOutput:
         """Use the target future only in the posterior training path."""
 
-        condition = self._encode_context(batch)
-        prior_mean, prior_logvar = self._gaussian_parameters(self.prior_head(condition))
+        condition, prior_mean, prior_logvar = self._condition_and_prior_parameters(
+            batch
+        )
 
         target_future = self._tensor(batch, "target_future")
         expected_shape = (condition.shape[0], self.future_steps, 2)
@@ -467,7 +621,12 @@ class ConditionalCVAE(nn.Module):
             posterior_logvar,
             generator=generator,
         )
-        future_delta, future_position_local = self._decode(condition, latent)
+        initial_delta = self._decoder_initial_delta(batch, condition)
+        future_delta, future_position_local = self._decode(
+            condition,
+            latent,
+            initial_delta,
+        )
         return CVAEOutput(
             future_delta=future_delta,
             future_position_local=future_position_local,
@@ -488,38 +647,62 @@ class ConditionalCVAE(nn.Module):
 
         if isinstance(num_samples, bool) or not isinstance(num_samples, int) or num_samples <= 0:
             raise ValueError("num_samples must be a positive integer")
-        condition = self._encode_context(context_batch)
-        prior_mean, prior_logvar = self._gaussian_parameters(self.prior_head(condition))
+        condition, prior_mean, prior_logvar = self._condition_and_prior_parameters(
+            context_batch
+        )
         latent = self._sample_gaussian(
             prior_mean,
             prior_logvar,
             generator=generator,
             num_samples=num_samples,
         )
-        batch_size = condition.shape[0]
-        expanded_condition = condition[:, None, :].expand(-1, num_samples, -1)
-        flat_delta, flat_position = self._decode(
-            expanded_condition.reshape(batch_size * num_samples, -1),
-            latent.reshape(batch_size * num_samples, self.latent_dim),
+        initial_delta = self._decoder_initial_delta(context_batch, condition)
+        return self._prior_output(
+            condition,
+            prior_mean,
+            prior_logvar,
+            latent,
+            initial_delta,
         )
-        return CVAEOutput(
-            future_delta=flat_delta.reshape(
-                batch_size,
-                num_samples,
-                self.future_steps,
-                2,
-            ),
-            future_position_local=flat_position.reshape(
-                batch_size,
-                num_samples,
-                self.future_steps,
-                2,
-            ),
-            prior_mean=prior_mean,
-            prior_logvar=prior_logvar,
-            posterior_mean=None,
-            posterior_logvar=None,
-            latent=latent,
+
+    def sample_prior_from_noise(
+        self,
+        context_batch: Mapping[str, Tensor],
+        standard_normal: Tensor,
+    ) -> CVAEOutput:
+        """Decode explicit standard-normal noise through the condition prior."""
+
+        if not isinstance(standard_normal, Tensor):
+            raise TypeError("standard_normal must be a torch.Tensor")
+        if standard_normal.ndim != 3:
+            raise ValueError("standard_normal must have shape [B, S, latent_dim]")
+        if standard_normal.shape[1] <= 0:
+            raise ValueError("standard_normal must contain at least one sample")
+        if not standard_normal.is_floating_point():
+            raise ValueError("standard_normal must have a floating-point dtype")
+
+        condition, prior_mean, prior_logvar = self._condition_and_prior_parameters(
+            context_batch
+        )
+        expected_shape = (condition.shape[0], standard_normal.shape[1], self.latent_dim)
+        if tuple(standard_normal.shape) != expected_shape:
+            raise ValueError(
+                f"standard_normal must have shape {expected_shape}, "
+                f"got {tuple(standard_normal.shape)}"
+            )
+        noise = standard_normal.to(device=condition.device, dtype=condition.dtype)
+        if not torch.isfinite(noise).all():
+            raise ValueError("standard_normal values must be finite")
+        latent = prior_mean.unsqueeze(1) + noise * torch.exp(
+            0.5 * prior_logvar
+        ).unsqueeze(1)
+        initial_delta = self._decoder_initial_delta(context_batch, condition)
+        return self._prior_output(
+            condition,
+            prior_mean,
+            prior_logvar,
+            latent,
+            initial_delta,
         )
 
 

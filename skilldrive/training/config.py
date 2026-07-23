@@ -89,6 +89,50 @@ class LossConfig:
 
 
 @dataclass(frozen=True)
+class RepairSplitConfig:
+    audit: Path
+    train_sample_index: Path
+    development_sample_index: Path
+
+
+@dataclass(frozen=True)
+class RepairModelConfig:
+    decoder_initial_delta_mode: str
+
+
+@dataclass(frozen=True)
+class MotionLossConfig:
+    seam_velocity_weight: float
+    velocity_weight: float
+    acceleration_weight: float
+    jerk_weight: float
+
+
+@dataclass(frozen=True)
+class ConditionRankingConfig:
+    weight: float
+    margin_per_latent_dim: float
+
+
+@dataclass(frozen=True)
+class ObservedSkillSamplerConfig:
+    strategy: str
+    target: str
+    max_repeats_per_sample: int
+
+
+@dataclass(frozen=True)
+class GenerationRepairConfig:
+    contract: str
+    source_cache_partition: str
+    split: RepairSplitConfig
+    model: RepairModelConfig
+    motion_loss: MotionLossConfig
+    condition_ranking: ConditionRankingConfig
+    sampler: ObservedSkillSamplerConfig
+
+
+@dataclass(frozen=True)
 class TrainingConfig:
     seed: int
     device: str
@@ -150,12 +194,16 @@ class CVAEConfig:
     overfit: OverfitConfig
     benchmark: BenchmarkConfig
     outputs: OutputConfig
+    repair: GenerationRepairConfig | None = None
 
     def to_canonical_dict(self) -> dict[str, Any]:
         """Return a stable JSON-compatible representation of this configuration."""
         value = _canonical_value(self)
         if not isinstance(value, dict):  # pragma: no cover - guarded by the dataclass type
             raise TypeError("CVAEConfig did not canonicalize to a mapping")
+        if self.repair is None:
+            # Preserve the exact v1 baseline fingerprint and checkpoint contract.
+            value.pop("repair", None)
         return value
 
     @property
@@ -504,6 +552,141 @@ def _parse_loss(value: Any) -> LossConfig:
     )
 
 
+def _parse_repair_split(value: Any) -> RepairSplitConfig:
+    prefix = "repair.split"
+    keys = ("audit", "train_sample_index", "development_sample_index")
+    section = _section(value, prefix, keys)
+    result = RepairSplitConfig(
+        audit=_relative_path(section, "audit", prefix),
+        train_sample_index=_relative_path(section, "train_sample_index", prefix),
+        development_sample_index=_relative_path(
+            section,
+            "development_sample_index",
+            prefix,
+        ),
+    )
+    if result.train_sample_index == result.development_sample_index:
+        raise ValueError("repair train and development sample indexes must differ")
+    forbidden = ("internal_validation", "final_validation")
+    for field in fields(RepairSplitConfig):
+        path = getattr(result, field.name).as_posix()
+        if any(name in path for name in forbidden):
+            raise ValueError(
+                f"repair.split.{field.name} must stay inside Formal Train"
+            )
+    return result
+
+
+def _parse_repair(value: Any) -> GenerationRepairConfig:
+    prefix = "repair"
+    section = _section(
+        value,
+        prefix,
+        (
+            "contract",
+            "source_cache_partition",
+            "split",
+            "model",
+            "motion_loss",
+            "condition_ranking",
+            "sampler",
+        ),
+    )
+    contract = _string(section, "contract", prefix)
+    if contract != "cvae_generation_repair_v1":
+        raise ValueError("repair.contract must equal cvae_generation_repair_v1")
+    source_partition = _string(section, "source_cache_partition", prefix)
+    if source_partition != "formal_train":
+        raise ValueError("repair.source_cache_partition must equal formal_train")
+
+    model_prefix = "repair.model"
+    model_section = _section(
+        section["model"],
+        model_prefix,
+        ("decoder_initial_delta_mode",),
+    )
+    model = RepairModelConfig(
+        decoder_initial_delta_mode=_string(
+            model_section,
+            "decoder_initial_delta_mode",
+            model_prefix,
+            choices={"history_velocity"},
+        )
+    )
+
+    motion_prefix = "repair.motion_loss"
+    motion_keys = tuple(field.name for field in fields(MotionLossConfig))
+    motion_section = _section(section["motion_loss"], motion_prefix, motion_keys)
+    motion = MotionLossConfig(
+        **{
+            key: _number(motion_section, key, motion_prefix, minimum=0.0)
+            for key in motion_keys
+        }
+    )
+    if not any(getattr(motion, key) > 0.0 for key in motion_keys):
+        raise ValueError("repair.motion_loss must enable at least one component")
+
+    ranking_prefix = "repair.condition_ranking"
+    ranking_section = _section(
+        section["condition_ranking"],
+        ranking_prefix,
+        ("weight", "margin_per_latent_dim"),
+    )
+    ranking = ConditionRankingConfig(
+        weight=_number(
+            ranking_section,
+            "weight",
+            ranking_prefix,
+            minimum=0.0,
+            minimum_inclusive=False,
+        ),
+        margin_per_latent_dim=_number(
+            ranking_section,
+            "margin_per_latent_dim",
+            ranking_prefix,
+            minimum=0.0,
+            minimum_inclusive=False,
+        ),
+    )
+
+    sampler_prefix = "repair.sampler"
+    sampler_section = _section(
+        section["sampler"],
+        sampler_prefix,
+        ("strategy", "target", "max_repeats_per_sample"),
+    )
+    sampler = ObservedSkillSamplerConfig(
+        strategy=_string(
+            sampler_section,
+            "strategy",
+            sampler_prefix,
+            choices={"observed_skill_balance_v1"},
+        ),
+        target=_string(
+            sampler_section,
+            "target",
+            sampler_prefix,
+            choices={"most_frequent_observed"},
+        ),
+        max_repeats_per_sample=_integer(
+            sampler_section,
+            "max_repeats_per_sample",
+            sampler_prefix,
+            minimum=1,
+            maximum=8,
+        ),
+    )
+    return GenerationRepairConfig(
+        contract=contract,
+        source_cache_partition=source_partition,
+        split=_parse_repair_split(section["split"]),
+        model=model,
+        motion_loss=motion,
+        condition_ranking=ranking,
+        sampler=sampler,
+    )
+
+
 def _parse_training(value: Any) -> TrainingConfig:
     prefix = "training"
     keys = tuple(field.name for field in fields(TrainingConfig))
@@ -631,7 +814,7 @@ def load_cvae_config(path: str | Path = DEFAULT_CVAE_CONFIG) -> CVAEConfig:
             raw = yaml.safe_load(handle)
     except yaml.YAMLError as exc:
         raise ValueError(f"invalid YAML configuration: {source}") from exc
-    root_keys = (
+    base_root_keys = (
         "version",
         "data",
         "tensorization",
@@ -643,10 +826,18 @@ def load_cvae_config(path: str | Path = DEFAULT_CVAE_CONFIG) -> CVAEConfig:
         "benchmark",
         "outputs",
     )
-    root = _section(raw, "configuration", root_keys)
+    raw_mapping = _mapping(raw, "configuration")
+    raw_version = raw_mapping.get("version")
+    if isinstance(raw_version, bool) or not isinstance(raw_version, int):
+        raise ValueError("configuration.version must be an integer")
+    root_keys = (
+        *base_root_keys,
+        *(("repair",) if raw_version == 2 else ()),
+    )
+    root = _section(raw_mapping, "configuration", root_keys)
     version = _integer(root, "version", "configuration", minimum=1)
-    if version != 1:
-        raise ValueError("configuration.version must equal 1")
+    if version not in {1, 2}:
+        raise ValueError("configuration.version must equal 1 or 2")
     return CVAEConfig(
         version=version,
         data=_parse_data(root["data"]),
@@ -658,4 +849,5 @@ def load_cvae_config(path: str | Path = DEFAULT_CVAE_CONFIG) -> CVAEConfig:
         overfit=_parse_overfit(root["overfit"]),
         benchmark=_parse_benchmark(root["benchmark"]),
         outputs=_parse_outputs(root["outputs"]),
+        repair=None if version == 1 else _parse_repair(root["repair"]),
     )

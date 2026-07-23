@@ -160,10 +160,12 @@ def preload_av2_dependencies() -> tuple[Any, Any]:
     return scenario_serialization, argoverse_static_map
 
 
-def load_av2_scenario(
-    scenario_path: str | Path, map_path: str | Path | None = None
+def _load_av2_scenario(
+    scenario_path: str | Path,
+    map_path: str | Path | None,
+    *,
+    timestamp_count: int | None,
 ) -> Scenario:
-    """Load one AV2 scenario without importing AV2 until the function is called."""
     scenario_serialization, ArgoverseStaticMap = preload_av2_dependencies()
 
     source = Path(scenario_path)
@@ -173,7 +175,15 @@ def load_av2_scenario(
     av2_scenario = scenario_serialization.load_argoverse_scenario_parquet(source)
     static_map = ArgoverseStaticMap.from_json(resolved_map_path)
 
-    timestamps = np.asarray(av2_scenario.timestamps_ns, dtype=np.int64)
+    all_timestamps = np.asarray(av2_scenario.timestamps_ns, dtype=np.int64)
+    if timestamp_count is None:
+        timestamps = all_timestamps
+    else:
+        if timestamp_count > len(all_timestamps):
+            raise ValueError(
+                f"history timestamp_count exceeds scenario length: {timestamp_count}"
+            )
+        timestamps = all_timestamps[:timestamp_count]
     agents: list[AgentTrack] = []
     for track in av2_scenario.tracks:
         positions = np.full((len(timestamps), 2), np.nan, dtype=np.float64)
@@ -201,6 +211,10 @@ def load_av2_scenario(
 
     map_polylines = _map_polylines(static_map)
 
+    metadata = {"source_path": str(source), "map_path": str(resolved_map_path)}
+    if timestamp_count is not None:
+        metadata["temporal_scope"] = "history_only"
+        metadata["timestamp_count"] = timestamp_count
     return Scenario(
         scenario_id=str(av2_scenario.scenario_id),
         city_name=str(av2_scenario.city_name),
@@ -208,5 +222,36 @@ def load_av2_scenario(
         focal_track_id=str(av2_scenario.focal_track_id),
         agents=agents,
         map_polylines=map_polylines,
-        metadata={"source_path": str(source), "map_path": str(resolved_map_path)},
+        metadata=metadata,
+    )
+
+
+def load_av2_scenario(
+    scenario_path: str | Path, map_path: str | Path | None = None
+) -> Scenario:
+    """Load one complete AV2 scenario without importing AV2 until called."""
+
+    return _load_av2_scenario(
+        scenario_path,
+        map_path,
+        timestamp_count=None,
+    )
+
+
+def load_av2_history_scenario(
+    scenario_path: str | Path,
+    map_path: str | Path | None = None,
+    *,
+    history_steps: int = 50,
+) -> Scenario:
+    """Load only the history prefix exposed to counterfactual Prior inference."""
+
+    if isinstance(history_steps, bool) or not isinstance(history_steps, int):
+        raise ValueError("history_steps must be a positive integer")
+    if history_steps <= 0:
+        raise ValueError("history_steps must be a positive integer")
+    return _load_av2_scenario(
+        scenario_path,
+        map_path,
+        timestamp_count=history_steps,
     )

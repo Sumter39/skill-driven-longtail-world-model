@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import pytest
 import torch
 
 from skilldrive.models import CVAEOutput, ConditionalCVAE
@@ -12,30 +13,32 @@ from skilldrive.training.checkpoint import (
 )
 
 
-def _model() -> ConditionalCVAE:
-    return ConditionalCVAE(
-        actor_feature_dim=4,
-        map_feature_dim=3,
-        num_actor_types=4,
-        num_actor_roles=4,
-        num_map_types=4,
-        num_skills=5,
-        parameter_dim=3,
-        actor_type_embedding_dim=4,
-        actor_role_embedding_dim=4,
-        history_hidden_dim=12,
-        map_type_embedding_dim=4,
-        map_hidden_dim=12,
-        interaction_hidden_dim=16,
-        interaction_layers=2,
-        interaction_heads=4,
-        skill_embedding_dim=4,
-        parameter_hidden_dim=8,
-        latent_dim=4,
-        decoder_hidden_dim=16,
-        future_steps=6,
-        dropout=0.0,
-    )
+def _model(**changes: object) -> ConditionalCVAE:
+    parameters: dict[str, object] = {
+        "actor_feature_dim": 4,
+        "map_feature_dim": 3,
+        "num_actor_types": 4,
+        "num_actor_roles": 4,
+        "num_map_types": 4,
+        "num_skills": 5,
+        "parameter_dim": 3,
+        "actor_type_embedding_dim": 4,
+        "actor_role_embedding_dim": 4,
+        "history_hidden_dim": 12,
+        "map_type_embedding_dim": 4,
+        "map_hidden_dim": 12,
+        "interaction_hidden_dim": 16,
+        "interaction_layers": 2,
+        "interaction_heads": 4,
+        "skill_embedding_dim": 4,
+        "parameter_hidden_dim": 8,
+        "latent_dim": 4,
+        "decoder_hidden_dim": 16,
+        "future_steps": 6,
+        "dropout": 0.0,
+    }
+    parameters.update(changes)
+    return ConditionalCVAE(**parameters)
 
 
 def _batch() -> dict[str, torch.Tensor]:
@@ -96,6 +99,24 @@ def _assert_finite(output: CVAEOutput) -> None:
     if output.posterior_logvar is not None:
         tensors.append(output.posterior_logvar)
     assert all(torch.isfinite(tensor).all() for tensor in tensors)
+
+
+def _first_decoder_previous_delta(
+    model: ConditionalCVAE,
+    call,
+) -> torch.Tensor:
+    decoder_inputs: list[torch.Tensor] = []
+
+    def capture(_module, args) -> None:
+        decoder_inputs.append(args[0][:, :2].detach().clone())
+
+    handle = model.decoder_cell.register_forward_pre_hook(capture)
+    try:
+        call()
+    finally:
+        handle.remove()
+    assert decoder_inputs
+    return decoder_inputs[0]
 
 
 def test_forward_train_and_prior_sampling_shapes_are_finite() -> None:
@@ -161,6 +182,22 @@ def test_prior_sampling_does_not_read_target_future() -> None:
     assert torch.equal(first.future_position_local, second.future_position_local)
 
 
+def test_public_prior_parameters_match_prior_sampling_without_decoding() -> None:
+    model = _model().eval()
+    context = _context(_batch())
+
+    mean, logvar = model.prior_parameters(context)
+    sampled = model.sample_prior_from_noise(
+        context,
+        torch.zeros(2, 1, model.latent_dim),
+    )
+
+    assert mean.shape == (2, model.latent_dim)
+    assert logvar.shape == (2, model.latent_dim)
+    assert torch.equal(mean, sampled.prior_mean)
+    assert torch.equal(logvar, sampled.prior_logvar)
+
+
 def test_prior_sampling_is_reproducible_and_different_latents_change_trajectory() -> None:
     model = _model().eval()
     context = _context(_batch())
@@ -173,6 +210,184 @@ def test_prior_sampling_is_reproducible_and_different_latents_change_trajectory(
         first.future_position_local[:, 0],
         first.future_position_local[:, 1],
     )
+
+
+def test_history_velocity_initializes_train_and_all_prior_decoder_paths() -> None:
+    model = _model(
+        decoder_initial_delta_mode="history_velocity",
+        sample_period_s=0.25,
+    ).eval()
+    batch = _batch()
+    context = _context(batch)
+    batch_indices = torch.arange(2)
+    expected = (
+        batch["actor_history"][
+            batch_indices,
+            batch["target_actor_index"],
+            -1,
+            2:4,
+        ]
+        * 0.25
+    )
+
+    train_initial = _first_decoder_previous_delta(
+        model,
+        lambda: model.forward_train(batch, torch.Generator().manual_seed(41)),
+    )
+    torch.testing.assert_close(train_initial, expected, rtol=0.0, atol=0.0)
+
+    prior_initial = _first_decoder_previous_delta(
+        model,
+        lambda: model.sample_prior(
+            context,
+            3,
+            torch.Generator().manual_seed(43),
+        ),
+    )
+    expected_prior = expected[:, None, :].expand(-1, 3, -1).reshape(-1, 2)
+    torch.testing.assert_close(prior_initial, expected_prior, rtol=0.0, atol=0.0)
+
+    explicit_initial = _first_decoder_previous_delta(
+        model,
+        lambda: model.sample_prior_from_noise(
+            context,
+            torch.zeros(2, 2, model.latent_dim),
+        ),
+    )
+    expected_explicit = expected[:, None, :].expand(-1, 2, -1).reshape(-1, 2)
+    torch.testing.assert_close(explicit_initial, expected_explicit, rtol=0.0, atol=0.0)
+
+
+def test_explicit_zero_mode_preserves_default_decoder_semantics() -> None:
+    default = _model().eval()
+    explicit_zero = _model(
+        decoder_initial_delta_mode="zero",
+        sample_period_s=0.25,
+    ).eval()
+    explicit_zero.load_state_dict(default.state_dict())
+    context = _context(_batch())
+    noise = torch.randn(2, 3, default.latent_dim, generator=torch.Generator().manual_seed(47))
+
+    expected = default.sample_prior_from_noise(context, noise)
+    actual = explicit_zero.sample_prior_from_noise(context, noise)
+
+    assert torch.equal(actual.latent, expected.latent)
+    assert torch.equal(actual.future_delta, expected.future_delta)
+    assert torch.equal(actual.future_position_local, expected.future_position_local)
+
+
+def test_history_velocity_requires_valid_final_target_history() -> None:
+    model = _model(decoder_initial_delta_mode="history_velocity").eval()
+    batch = _batch()
+    batch["actor_time_mask"][1, 1, -1] = False
+
+    with pytest.raises(ValueError, match="valid final target history"):
+        model.sample_prior(
+            _context(batch),
+            2,
+            torch.Generator().manual_seed(53),
+        )
+
+
+@pytest.mark.parametrize(
+    ("changes", "message"),
+    [
+        ({"decoder_initial_delta_mode": "unsupported"}, "decoder_initial_delta_mode"),
+        ({"sample_period_s": 0.0}, "sample_period_s"),
+        ({"sample_period_s": float("nan")}, "sample_period_s"),
+        (
+            {
+                "actor_feature_dim": 3,
+                "decoder_initial_delta_mode": "history_velocity",
+            },
+            "actor_feature_dim",
+        ),
+    ],
+)
+def test_decoder_initialization_contract_rejects_invalid_configuration(
+    changes: dict[str, object],
+    message: str,
+) -> None:
+    with pytest.raises(ValueError, match=message):
+        _model(**changes)
+
+
+def test_explicit_prior_noise_is_batch_partition_independent() -> None:
+    torch.manual_seed(31)
+    model = _model().eval()
+    context = _context(_batch())
+    noise = torch.randn(2, 3, model.latent_dim, generator=torch.Generator().manual_seed(31))
+
+    whole = model.sample_prior_from_noise(context, noise)
+    partitions = [
+        model.sample_prior_from_noise(
+            {name: value[index : index + 1] for name, value in context.items()},
+            noise[index : index + 1],
+        )
+        for index in range(2)
+    ]
+
+    for name in (
+        "future_delta",
+        "future_position_local",
+        "prior_mean",
+        "prior_logvar",
+        "latent",
+    ):
+        partitioned = torch.cat([getattr(output, name) for output in partitions], dim=0)
+        torch.testing.assert_close(
+            getattr(whole, name),
+            partitioned,
+            rtol=0.0,
+            atol=1e-6,
+        )
+
+
+def test_explicit_prior_noise_matches_generator_sampling() -> None:
+    model = _model().eval()
+    context = _context(_batch())
+    sampled = model.sample_prior(
+        context,
+        3,
+        torch.Generator().manual_seed(37),
+    )
+    noise = torch.randn(
+        2,
+        3,
+        model.latent_dim,
+        generator=torch.Generator().manual_seed(37),
+    )
+    explicit = model.sample_prior_from_noise(context, noise)
+
+    assert torch.equal(sampled.latent, explicit.latent)
+    assert torch.equal(sampled.future_position_local, explicit.future_position_local)
+
+
+@pytest.mark.parametrize(
+    ("noise", "message"),
+    [
+        (torch.zeros(2, 4), "shape"),
+        (torch.zeros(1, 2, 4), "shape"),
+        (torch.zeros(2, 0, 4), "at least one sample"),
+        (torch.zeros(2, 2, 5), "shape"),
+        (torch.zeros(2, 2, 4, dtype=torch.int64), "floating-point"),
+        (torch.full((2, 2, 4), float("nan")), "finite"),
+    ],
+)
+def test_explicit_prior_noise_rejects_invalid_values(
+    noise: torch.Tensor,
+    message: str,
+) -> None:
+    with pytest.raises(ValueError, match=message):
+        _model().eval().sample_prior_from_noise(_context(_batch()), noise)
+
+
+def test_explicit_prior_noise_requires_tensor() -> None:
+    with pytest.raises(TypeError, match="torch.Tensor"):
+        _model().eval().sample_prior_from_noise(  # type: ignore[arg-type]
+            _context(_batch()),
+            [[[0.0]]],
+        )
 
 
 def test_checkpoint_reload_preserves_fixed_prior_output(tmp_path: Path) -> None:

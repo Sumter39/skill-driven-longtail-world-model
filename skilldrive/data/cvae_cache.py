@@ -1210,20 +1210,64 @@ class CVAECachedDataset(Dataset[dict[str, Any]]):
         *,
         schema: CVAESchema | None = None,
         in_memory_shards: int | None = None,
+        sample_index_path: str | Path | None = None,
     ) -> None:
         self.cache_dir = Path(cache_dir)
         self.schema = schema or build_cvae_schema()
         self.cache_manifest = _read_json(self.cache_dir / CACHE_MANIFEST_NAME)
         if self.cache_manifest.get("version") != CACHE_VERSION:
             raise ValueError("CVAE cache_manifest version is incompatible")
-        index_path = self.cache_dir / self.cache_manifest["sample_index"]["path"]
-        if _sha256(index_path) != self.cache_manifest["sample_index"]["sha256"]:
+        source_index_path = self.cache_dir / self.cache_manifest["sample_index"]["path"]
+        if _sha256(source_index_path) != self.cache_manifest["sample_index"]["sha256"]:
             raise ValueError("CVAE sample index hash differs from cache_manifest")
-        self.entries = [
+        source_entries = [
             json.loads(line)
-            for line in index_path.read_text(encoding="utf-8").splitlines()
+            for line in source_index_path.read_text(encoding="utf-8").splitlines()
             if line
         ]
+        self.source_sample_index_path = source_index_path
+        if sample_index_path is None:
+            self.sample_index_path = source_index_path
+            self.entries = source_entries
+        else:
+            view_path = Path(sample_index_path)
+            view_entries = [
+                json.loads(line)
+                for line in view_path.read_text(encoding="utf-8").splitlines()
+                if line
+            ]
+            source_by_offset: dict[tuple[str, int], dict[str, Any]] = {}
+            for entry in source_entries:
+                shard = entry.get("shard")
+                offset = entry.get("offset")
+                if not isinstance(shard, str) or isinstance(offset, bool) or not isinstance(
+                    offset, int
+                ):
+                    raise ValueError("source CVAE sample index has an invalid shard offset")
+                key = (shard, offset)
+                if key in source_by_offset:
+                    raise ValueError("source CVAE sample index has duplicate shard offsets")
+                source_by_offset[key] = entry
+            seen: set[tuple[str, int]] = set()
+            for entry in view_entries:
+                shard = entry.get("shard")
+                offset = entry.get("offset")
+                if not isinstance(shard, str) or isinstance(offset, bool) or not isinstance(
+                    offset, int
+                ):
+                    raise ValueError("explicit CVAE sample view has an invalid shard offset")
+                key = (shard, offset)
+                source = source_by_offset.get(key)
+                if source is None or source != entry:
+                    raise ValueError(
+                        "explicit CVAE sample view contains an entry outside the source index"
+                    )
+                if key in seen:
+                    raise ValueError("explicit CVAE sample view contains duplicate entries")
+                seen.add(key)
+            self.sample_index_path = view_path
+            self.entries = view_entries
+        self.sample_index_sha256 = _sha256(self.sample_index_path)
         maximum = (
             self.cache_manifest["in_memory_shards"]
             if in_memory_shards is None
@@ -1345,10 +1389,181 @@ class ShardShuffleSampler(Sampler[int]):
         return max(stop - self.start_index, 0)
 
 
+class ObservedSkillBalanceSampler(Sampler[int]):
+    """Balance observed skills deterministically without dropping base samples.
+
+    Every source sample appears once. Observed skills are then repeated toward the
+    most frequent observed skill in the current training view, while no individual
+    sample may appear more than ``max_repeats_per_sample`` times in one epoch.
+    Expanded occurrences remain shard-grouped to preserve cache locality.
+    """
+
+    def __init__(
+        self,
+        dataset: Dataset,
+        *,
+        seed: int,
+        max_repeats_per_sample: int = 8,
+    ) -> None:
+        if len(dataset) == 0:
+            raise ValueError("observed-skill sampler requires a non-empty dataset")
+        if (
+            isinstance(max_repeats_per_sample, bool)
+            or not isinstance(max_repeats_per_sample, int)
+            or not 1 <= max_repeats_per_sample <= 8
+        ):
+            raise ValueError("max_repeats_per_sample must be an integer from 1 to 8")
+        entries = getattr(dataset, "entries", None)
+        if not isinstance(entries, list) or len(entries) != len(dataset):
+            raise ValueError("observed-skill sampler requires indexed dataset entries")
+        self.dataset = dataset
+        self.seed = int(seed)
+        self.max_repeats_per_sample = max_repeats_per_sample
+        self.epoch = 0
+        self.start_index = 0
+        self.stop_index: int | None = None
+        base_indices: list[int] = []
+        observed: dict[str, list[int]] = defaultdict(list)
+        shard_by_index: list[str] = []
+        for index, entry in enumerate(entries):
+            if not isinstance(entry, Mapping):
+                raise ValueError("dataset entry must be a mapping")
+            shard = entry.get("shard")
+            spec = entry.get("spec")
+            if not isinstance(shard, str) or not isinstance(spec, Mapping):
+                raise ValueError("dataset entry must contain shard and spec mappings")
+            skill_id = spec.get("skill_id")
+            supervised = spec.get("skill_supervision_mask")
+            if not isinstance(skill_id, str) or not isinstance(supervised, bool):
+                raise ValueError("dataset sample spec has an invalid skill contract")
+            if skill_id == "<none>" and not supervised:
+                base_indices.append(index)
+            elif skill_id != "<none>" and supervised:
+                observed[skill_id].append(index)
+            else:
+                raise ValueError(
+                    "balanced training accepts only base or observed-skill samples"
+                )
+            shard_by_index.append(shard)
+        if not base_indices:
+            raise ValueError("balanced training requires at least one base sample")
+        if not observed:
+            raise ValueError("balanced training requires observed-skill samples")
+        self.base_indices = tuple(base_indices)
+        self.observed_groups = tuple(
+            (skill_id, tuple(indices)) for skill_id, indices in sorted(observed.items())
+        )
+        self.shard_by_index = tuple(shard_by_index)
+        target = max(len(indices) for _, indices in self.observed_groups)
+        self.target_observed_exposure = target
+        self.observed_exposure = {
+            skill_id: min(target, len(indices) * max_repeats_per_sample)
+            for skill_id, indices in self.observed_groups
+        }
+        self.epoch_size = len(self.base_indices) + sum(self.observed_exposure.values())
+
+    @property
+    def contract(self) -> dict[str, Any]:
+        return {
+            "strategy": "observed_skill_balance_v1",
+            "target": "most_frequent_observed",
+            "seed": self.seed,
+            "source_samples": len(self.dataset),
+            "base_samples": len(self.base_indices),
+            "observed_source_by_skill": {
+                skill_id: len(indices) for skill_id, indices in self.observed_groups
+            },
+            "observed_epoch_exposure_by_skill": dict(self.observed_exposure),
+            "target_observed_exposure": self.target_observed_exposure,
+            "max_repeats_per_sample": self.max_repeats_per_sample,
+            "epoch_samples": self.epoch_size,
+        }
+
+    def set_epoch(self, epoch: int) -> None:
+        if isinstance(epoch, bool) or not isinstance(epoch, int) or epoch < 0:
+            raise ValueError("epoch must be a nonnegative integer")
+        self.epoch = epoch
+
+    def set_range(self, start_index: int = 0, stop_index: int | None = None) -> None:
+        if isinstance(start_index, bool) or not isinstance(start_index, int):
+            raise ValueError("start_index must be a nonnegative integer")
+        if start_index < 0:
+            raise ValueError("start_index must be a nonnegative integer")
+        if stop_index is not None:
+            if isinstance(stop_index, bool) or not isinstance(stop_index, int):
+                raise ValueError("stop_index must be an integer when present")
+            if stop_index < start_index:
+                raise ValueError("stop_index must not precede start_index")
+        self.start_index = min(start_index, self.epoch_size)
+        self.stop_index = (
+            None if stop_index is None else min(stop_index, self.epoch_size)
+        )
+
+    def _epoch_order(self) -> list[int]:
+        generator = torch.Generator().manual_seed(self.seed + self.epoch)
+        occurrences: list[int] = list(self.base_indices)
+        for skill_id, indices in self.observed_groups:
+            desired = self.observed_exposure[skill_id]
+            full_repeats, remainder = divmod(desired, len(indices))
+            if full_repeats > self.max_repeats_per_sample:
+                raise AssertionError("sampler repeat cap was exceeded")
+            occurrences.extend(index for index in indices for _ in range(full_repeats))
+            if remainder:
+                order = torch.randperm(len(indices), generator=generator).tolist()
+                occurrences.extend(indices[position] for position in order[:remainder])
+
+        by_shard: dict[str, list[int]] = defaultdict(list)
+        for index in occurrences:
+            by_shard[self.shard_by_index[index]].append(index)
+        shard_names = sorted(by_shard)
+        shard_order = torch.randperm(len(shard_names), generator=generator).tolist()
+        result: list[int] = []
+        for position in shard_order:
+            shard_occurrences = by_shard[shard_names[position]]
+            order = torch.randperm(len(shard_occurrences), generator=generator).tolist()
+            result.extend(shard_occurrences[index] for index in order)
+        if len(result) != self.epoch_size:
+            raise AssertionError("balanced sampler epoch size changed")
+        return result
+
+    def exposure(self) -> dict[str, Any]:
+        """Describe exactly the currently selected epoch range."""
+
+        stop = self.epoch_size if self.stop_index is None else self.stop_index
+        indices = self._epoch_order()[self.start_index:stop]
+        base = 0
+        observed: Counter[str] = Counter()
+        sample_repeats: Counter[int] = Counter(indices)
+        for index in indices:
+            spec = self.dataset.entries[index]["spec"]
+            if spec["skill_supervision_mask"]:
+                observed[spec["skill_id"]] += 1
+            else:
+                base += 1
+        return {
+            "epoch": self.epoch,
+            "range_start": self.start_index,
+            "range_stop": stop,
+            "samples": len(indices),
+            "base": base,
+            "observed_by_skill": dict(sorted(observed.items())),
+            "maximum_sample_repeats_in_range": max(sample_repeats.values(), default=0),
+        }
+
+    def __iter__(self):
+        stop = self.epoch_size if self.stop_index is None else self.stop_index
+        yield from self._epoch_order()[self.start_index:stop]
+
+    def __len__(self) -> int:
+        stop = self.epoch_size if self.stop_index is None else self.stop_index
+        return max(stop - self.start_index, 0)
+
+
 __all__ = [
     "CACHE_MANIFEST_NAME",
     "CACHE_VERSION",
     "CVAECachedDataset",
+    "ObservedSkillBalanceSampler",
     "ShardShuffleSampler",
     "cvae_schema_fingerprint",
     "SAMPLE_INDEX_NAME",

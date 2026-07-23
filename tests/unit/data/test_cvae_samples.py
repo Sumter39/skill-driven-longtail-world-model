@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from dataclasses import replace
+from dataclasses import fields, replace
 
 import numpy as np
 import pytest
@@ -14,10 +14,13 @@ from skilldrive.data.cvae_samples import (
     MAX_MAP_POINTS,
     MAX_MAP_POLYLINES,
     NONE_SKILL_ID,
+    PriorContextSpec,
     SampleSpec,
+    TensorizedPriorContext,
     build_cvae_schema,
     make_base_sample_spec,
     observed_sample_specs,
+    tensorize_prior_context,
     tensorize_scenario,
 )
 from skilldrive.schemas import AgentTrack, MapPolyline, Scenario
@@ -140,6 +143,36 @@ def _scenario(*, reverse: bool = False) -> Scenario:
         agents=agents,
         map_polylines=maps,
     )
+
+
+def _history_only_scenario(scenario: Scenario) -> Scenario:
+    return replace(
+        scenario,
+        timestamps=scenario.timestamps[:HISTORY_STEPS].copy(),
+        agents=[
+            replace(
+                agent,
+                positions=agent.positions[:HISTORY_STEPS].copy(),
+                velocities=agent.velocities[:HISTORY_STEPS].copy(),
+                headings=agent.headings[:HISTORY_STEPS].copy(),
+                observed_mask=agent.observed_mask[:HISTORY_STEPS].copy(),
+            )
+            for agent in scenario.agents
+        ],
+    )
+
+
+def _assert_prior_context_equal(
+    first: TensorizedPriorContext,
+    second: TensorizedPriorContext,
+) -> None:
+    for field in fields(TensorizedPriorContext):
+        first_value = getattr(first, field.name)
+        second_value = getattr(second, field.name)
+        if isinstance(first_value, np.ndarray) or isinstance(first_value, np.generic):
+            np.testing.assert_array_equal(first_value, second_value)
+        else:
+            assert first_value == second_value
 
 
 def _short_headway_scenario(
@@ -405,6 +438,98 @@ def test_arbitrary_target_anchor_roles_and_fixed_shapes(cvae_schema) -> None:
     )
     assert not sample.parameter_mask.any()
     assert not sample.skill_parameters.any()
+
+
+def test_prior_context_is_history_only_and_independent_of_all_future_values(
+    cvae_schema,
+) -> None:
+    original = _scenario()
+    changed = _scenario()
+    changed.timestamps[HISTORY_STEPS:] = -1
+    for agent in changed.agents:
+        agent.positions[HISTORY_STEPS:] = np.nan
+        agent.velocities[HISTORY_STEPS:] = 1e9
+        agent.headings[HISTORY_STEPS:] = -1e9
+        agent.observed_mask[HISTORY_STEPS:] = True
+    spec = PriorContextSpec(
+        scenario_id="scene-a",
+        target_track_id="target",
+        required_context_track_ids=("responder",),
+    )
+
+    full = tensorize_prior_context(original, spec, cvae_schema)
+    changed_future = tensorize_prior_context(changed, spec, cvae_schema)
+    history_only = tensorize_prior_context(
+        _history_only_scenario(original),
+        spec,
+        cvae_schema,
+    )
+
+    _assert_prior_context_equal(full, changed_future)
+    _assert_prior_context_equal(full, history_only)
+    assert "target_future" not in TensorizedPriorContext.__dataclass_fields__
+    assert "target_future_mask" not in TensorizedPriorContext.__dataclass_fields__
+
+
+def test_none_prior_forces_required_context_with_only_base_roles(cvae_schema) -> None:
+    sample = tensorize_prior_context(
+        _scenario(),
+        PriorContextSpec(
+            scenario_id="scene-a",
+            target_track_id="target",
+            required_context_track_ids=("far-neighbor", "responder"),
+        ),
+        cvae_schema,
+    )
+
+    target_slot = sample.actor_track_ids.index("target")
+    far_slot = sample.actor_track_ids.index("far-neighbor")
+    responder_slot = sample.actor_track_ids.index("responder")
+    assert sample.actor_role_id[target_slot] == cvae_schema.role_vocabulary.encode(
+        BASE_TARGET_ROLE
+    )
+    context_role = cvae_schema.role_vocabulary.encode(CONTEXT_ROLE)
+    assert sample.actor_role_id[far_slot] == context_role
+    assert sample.actor_role_id[responder_slot] == context_role
+    assert sample.skill_id == cvae_schema.skill_vocabulary.encode(NONE_SKILL_ID)
+    assert not sample.parameter_mask.any()
+    assert not sample.skill_parameters.any()
+
+
+def test_formal_prior_context_uses_frozen_skill_roles(cvae_schema) -> None:
+    sample = tensorize_prior_context(
+        _scenario(),
+        PriorContextSpec(
+            scenario_id="scene-a",
+            target_track_id="target",
+            condition_skill_id="slow_lead_blockage",
+            required_context_track_ids=("responder",),
+            role_track_ids=(
+                ("slow_leader", "target"),
+                ("follower", "responder"),
+            ),
+        ),
+        cvae_schema,
+    )
+
+    target_slot = sample.actor_track_ids.index("target")
+    responder_slot = sample.actor_track_ids.index("responder")
+    assert sample.actor_role_id[target_slot] == cvae_schema.role_vocabulary.encode(
+        "slow_leader"
+    )
+    assert sample.actor_role_id[responder_slot] == cvae_schema.role_vocabulary.encode(
+        "follower"
+    )
+    assert sample.skill_id == cvae_schema.skill_vocabulary.encode("slow_lead_blockage")
+
+
+def test_none_prior_context_rejects_skill_role_embeddings() -> None:
+    with pytest.raises(ValueError, match="base actor roles"):
+        PriorContextSpec(
+            scenario_id="scene-a",
+            target_track_id="target",
+            role_track_ids=(("slow_leader", "target"),),
+        )
 
 
 def test_masks_are_created_before_nan_replacement_and_map_scope_is_explicit(

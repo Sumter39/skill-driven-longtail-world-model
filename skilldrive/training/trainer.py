@@ -13,13 +13,22 @@ from torch import Tensor, nn
 from torch.optim import Optimizer
 
 from skilldrive.models import CVAEOutput, ConditionalCVAE
-from skilldrive.training.config import LossConfig, TrainingConfig
+from skilldrive.training.condition_ranking import (
+    ConditionRankingLossSum,
+    observed_condition_prior_ranking_loss,
+)
+from skilldrive.training.config import GenerationRepairConfig, LossConfig, TrainingConfig
 from skilldrive.training.metrics import (
     DisplacementSums,
     constant_velocity_prediction,
     displacement_sums,
     gaussian_kl_divergence,
     multimodal_displacement_sums,
+)
+from skilldrive.training.motion_losses import (
+    MotionLossSums,
+    compute_motion_loss_sums,
+    motion_loss_element_counts,
 )
 from skilldrive.training.system_monitor import SystemMonitor
 
@@ -42,6 +51,18 @@ class LossSums:
     sample_count: int = 0
     valid_point_count: int = 0
     valid_sample_count: int = 0
+    seam_velocity_sum: float = 0.0
+    seam_velocity_element_count: int = 0
+    velocity_sum: float = 0.0
+    velocity_element_count: int = 0
+    acceleration_sum: float = 0.0
+    acceleration_element_count: int = 0
+    jerk_sum: float = 0.0
+    jerk_element_count: int = 0
+    condition_ranking_sum: float = 0.0
+    observed_condition_count: int = 0
+    correct_condition_kl_sum: float = 0.0
+    none_condition_kl_sum: float = 0.0
 
     def __add__(self, other: "LossSums") -> "LossSums":
         if not isinstance(other, LossSums):
@@ -57,6 +78,32 @@ class LossSums:
             sample_count=self.sample_count + other.sample_count,
             valid_point_count=self.valid_point_count + other.valid_point_count,
             valid_sample_count=self.valid_sample_count + other.valid_sample_count,
+            seam_velocity_sum=self.seam_velocity_sum + other.seam_velocity_sum,
+            seam_velocity_element_count=(
+                self.seam_velocity_element_count + other.seam_velocity_element_count
+            ),
+            velocity_sum=self.velocity_sum + other.velocity_sum,
+            velocity_element_count=(
+                self.velocity_element_count + other.velocity_element_count
+            ),
+            acceleration_sum=self.acceleration_sum + other.acceleration_sum,
+            acceleration_element_count=(
+                self.acceleration_element_count + other.acceleration_element_count
+            ),
+            jerk_sum=self.jerk_sum + other.jerk_sum,
+            jerk_element_count=self.jerk_element_count + other.jerk_element_count,
+            condition_ranking_sum=(
+                self.condition_ranking_sum + other.condition_ranking_sum
+            ),
+            observed_condition_count=(
+                self.observed_condition_count + other.observed_condition_count
+            ),
+            correct_condition_kl_sum=(
+                self.correct_condition_kl_sum + other.correct_condition_kl_sum
+            ),
+            none_condition_kl_sum=(
+                self.none_condition_kl_sum + other.none_condition_kl_sum
+            ),
         )
 
     @property
@@ -76,6 +123,53 @@ class LossSums:
         if self.sample_count <= 0:
             raise ValueError("KL loss requires at least one sample")
         return self.kl_sum / self.sample_count
+
+    @staticmethod
+    def _optional_mean(total: float, count: int) -> float:
+        return 0.0 if count == 0 else total / count
+
+    @property
+    def seam_velocity_loss(self) -> float:
+        return self._optional_mean(
+            self.seam_velocity_sum,
+            self.seam_velocity_element_count,
+        )
+
+    @property
+    def velocity_loss(self) -> float:
+        return self._optional_mean(self.velocity_sum, self.velocity_element_count)
+
+    @property
+    def acceleration_loss(self) -> float:
+        return self._optional_mean(
+            self.acceleration_sum,
+            self.acceleration_element_count,
+        )
+
+    @property
+    def jerk_loss(self) -> float:
+        return self._optional_mean(self.jerk_sum, self.jerk_element_count)
+
+    @property
+    def condition_ranking_loss(self) -> float:
+        return self._optional_mean(
+            self.condition_ranking_sum,
+            self.observed_condition_count,
+        )
+
+    @property
+    def correct_condition_kl(self) -> float:
+        return self._optional_mean(
+            self.correct_condition_kl_sum,
+            self.observed_condition_count,
+        )
+
+    @property
+    def none_condition_kl(self) -> float:
+        return self._optional_mean(
+            self.none_condition_kl_sum,
+            self.observed_condition_count,
+        )
 
 
 @dataclass(frozen=True)
@@ -117,6 +211,13 @@ class ValidationLossResult:
     map_soft_loss: float
     collision_soft_loss: float
     sums: LossSums
+    seam_velocity_loss: float = 0.0
+    velocity_loss: float = 0.0
+    acceleration_loss: float = 0.0
+    jerk_loss: float = 0.0
+    condition_ranking_loss: float = 0.0
+    correct_condition_kl: float = 0.0
+    none_condition_kl: float = 0.0
 
 
 @dataclass(frozen=True)
@@ -602,6 +703,140 @@ def _validate_loss_config(loss_config: LossConfig) -> None:
             raise ValueError(f"{name} must be finite and nonnegative")
 
 
+_MOTION_COMPONENTS = ("seam_velocity", "velocity", "acceleration", "jerk")
+
+
+def _validate_repair_config(repair_config: GenerationRepairConfig | None) -> None:
+    if repair_config is None:
+        return
+    if repair_config.contract != "cvae_generation_repair_v1":
+        raise ValueError("unsupported generation repair contract")
+    for name in _MOTION_COMPONENTS:
+        weight = getattr(repair_config.motion_loss, f"{name}_weight")
+        if weight < 0.0 or not math.isfinite(weight):
+            raise ValueError(f"{name}_weight must be finite and nonnegative")
+    ranking = repair_config.condition_ranking
+    if ranking.weight <= 0.0 or not math.isfinite(ranking.weight):
+        raise ValueError("condition ranking weight must be finite and positive")
+    if (
+        ranking.margin_per_latent_dim <= 0.0
+        or not math.isfinite(ranking.margin_per_latent_dim)
+    ):
+        raise ValueError("condition ranking margin must be finite and positive")
+
+
+def _repair_count_totals(
+    microbatches: Sequence[Batch],
+    repair_config: GenerationRepairConfig | None,
+) -> tuple[dict[str, int], int]:
+    if repair_config is None:
+        return {name: 0 for name in _MOTION_COMPONENTS}, 0
+    motion_counts = {name: 0 for name in _MOTION_COMPONENTS}
+    observed_count = 0
+    for batch in microbatches:
+        counts = motion_loss_element_counts(batch)
+        for name in _MOTION_COMPONENTS:
+            motion_counts[name] += getattr(counts, name)
+        supervision = _required_tensor(batch, "skill_supervision_mask")
+        skill_id = _required_tensor(batch, "skill_id")
+        if supervision.ndim != 1 or supervision.dtype is not torch.bool:
+            raise ValueError("skill_supervision_mask must be a boolean [B] tensor")
+        if skill_id.shape != supervision.shape:
+            raise ValueError("skill_id must have shape [B]")
+        if bool((skill_id[supervision] == 0).any()):
+            raise ValueError("observed supervision cannot use the none skill")
+        if bool((skill_id[~supervision] != 0).any()):
+            raise ValueError(
+                "compatible-seed conditions cannot enter repair training"
+            )
+        observed_count += int(supervision.sum().item())
+    return motion_counts, observed_count
+
+
+def _detached_repair_sums(
+    motion: MotionLossSums,
+    ranking: ConditionRankingLossSum,
+) -> LossSums:
+    return LossSums(
+        seam_velocity_sum=float(motion.seam_velocity.loss_sum.detach().cpu()),
+        seam_velocity_element_count=motion.seam_velocity.element_count,
+        velocity_sum=float(motion.velocity.loss_sum.detach().cpu()),
+        velocity_element_count=motion.velocity.element_count,
+        acceleration_sum=float(motion.acceleration.loss_sum.detach().cpu()),
+        acceleration_element_count=motion.acceleration.element_count,
+        jerk_sum=float(motion.jerk.loss_sum.detach().cpu()),
+        jerk_element_count=motion.jerk.element_count,
+        condition_ranking_sum=float(ranking.loss_sum.detach().cpu()),
+        observed_condition_count=ranking.observed_count,
+        correct_condition_kl_sum=float(ranking.correct_kl_sum.detach().cpu()),
+        none_condition_kl_sum=float(ranking.none_kl_sum.detach().cpu()),
+    )
+
+
+def _detached_training_sums(
+    tensor_sums: _TensorLossSums,
+    motion: MotionLossSums | None = None,
+    ranking: ConditionRankingLossSum | None = None,
+) -> LossSums:
+    """Transfer all per-microbatch scalar statistics to the CPU together."""
+
+    values = [
+        tensor_sums.reconstruction_sum,
+        tensor_sums.endpoint_sum,
+        tensor_sums.kl_sum,
+    ]
+    if (motion is None) != (ranking is None):
+        raise ValueError("motion and ranking statistics must be provided together")
+    if motion is not None and ranking is not None:
+        values.extend(
+            (
+                motion.seam_velocity.loss_sum,
+                motion.velocity.loss_sum,
+                motion.acceleration.loss_sum,
+                motion.jerk.loss_sum,
+                ranking.loss_sum,
+                ranking.correct_kl_sum,
+                ranking.none_kl_sum,
+            )
+        )
+    detached = torch.stack([value.detach() for value in values]).cpu().tolist()
+    result = LossSums(
+        reconstruction_sum=float(detached[0]),
+        reconstruction_element_count=tensor_sums.reconstruction_element_count,
+        endpoint_sum=float(detached[1]),
+        endpoint_element_count=tensor_sums.endpoint_element_count,
+        kl_sum=float(detached[2]),
+        sample_count=tensor_sums.sample_count,
+        valid_point_count=tensor_sums.valid_point_count,
+        valid_sample_count=tensor_sums.valid_sample_count,
+    )
+    if motion is None or ranking is None:
+        return result
+    return result + LossSums(
+        seam_velocity_sum=float(detached[3]),
+        seam_velocity_element_count=motion.seam_velocity.element_count,
+        velocity_sum=float(detached[4]),
+        velocity_element_count=motion.velocity.element_count,
+        acceleration_sum=float(detached[5]),
+        acceleration_element_count=motion.acceleration.element_count,
+        jerk_sum=float(detached[6]),
+        jerk_element_count=motion.jerk.element_count,
+        condition_ranking_sum=float(detached[7]),
+        observed_condition_count=ranking.observed_count,
+        correct_condition_kl_sum=float(detached[8]),
+        none_condition_kl_sum=float(detached[9]),
+    )
+
+
+def _parameters_are_finite(parameters: Sequence[Tensor]) -> bool:
+    """Check all parameter tensors with one host synchronization."""
+
+    if not parameters:
+        return True
+    infinity_norms = torch._foreach_norm(parameters, float("inf"))
+    return bool(torch.isfinite(torch.stack(infinity_norms)).all())
+
+
 def _amp_policy(device: torch.device, amp: bool) -> _AmpPolicy:
     if not amp or device.type != "cuda":
         return _AmpPolicy(enabled=False, dtype=torch.float32, use_scaler=False)
@@ -633,6 +868,8 @@ def train_optimizer_step(
     amp: bool = False,
     scaler: torch.amp.GradScaler | None = None,
     non_blocking: bool = False,
+    repair_config: GenerationRepairConfig | None = None,
+    sample_period_s: float = _FUTURE_STEP_SECONDS,
 ) -> OptimizerStepResult:
     """Consume exactly one accumulation group and perform one optimizer step."""
 
@@ -641,6 +878,7 @@ def train_optimizer_step(
     if gradient_clip_norm <= 0 or not math.isfinite(gradient_clip_norm):
         raise ValueError("gradient_clip_norm must be finite and positive")
     _validate_loss_config(loss_config)
+    _validate_repair_config(repair_config)
     resolved = torch.device(device)
     amp_policy = _amp_policy(resolved, amp)
     active_scaler = _active_scaler(resolved, amp_policy, scaler)
@@ -665,6 +903,10 @@ def train_optimizer_step(
         if loss_config.collision_soft_weight > 0.0
         else 0
     )
+    motion_counts, total_observed_conditions = _repair_count_totals(
+        microbatches,
+        repair_config,
+    )
 
     optimizer.zero_grad(set_to_none=True)
     aggregate = LossSums()
@@ -672,6 +914,8 @@ def train_optimizer_step(
     collision_soft_sum = 0.0
     observed_map_points = 0
     observed_collision_points = 0
+    observed_motion_counts = {name: 0 for name in _MOTION_COMPONENTS}
+    observed_ranking_conditions = 0
     try:
         for raw_batch in microbatches:
             batch = move_batch_to_device(
@@ -717,13 +961,48 @@ def train_optimizer_step(
                     )
                     collision_soft_sum += float(collision_penalty.detach().cpu())
                     observed_collision_points += collision_count
+                if repair_config is not None:
+                    motion = compute_motion_loss_sums(
+                        output.future_position_local,
+                        batch,
+                        sample_period_s=sample_period_s,
+                    )
+                    for name in _MOTION_COMPONENTS:
+                        component = getattr(motion, name)
+                        denominator = motion_counts[name]
+                        weight = getattr(
+                            repair_config.motion_loss,
+                            f"{name}_weight",
+                        )
+                        if denominator:
+                            loss = loss + weight * component.loss_sum / denominator
+                        observed_motion_counts[name] += component.element_count
+                    ranking = observed_condition_prior_ranking_loss(
+                        model,
+                        output,
+                        batch,
+                        margin_per_latent_dim=(
+                            repair_config.condition_ranking.margin_per_latent_dim
+                        ),
+                    )
+                    if total_observed_conditions:
+                        loss = loss + (
+                            repair_config.condition_ranking.weight
+                            * ranking.loss_sum
+                            / total_observed_conditions
+                        )
+                    observed_ranking_conditions += ranking.observed_count
             if not bool(torch.isfinite(loss)):
                 raise FloatingPointError("accumulated CVAE loss contains NaN or Inf")
             if active_scaler is None:
                 loss.backward()
             else:
                 active_scaler.scale(loss).backward()
-            aggregate = aggregate + tensor_sums.detached()
+            aggregate = aggregate + _detached_training_sums(
+                tensor_sums,
+                motion if repair_config is not None else None,
+                ranking if repair_config is not None else None,
+            )
 
         if observed_map_points != total_map_points:
             raise RuntimeError("map soft eligible point count changed during optimizer step")
@@ -731,29 +1010,32 @@ def train_optimizer_step(
             raise RuntimeError(
                 "collision soft eligible point count changed during optimizer step"
             )
+        if observed_motion_counts != motion_counts:
+            raise RuntimeError("motion loss element counts changed during optimizer step")
+        if observed_ranking_conditions != total_observed_conditions:
+            raise RuntimeError(
+                "condition ranking observed count changed during optimizer step"
+            )
         if active_scaler is not None:
             active_scaler.unscale_(optimizer)
-        gradients = [
-            parameter.grad
-            for parameter in model.parameters()
-            if parameter.grad is not None
-        ]
+        parameters = tuple(model.parameters())
+        gradients = [parameter.grad for parameter in parameters if parameter.grad is not None]
         if not gradients:
             raise RuntimeError("CVAE optimizer step produced no gradients")
-        if not all(bool(torch.isfinite(gradient).all()) for gradient in gradients):
-            raise FloatingPointError("CVAE gradients contain NaN or Inf")
-        gradient_norm_tensor = torch.nn.utils.clip_grad_norm_(
-            model.parameters(),
-            gradient_clip_norm,
-        )
-        if not bool(torch.isfinite(gradient_norm_tensor)):
-            raise FloatingPointError("CVAE gradient norm contains NaN or Inf")
+        try:
+            gradient_norm_tensor = torch.nn.utils.clip_grad_norm_(
+                parameters,
+                gradient_clip_norm,
+                error_if_nonfinite=True,
+            )
+        except RuntimeError as error:
+            raise FloatingPointError("CVAE gradients contain NaN or Inf") from error
         if active_scaler is None:
             optimizer.step()
         else:
             active_scaler.step(optimizer)
             active_scaler.update()
-        if not all(bool(torch.isfinite(parameter).all()) for parameter in model.parameters()):
+        if not _parameters_are_finite(parameters):
             raise FloatingPointError("CVAE parameters contain NaN or Inf after optimizer step")
     finally:
         optimizer.zero_grad(set_to_none=True)
@@ -770,6 +1052,16 @@ def train_optimizer_step(
             loss_config.collision_soft_weight
             * collision_soft_sum
             / total_collision_points
+        )
+    if repair_config is not None:
+        for name in _MOTION_COMPONENTS:
+            total_loss += (
+                getattr(repair_config.motion_loss, f"{name}_weight")
+                * getattr(aggregate, f"{name}_loss")
+            )
+        total_loss += (
+            repair_config.condition_ranking.weight
+            * aggregate.condition_ranking_loss
         )
     return OptimizerStepResult(
         next_global_step=global_step + 1,
@@ -793,6 +1085,8 @@ def train_epoch(
     generator: torch.Generator,
     scaler: torch.amp.GradScaler | None = None,
     on_optimizer_step: Callable[[OptimizerStepResult, int], None] | None = None,
+    repair_config: GenerationRepairConfig | None = None,
+    sample_period_s: float = _FUTURE_STEP_SECONDS,
 ) -> TrainEpochResult:
     """Train over one iterable, including one final partial accumulation group."""
 
@@ -823,6 +1117,8 @@ def train_epoch(
             amp=training_config.amp,
             scaler=active_scaler,
             non_blocking=training_config.pin_memory,
+            repair_config=repair_config,
+            sample_period_s=sample_period_s,
         )
         step = result.next_global_step
         aggregate = aggregate + result.sums
@@ -876,6 +1172,7 @@ def evaluate(
     amp: bool = False,
     loss_config: LossConfig | None = None,
     global_step: int = 0,
+    repair_config: GenerationRepairConfig | None = None,
 ) -> EvaluationResult:
     """Evaluate with a fresh local generator that never consumes training RNG."""
 
@@ -883,6 +1180,7 @@ def evaluate(
         raise ValueError("prior_samples must be positive")
     if loss_config is not None:
         _validate_loss_config(loss_config)
+    _validate_repair_config(repair_config)
     resolved = torch.device(device)
     amp_policy = _amp_policy(resolved, amp)
     evaluation_generator = torch.Generator(device=resolved).manual_seed(evaluation_seed)
@@ -931,7 +1229,23 @@ def evaluate(
                         )
                         collision_soft_sum += float(collision_penalty.detach().cpu())
                         collision_soft_count += current_collision_count
+                    if repair_config is not None:
+                        motion = compute_motion_loss_sums(
+                            posterior.future_position_local,
+                            batch,
+                            sample_period_s=sample_period_s,
+                        )
+                        ranking = observed_condition_prior_ranking_loss(
+                            model,
+                            posterior,
+                            batch,
+                            margin_per_latent_dim=(
+                                repair_config.condition_ranking.margin_per_latent_dim
+                            ),
+                        )
                 loss_total = loss_total + tensor_sums.detached()
+                if repair_config is not None:
+                    loss_total = loss_total + _detached_repair_sums(motion, ranking)
                 posterior_total = posterior_total + displacement_sums(
                     posterior.future_position_local.float(),
                     target.float(),
@@ -978,6 +1292,19 @@ def evaluate(
             + loss_config.map_soft_weight * map_soft_loss
             + loss_config.collision_soft_weight * collision_soft_loss
         )
+        if repair_config is not None:
+            total_loss += (
+                repair_config.motion_loss.seam_velocity_weight
+                * loss_total.seam_velocity_loss
+                + repair_config.motion_loss.velocity_weight
+                * loss_total.velocity_loss
+                + repair_config.motion_loss.acceleration_weight
+                * loss_total.acceleration_loss
+                + repair_config.motion_loss.jerk_weight
+                * loss_total.jerk_loss
+                + repair_config.condition_ranking.weight
+                * loss_total.condition_ranking_loss
+            )
         validation_loss = ValidationLossResult(
             total_loss=total_loss,
             reconstruction_loss=loss_total.reconstruction_loss,
@@ -987,6 +1314,13 @@ def evaluate(
             map_soft_loss=map_soft_loss,
             collision_soft_loss=collision_soft_loss,
             sums=loss_total,
+            seam_velocity_loss=loss_total.seam_velocity_loss,
+            velocity_loss=loss_total.velocity_loss,
+            acceleration_loss=loss_total.acceleration_loss,
+            jerk_loss=loss_total.jerk_loss,
+            condition_ranking_loss=loss_total.condition_ranking_loss,
+            correct_condition_kl=loss_total.correct_condition_kl,
+            none_condition_kl=loss_total.none_condition_kl,
         )
     return EvaluationResult(
         posterior=posterior_total,
@@ -1043,6 +1377,8 @@ def benchmark_training(
     warmup_steps: int,
     measured_steps: int,
     scaler: torch.amp.GradScaler | None = None,
+    repair_config: GenerationRepairConfig | None = None,
+    sample_period_s: float = _FUTURE_STEP_SECONDS,
 ) -> BenchmarkResult:
     """Measure fixed optimizer steps after startup and warmup are excluded."""
 
@@ -1084,6 +1420,8 @@ def benchmark_training(
             amp=training_config.amp,
             scaler=active_scaler,
             non_blocking=training_config.pin_memory,
+            repair_config=repair_config,
+            sample_period_s=sample_period_s,
         )
         step = result.next_global_step
     _synchronize(resolved)
@@ -1121,6 +1459,8 @@ def benchmark_training(
                 amp=training_config.amp,
                 scaler=active_scaler,
                 non_blocking=training_config.pin_memory,
+                repair_config=repair_config,
+                sample_period_s=sample_period_s,
             )
             _synchronize(resolved)
             compute_seconds = time.perf_counter() - step_start

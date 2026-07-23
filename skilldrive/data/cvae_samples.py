@@ -248,6 +248,47 @@ class SampleSpec:
 
 
 @dataclass(frozen=True)
+class PriorContextSpec:
+    """One future-free Prior condition for an arbitrary target actor."""
+
+    scenario_id: str
+    target_track_id: str
+    condition_skill_id: str = NONE_SKILL_ID
+    required_context_track_ids: tuple[str, ...] = ()
+    role_track_ids: tuple[tuple[str, str], ...] = ()
+
+    def __post_init__(self) -> None:
+        if not self.scenario_id or not self.target_track_id or not self.condition_skill_id:
+            raise ValueError(
+                "scenario_id, target_track_id, and condition_skill_id must be non-empty"
+            )
+        required = tuple(sorted(str(track_id) for track_id in self.required_context_track_ids))
+        if any(not track_id for track_id in required):
+            raise ValueError("required context track IDs must be non-empty")
+        if len(set(required)) != len(required):
+            raise ValueError("required context track IDs must be unique")
+        if self.target_track_id in required:
+            raise ValueError("required context tracks must not repeat the target track")
+        object.__setattr__(self, "required_context_track_ids", required)
+
+        canonical_roles = tuple(
+            sorted((str(role), str(track)) for role, track in self.role_track_ids)
+        )
+        if any(not role or not track for role, track in canonical_roles):
+            raise ValueError("role names and role track IDs must be non-empty")
+        if len({role for role, _ in canonical_roles}) != len(canonical_roles):
+            raise ValueError("role names must be unique")
+        if len({track for _, track in canonical_roles}) != len(canonical_roles):
+            raise ValueError("role tracks must be distinct")
+        if self.condition_skill_id == NONE_SKILL_ID:
+            if canonical_roles:
+                raise ValueError("the <none> Prior condition must use only base actor roles")
+        elif self.target_track_id not in {track for _, track in canonical_roles}:
+            raise ValueError("a formal Prior condition must assign a role to the target track")
+        object.__setattr__(self, "role_track_ids", canonical_roles)
+
+
+@dataclass(frozen=True)
 class MapClipStatistics:
     """Exact, non-tensor diagnostics for one sample's map clipping pipeline."""
 
@@ -334,6 +375,32 @@ class TensorizedSample:
     parameter_mask: np.ndarray
     target_future: np.ndarray
     target_future_mask: np.ndarray
+    anchor_origin_global: np.ndarray
+    anchor_heading_global: np.float32
+
+
+@dataclass(frozen=True)
+class TensorizedPriorContext:
+    """Fixed-shape model context that contains no target-future fields."""
+
+    scenario_id: str
+    target_track_id: str
+    actor_track_ids: tuple[str, ...]
+    map_polyline_ids: tuple[str, ...]
+    map_clip_statistics: MapClipStatistics
+    actor_history: np.ndarray
+    actor_time_mask: np.ndarray
+    actor_mask: np.ndarray
+    actor_type_id: np.ndarray
+    actor_role_id: np.ndarray
+    map_polylines: np.ndarray
+    map_point_mask: np.ndarray
+    map_polyline_mask: np.ndarray
+    map_type_id: np.ndarray
+    target_actor_index: np.int64
+    skill_id: np.int64
+    skill_parameters: np.ndarray
+    parameter_mask: np.ndarray
     anchor_origin_global: np.ndarray
     anchor_heading_global: np.float32
 
@@ -565,6 +632,35 @@ def _validate_scenario(scenario: Scenario, spec: SampleSpec) -> dict[str, AgentT
     return agents
 
 
+def _validate_prior_scenario(
+    scenario: Scenario,
+    spec: PriorContextSpec,
+) -> dict[str, AgentTrack]:
+    if scenario.scenario_id != spec.scenario_id:
+        raise ValueError("Prior context scenario_id does not match the loaded Scenario")
+    if len(scenario.timestamps) < HISTORY_STEPS:
+        raise ValueError(f"Prior context requires at least {HISTORY_STEPS} timestamps")
+    history_timestamps = scenario.timestamps[:HISTORY_STEPS]
+    if np.any(np.diff(history_timestamps) <= 0):
+        raise ValueError("Prior context history timestamps must be strictly increasing")
+    agents = {agent.track_id: agent for agent in scenario.agents}
+    for agent in scenario.agents:
+        if len(agent.positions) < HISTORY_STEPS:
+            raise ValueError(
+                f"Prior context actor {agent.track_id} has fewer than "
+                f"{HISTORY_STEPS} states"
+            )
+    required_tracks = {
+        spec.target_track_id,
+        *spec.required_context_track_ids,
+        *(track_id for _, track_id in spec.role_track_ids),
+    }
+    missing = sorted(required_tracks - set(agents))
+    if missing:
+        raise ValueError(f"Prior context tracks are missing: {missing}")
+    return agents
+
+
 def _skill_threshold(schema: CVAESchema, skill_id: str, name: str) -> float:
     skill = next(
         (item for item in schema.formal_skills if item.skill_id == skill_id),
@@ -674,18 +770,21 @@ def _validate_observed_future_supervision(
         _validate_short_headway_future(spec, schema, agents)
 
 
-def _filled_headings(agent: AgentTrack) -> np.ndarray:
-    headings = agent.headings.astype(np.float64, copy=True)
+def _filled_history_headings(agent: AgentTrack) -> np.ndarray:
+    """Fill headings using frames 0-49 only, never any prediction frame."""
+
+    headings = agent.headings[:HISTORY_STEPS].astype(np.float64, copy=True)
     missing = ~np.isfinite(headings)
-    velocity_valid = np.isfinite(agent.velocities).all(axis=1)
-    speeds = np.linalg.norm(np.where(velocity_valid[:, None], agent.velocities, 0.0), axis=1)
+    velocities = agent.velocities[:HISTORY_STEPS]
+    velocity_valid = np.isfinite(velocities).all(axis=1)
+    speeds = np.linalg.norm(np.where(velocity_valid[:, None], velocities, 0.0), axis=1)
     use_velocity = missing & velocity_valid & (speeds > 1e-6)
     headings[use_velocity] = np.arctan2(
-        agent.velocities[use_velocity, 1],
-        agent.velocities[use_velocity, 0],
+        velocities[use_velocity, 1],
+        velocities[use_velocity, 0],
     )
 
-    positions = agent.positions
+    positions = agent.positions[:HISTORY_STEPS]
     deltas = positions[1:] - positions[:-1]
     delta_valid = np.isfinite(deltas).all(axis=1)
     delta_norm = np.linalg.norm(np.where(delta_valid[:, None], deltas, 0.0), axis=1)
@@ -709,7 +808,7 @@ def _resolve_anchor(target: AgentTrack) -> tuple[np.ndarray, float, np.ndarray]:
     origin = target.positions[ANCHOR_INDEX].astype(np.float64, copy=True)
     if not np.isfinite(origin).all():
         raise ValueError("target position at frame 49 must be finite")
-    headings = _filled_headings(target)
+    headings = _filled_history_headings(target)
     heading = float(headings[ANCHOR_INDEX])
     if not math.isfinite(heading):
         raise ValueError("target heading cannot be resolved from frames 0-49")
@@ -784,9 +883,47 @@ def _selected_agents(
     return [agents[track_id] for track_id in selected_ids], role_by_track
 
 
+def _selected_prior_agents(
+    scenario: Scenario,
+    spec: PriorContextSpec,
+    agents: Mapping[str, AgentTrack],
+    origin: np.ndarray,
+) -> tuple[list[AgentTrack], dict[str, str]]:
+    role_by_track = {track_id: role for role, track_id in spec.role_track_ids}
+    explicit_context_ids = set(spec.required_context_track_ids)
+    explicit_context_ids.update(role_by_track)
+    explicit_context_ids.discard(spec.target_track_id)
+    explicit_ids = [spec.target_track_id, *sorted(explicit_context_ids)]
+    if len(explicit_ids) > MAX_ACTORS:
+        raise ValueError("explicit Prior context actors exceed the actor limit")
+    for track_id in explicit_ids:
+        if _latest_history_position(agents[track_id]) is None:
+            raise ValueError(f"explicit Prior context actor has no valid history: {track_id}")
+
+    explicit_set = set(explicit_ids)
+    neighbors: list[tuple[float, str, AgentTrack]] = []
+    for agent in scenario.agents:
+        if agent.track_id in explicit_set:
+            continue
+        latest = _latest_history_position(agent)
+        if latest is None:
+            continue
+        _, position = latest
+        distance = float(np.linalg.norm(position - origin))
+        if distance > ACTOR_RADIUS_M:
+            continue
+        neighbors.append((distance, agent.track_id, agent))
+    neighbors.sort(key=lambda item: (item[0], item[1]))
+    selected_ids = explicit_ids + [
+        agent.track_id
+        for _, _, agent in neighbors[: MAX_ACTORS - len(explicit_ids)]
+    ]
+    return [agents[track_id] for track_id in selected_ids], role_by_track
+
+
 def _actor_arrays(
     selected: list[AgentTrack],
-    spec: SampleSpec,
+    spec: SampleSpec | PriorContextSpec,
     schema: CVAESchema,
     origin: np.ndarray,
     heading: float,
@@ -801,7 +938,7 @@ def _actor_arrays(
 
     zero_origin = np.zeros(2, dtype=np.float64)
     for slot, agent in enumerate(selected):
-        filled_headings = _filled_headings(agent)
+        filled_headings = _filled_history_headings(agent)
         valid = _history_mask(agent, filled_headings)
         local_positions = global_to_local(
             agent.positions[:HISTORY_STEPS], origin, heading
@@ -941,6 +1078,71 @@ def _map_arrays(
     )
 
 
+def tensorize_prior_context(
+    scenario: Scenario,
+    spec: PriorContextSpec,
+    schema: CVAESchema,
+) -> TensorizedPriorContext:
+    """Tensorize frames 0-49 for Prior inference without any future fields."""
+
+    if spec.condition_skill_id not in schema.skill_vocabulary.tokens:
+        raise ValueError(
+            "Prior condition skill is not in the formal CVAE vocabulary: "
+            f"{spec.condition_skill_id}"
+        )
+    agents = _validate_prior_scenario(scenario, spec)
+    target = agents[spec.target_track_id]
+    origin, heading, _ = _resolve_anchor(target)
+    selected, role_by_track = _selected_prior_agents(
+        scenario,
+        spec,
+        agents,
+        origin,
+    )
+    (
+        actor_history,
+        actor_time_mask,
+        actor_mask,
+        actor_type_id,
+        actor_role_id,
+        actor_track_ids,
+    ) = _actor_arrays(selected, spec, schema, origin, heading, role_by_track)
+    (
+        map_polylines,
+        map_point_mask,
+        map_polyline_mask,
+        map_type_id,
+        map_polyline_ids,
+        map_clip_statistics,
+    ) = _map_arrays(scenario.map_polylines, schema, origin, heading)
+    parameter_values, parameter_mask = schema.parameter_schema.encode(
+        spec.condition_skill_id,
+        None,
+    )
+    return TensorizedPriorContext(
+        scenario_id=scenario.scenario_id,
+        target_track_id=spec.target_track_id,
+        actor_track_ids=actor_track_ids,
+        map_polyline_ids=map_polyline_ids,
+        map_clip_statistics=map_clip_statistics,
+        actor_history=actor_history,
+        actor_time_mask=actor_time_mask,
+        actor_mask=actor_mask,
+        actor_type_id=actor_type_id,
+        actor_role_id=actor_role_id,
+        map_polylines=map_polylines,
+        map_point_mask=map_point_mask,
+        map_polyline_mask=map_polyline_mask,
+        map_type_id=map_type_id,
+        target_actor_index=np.int64(0),
+        skill_id=np.int64(schema.skill_vocabulary.encode(spec.condition_skill_id)),
+        skill_parameters=parameter_values,
+        parameter_mask=parameter_mask,
+        anchor_origin_global=origin.astype(np.float32),
+        anchor_heading_global=np.float32(heading),
+    )
+
+
 def tensorize_scenario(
     scenario: Scenario,
     spec: SampleSpec,
@@ -1025,11 +1227,14 @@ __all__ = [
     "NONE_SKILL_ID",
     "ParameterDefinition",
     "ParameterSchema",
+    "PriorContextSpec",
     "SampleSpec",
+    "TensorizedPriorContext",
     "TensorizedSample",
     "TokenVocabulary",
     "build_cvae_schema",
     "make_base_sample_spec",
     "observed_sample_specs",
+    "tensorize_prior_context",
     "tensorize_scenario",
 ]

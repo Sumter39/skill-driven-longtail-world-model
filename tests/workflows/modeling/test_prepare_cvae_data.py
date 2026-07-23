@@ -369,6 +369,55 @@ def test_prepare_builds_atomic_shards_index_hashes_and_default_collatable_datase
     assert len(dataset._shards) == 1
 
 
+def test_explicit_sample_view_is_verified_against_the_source_index(
+    tmp_path: Path,
+    cvae_schema,
+) -> None:
+    config_path = _write_project(
+        tmp_path,
+        train_count=2,
+        validation_count=1,
+        records=[_record("train-000")],
+    )
+
+    def loader(path: str | Path) -> Scenario:
+        return _scenario(Path(path).parent.name)
+
+    run_preparation(
+        config_path=config_path,
+        split="development",
+        project_root=tmp_path,
+        schema=cvae_schema,
+        scenario_loader=loader,
+        progress_stream=io.StringIO(),
+    )
+    cache_dir = tmp_path / "cache/development_train"
+    source_lines = (cache_dir / "sample_index.jsonl").read_text(
+        encoding="utf-8"
+    ).splitlines()
+    view_path = tmp_path / "view.sample_index.jsonl"
+    view_path.write_text("\n".join(source_lines[:2]) + "\n", encoding="utf-8")
+
+    view = CVAECachedDataset(
+        cache_dir,
+        schema=cvae_schema,
+        sample_index_path=view_path,
+    )
+    assert len(view) == 2
+    assert view.sample_index_path == view_path
+    assert view[0]["sample_id"] == json.loads(source_lines[0])["sample_id"]
+
+    forged = json.loads(source_lines[0])
+    forged["sample_id"] = "forged"
+    view_path.write_text(json.dumps(forged) + "\n", encoding="utf-8")
+    with pytest.raises(ValueError, match="outside the source index"):
+        CVAECachedDataset(
+            cache_dir,
+            schema=cvae_schema,
+            sample_index_path=view_path,
+        )
+
+
 def test_verified_shards_are_skipped_and_corrupt_shard_is_rebuilt(
     tmp_path: Path,
     cvae_schema,

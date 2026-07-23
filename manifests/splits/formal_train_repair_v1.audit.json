@@ -1,0 +1,280 @@
+{
+  "contract": {
+    "background_topup_requires_no_positive_samples": true,
+    "expected_rule_tasks": 320,
+    "heldout_plan_requires_rebind_to_new_checkpoint": true,
+    "learned_dev_minimum": 1,
+    "learned_skill_count": 13,
+    "learned_train_minimum": "ceil(total_positive_samples / 2)",
+    "repair_dev_scenarios": 2000,
+    "repair_train_scenarios": 18000,
+    "split_unit": "scenario_id",
+    "tensor_files_copied_or_resharded": false
+  },
+  "counts": {
+    "formal_scenarios": 20000,
+    "heldout_ability_tasks": 622,
+    "heldout_rule_tasks": 320,
+    "repair_dev_positive_samples": 408,
+    "repair_dev_samples": 2408,
+    "repair_dev_scenarios": 2000,
+    "repair_dev_shards_touched": 313,
+    "repair_train_positive_samples": 8974,
+    "repair_train_samples": 26974,
+    "repair_train_scenarios": 18000,
+    "repair_train_shards_touched": 313,
+    "shared_shards": 313,
+    "source_cache_samples": 29382,
+    "source_cache_shards": 313,
+    "source_pilot_tasks": 670,
+    "source_positive_samples": 9382,
+    "source_rule_tasks": 320
+  },
+  "integrity": {
+    "all_rule_tasks_heldout": true,
+    "background_topup_positive_samples": 0,
+    "learned_pairs_complete": true,
+    "pilot_validation_manifests_opened": false,
+    "sample_offset_overlap": 0,
+    "sample_offset_union_matches_v5_cache": true,
+    "scenario_overlap": 0,
+    "scenario_union_matches_formal_train": true
+  },
+  "kind": "formal_train_repair_split_audit",
+  "learned_skill_distribution": {
+    "bike_lane_vehicle_merge_conflict": {
+      "heldout_paired_scenarios": 9,
+      "heldout_tasks": 18,
+      "minimum_train_positive_samples": 4,
+      "repair_dev_positive_samples": 3,
+      "repair_train_positive_samples": 4,
+      "representative_scenario_id": "dd2496d7-884a-4d81-a0a4-a1d0e53b04cd",
+      "total_positive_samples": 7
+    },
+    "crossing_path_conflict": {
+      "heldout_paired_scenarios": 16,
+      "heldout_tasks": 32,
+      "minimum_train_positive_samples": 46,
+      "repair_dev_positive_samples": 26,
+      "repair_train_positive_samples": 66,
+      "representative_scenario_id": "e1720783-333a-445e-b287-0d3668f471a6",
+      "total_positive_samples": 92
+    },
+    "crosswalk_pedestrian_crossing": {
+      "heldout_paired_scenarios": 14,
+      "heldout_tasks": 28,
+      "minimum_train_positive_samples": 18,
+      "repair_dev_positive_samples": 15,
+      "repair_train_positive_samples": 20,
+      "representative_scenario_id": "563dad1d-203a-44dc-9349-791f572355e2",
+      "total_positive_samples": 35
+    },
+    "cyclist_crossing": {
+      "heldout_paired_scenarios": 5,
+      "heldout_tasks": 10,
+      "minimum_train_positive_samples": 2,
+      "repair_dev_positive_samples": 2,
+      "repair_train_positive_samples": 2,
+      "representative_scenario_id": "3cb37bfa-a96f-4111-8428-87c496784d8e",
+      "total_positive_samples": 4
+    },
+    "cyclist_vehicle_merge": {
+      "heldout_paired_scenarios": 1,
+      "heldout_tasks": 2,
+      "minimum_train_positive_samples": 1,
+      "repair_dev_positive_samples": 1,
+      "repair_train_positive_samples": 1,
+      "representative_scenario_id": "4f950451-db3b-423c-a6f1-babb5d73126b",
+      "total_positive_samples": 2
+    },
+    "jaywalking_pedestrian_crossing": {
+      "heldout_paired_scenarios": 6,
+      "heldout_tasks": 12,
+      "minimum_train_positive_samples": 3,
+      "repair_dev_positive_samples": 3,
+      "repair_train_positive_samples": 3,
+      "representative_scenario_id": "a48907a3-edaa-454a-864e-27648f71960b",
+      "total_positive_samples": 6
+    },
+    "lead_sudden_stop": {
+      "heldout_paired_scenarios": 16,
+      "heldout_tasks": 32,
+      "minimum_train_positive_samples": 1069,
+      "repair_dev_positive_samples": 92,
+      "repair_train_positive_samples": 2046,
+      "representative_scenario_id": "02377c92-3f4d-474e-9d0e-73779ba25891",
+      "total_positive_samples": 2138
+    },
+    "ramp_merge_small_gap": {
+      "heldout_paired_scenarios": 13,
+      "heldout_tasks": 26,
+      "minimum_train_positive_samples": 9,
+      "repair_dev_positive_samples": 9,
+      "repair_train_positive_samples": 9,
+      "representative_scenario_id": "905807e8-1a30-4a8e-9060-65d0522725dc",
+      "total_positive_samples": 18
+    },
+    "right_turn_vehicle_conflict": {
+      "heldout_paired_scenarios": 12,
+      "heldout_tasks": 24,
+      "minimum_train_positive_samples": 7,
+      "repair_dev_positive_samples": 7,
+      "repair_train_positive_samples": 7,
+      "representative_scenario_id": "af550c33-f1d8-4fbb-aa23-84093ee4b7ec",
+      "total_positive_samples": 14
+    },
+    "short_headway_following": {
+      "heldout_paired_scenarios": 16,
+      "heldout_tasks": 32,
+      "minimum_train_positive_samples": 172,
+      "repair_dev_positive_samples": 10,
+      "repair_train_positive_samples": 333,
+      "representative_scenario_id": "7c7ca322-f910-4bfb-9181-16a014a9bc69",
+      "total_positive_samples": 343
+    },
+    "slow_lead_blockage": {
+      "heldout_paired_scenarios": 16,
+      "heldout_tasks": 32,
+      "minimum_train_positive_samples": 3311,
+      "repair_dev_positive_samples": 205,
+      "repair_train_positive_samples": 6417,
+      "representative_scenario_id": "df65ddee-23fd-4719-8280-70fe8118c010",
+      "total_positive_samples": 6622
+    },
+    "turning_vehicle_crosswalk_conflict": {
+      "heldout_paired_scenarios": 11,
+      "heldout_tasks": 22,
+      "minimum_train_positive_samples": 10,
+      "repair_dev_positive_samples": 10,
+      "repair_train_positive_samples": 10,
+      "representative_scenario_id": "3eab4df8-edf4-4a7c-bde4-e92d6db59b06",
+      "total_positive_samples": 20
+    },
+    "unprotected_left_turn_conflict": {
+      "heldout_paired_scenarios": 16,
+      "heldout_tasks": 32,
+      "minimum_train_positive_samples": 41,
+      "repair_dev_positive_samples": 25,
+      "repair_train_positive_samples": 56,
+      "representative_scenario_id": "348e2cd3-454f-4c06-8fa8-6e6b580f8918",
+      "total_positive_samples": 81
+    }
+  },
+  "outputs": {
+    "heldout_task_plan": {
+      "path": "manifests/generation/repair_v1/heldout_ability/task_plan.jsonl",
+      "requires_rebind_to_new_checkpoint": true,
+      "sha256": "003102783f4beb9568766adcf981a916c22597e9b67f13d0f8bc5b0fa639c761",
+      "size_bytes": 358859,
+      "source_checkpoint_sha256": [
+        "d8dfda29821ad924370b9d2671907e0df8ab2506d3e2eb962fb18a47f13166b3"
+      ],
+      "task_plan_id": "f0c0b903583325180390093848a66eb101e8b60b168b30480aefc431c035709e"
+    },
+    "heldout_task_plan_summary": {
+      "path": "manifests/generation/repair_v1/heldout_ability/task_plan.summary.json",
+      "sha256": "fe2ac048aec5d5ddbb7d7e3025afaacffad359f9c6fc1a2b6ded4d2ce6db7687",
+      "size_bytes": 2085
+    },
+    "repair_dev_sample_index": {
+      "path": "data/processed/cvae_baseline/repair_v1/dev.sample_index.jsonl",
+      "sha256": "0861e86f93ee81f72f418a22725b122bfe88cf31253c897b9155e186812baf37",
+      "size_bytes": 1016827
+    },
+    "repair_train_sample_index": {
+      "path": "data/processed/cvae_baseline/repair_v1/train.sample_index.jsonl",
+      "sha256": "f7fc6bdb1a66a0662d43e445e85214eab7030068384975ba1e7569282b35e7eb",
+      "size_bytes": 11682502
+    },
+    "scenario_manifest": {
+      "path": "manifests/splits/formal_train_repair_v1.csv",
+      "sha256": "fe2b63d9b54756adf9fe5b658a86fb508dd95d4742b6d20a9d8b25cd22074d9e",
+      "size_bytes": 3950415
+    }
+  },
+  "schema_version": 1,
+  "selection": {
+    "background_candidates": 12426,
+    "background_topup_scenarios": 1559,
+    "base_seed": 2026,
+    "explicit_pinned_task_ids": [],
+    "heldout_pilot_scenarios": 441,
+    "learned_representative_scenarios": {
+      "bike_lane_vehicle_merge_conflict": "dd2496d7-884a-4d81-a0a4-a1d0e53b04cd",
+      "crossing_path_conflict": "e1720783-333a-445e-b287-0d3668f471a6",
+      "crosswalk_pedestrian_crossing": "563dad1d-203a-44dc-9349-791f572355e2",
+      "cyclist_crossing": "3cb37bfa-a96f-4111-8428-87c496784d8e",
+      "cyclist_vehicle_merge": "4f950451-db3b-423c-a6f1-babb5d73126b",
+      "jaywalking_pedestrian_crossing": "a48907a3-edaa-454a-864e-27648f71960b",
+      "lead_sudden_stop": "02377c92-3f4d-474e-9d0e-73779ba25891",
+      "ramp_merge_small_gap": "905807e8-1a30-4a8e-9060-65d0522725dc",
+      "right_turn_vehicle_conflict": "af550c33-f1d8-4fbb-aa23-84093ee4b7ec",
+      "short_headway_following": "7c7ca322-f910-4bfb-9181-16a014a9bc69",
+      "slow_lead_blockage": "df65ddee-23fd-4719-8280-70fe8118c010",
+      "turning_vehicle_crosswalk_conflict": "3eab4df8-edf4-4a7c-bde4-e92d6db59b06",
+      "unprotected_left_turn_conflict": "348e2cd3-454f-4c06-8fa8-6e6b580f8918"
+    },
+    "pilot_scenarios": 464,
+    "pilot_scenarios_moved_to_train": 23,
+    "pilot_training_scenario_ids": [
+      "02e3f7c4-3063-4928-9ede-580dc167af05",
+      "1b01b7da-3194-4da6-9eff-146d0f051c25",
+      "1f1585be-9901-448c-8a31-21bb6a9732b0",
+      "227b6dfd-607b-485b-b712-b35899175539",
+      "2ad739b0-ea23-4c30-a104-71b66f06aa00",
+      "38422dde-c6c5-4168-b3ee-3339464e65df",
+      "40a6fa97-0d51-4f31-a24e-1720b36d0e6c",
+      "45d0a5aa-3c69-45ca-9c22-c0831b598236",
+      "50792368-b6ba-4e8c-9be3-01b31714341c",
+      "5ae164fb-4489-481a-bdce-3665799d19c6",
+      "6b714889-1975-4e50-bc41-38d2c83e2aba",
+      "76fe2294-f684-4dea-bea0-b71e0d458750",
+      "7b76a96c-fbaa-44ba-a6e6-a778b25908f4",
+      "8175a70d-523e-43d7-9531-f53bbd9755e0",
+      "8d34b973-293b-409c-bf26-8a470cc74698",
+      "91ae62de-4afc-44cf-8ebc-643179f253ed",
+      "a2f324df-738d-4184-9e59-8f99706bffe6",
+      "a75e772e-a3b5-4da1-8fa3-10225852a964",
+      "a89ed19e-f5ad-44e3-9053-6eedb89cc57f",
+      "ab962a6f-2dae-405a-aa70-424a0e3cf101",
+      "dbd18ab5-e5a9-4044-a361-59b57f69ab98",
+      "eda0dcb0-41ff-45b3-843a-90221554ae3c",
+      "fab600e4-ae16-4822-9338-7272f0bed1f1"
+    ]
+  },
+  "sources": {
+    "formal_train_manifest": {
+      "path": "manifests/splits/formal_train.csv",
+      "sha256": "2c65fde2e2bf0c7f297cae46c64ac1b855dca101a56d0c7ae250f6f31ffdab81",
+      "size_bytes": 3780057
+    },
+    "formal_train_v5_cache_manifest": {
+      "path": "data/processed/cvae_baseline/formal_train/cache_manifest.json",
+      "sha256": "fc465665babcca4f5d113d82ab55ea0aec27c44b5e87100a45b2a9339cbc7ebc",
+      "size_bytes": 2257974
+    },
+    "formal_train_v5_sample_index": {
+      "path": "data/processed/cvae_baseline/formal_train/sample_index.jsonl",
+      "sha256": "16a7b121ad6955028a86a6bd26cf8c039a855e9eb49e90137e49ebf519258b95",
+      "size_bytes": 12699329
+    },
+    "pilot_eligibility_audit": {
+      "path": "outputs/generation/counterfactual_v1/pilot/skill-pilot-v1/3a6d305509f75a1acf3029fc6efab208b632e4da4136471d4cbdc5afe227a315/eligibility_audit.json",
+      "sha256": "9dbddb733469aa23961970dcca30746a610ffc1064a021e0a7a0a05680436123",
+      "size_bytes": 305985
+    },
+    "pilot_task_plan": {
+      "path": "outputs/generation/counterfactual_v1/pilot/skill-pilot-v1/3a6d305509f75a1acf3029fc6efab208b632e4da4136471d4cbdc5afe227a315/task_plan.jsonl",
+      "sha256": "cdbb1e0d928f9e7e687ec9aa34fb11d3758f7c324d1bba0c26f51360fc9c5d70",
+      "size_bytes": 387026,
+      "task_plan_id": "e9abc5fef1dd6093bb2e0ba940b789e63b4c8e984f15eb7607f9bd361dc9e300"
+    },
+    "pilot_task_plan_summary": {
+      "path": "outputs/generation/counterfactual_v1/pilot/skill-pilot-v1/3a6d305509f75a1acf3029fc6efab208b632e4da4136471d4cbdc5afe227a315/task_plan.summary.json",
+      "sha256": "ba5abbb0453a879c7b20b4e497e5a6ab81a5e1ae52aa7c6671a3adbf03e6a215",
+      "size_bytes": 2086
+    }
+  },
+  "status": "complete",
+  "validation_manifests_opened": false
+}
