@@ -1,0 +1,199 @@
+version: 1
+contract_name: counterfactual_v1
+formal_catalog: configs/skills/catalog.yaml
+candidate_catalog: configs/skills/candidate_catalog.yaml
+none_skill_id: "<none>"
+active_checkpoint:
+  path: outputs/modeling/cvae_generation_repair/cvae_generation_repair_v1/formal/epoch_candidates/epoch-0045-step-00004095.pt
+  sha256: ab25dabcef82a9369f594431072a96f77ad0a46db5cde0d6a06534050bc3e631
+  run_manifest: outputs/modeling/cvae_generation_repair/cvae_generation_repair_v1/formal/run_manifest.json
+  run_manifest_sha256: 26c5113ee3af1d379f24feb8839c0e4a6fae7f176e7f1b19e0288f793771dfbc
+  schema_sha256: c386aa10113cb76cb34ef65ecdb4613d49dc75c8d54bc15d5a2da5ff6afd2a18
+  run_manifest_stage: repair-formal
+  repair_contract: cvae_generation_repair_v1
+  promotion_recommendation: outputs/generation/counterfactual_v1/pilot/repair-heldout-gate-v1/ab25dabcef82a9369f594431072a96f77ad0a46db5cde0d6a06534050bc3e631/promotion_recommendation.json
+  promotion_recommendation_sha256: 35f08128a0a60f0705aa46d8d05667971b89dc53c9eac6fd50aed5b752de129f
+inputs:
+  data_root: data/av2/motion-forecasting
+  seed_manifest: manifests/seeds/formal_candidates.csv
+  seed_manifest_sha256: 1209b15d1beb331797a3bcc6628a8a36902a22c4e4e2d00013c2d931977a5ab8
+  training_cache_manifest: data/processed/cvae_baseline/formal_train/cache_manifest.json
+  training_cache_manifest_sha256: fc465665babcca4f5d113d82ab55ea0aec27c44b5e87100a45b2a9339cbc7ebc
+  leakage_audit: outputs/seed_detection/formal_summary.json
+  leakage_audit_sha256: 16e784e8abca3c5c1b7821fda2de28ce94a1bbecc905ff69f03e46277a40cd50
+sampling:
+  base_seed: 2026
+  pilot_seed_records_per_skill: 16
+  pilot_candidates_per_task: 16
+  formal_candidates_per_task: 16
+skills:
+  lead_sudden_stop:
+    primary_generated_role: stopping_leader
+    proposal_mode: learned_conditioned_prior
+    condition_skill_strategy: requested_skill_id
+    joint_generation_limited: false
+  slow_lead_blockage:
+    primary_generated_role: slow_leader
+    proposal_mode: learned_conditioned_prior
+    condition_skill_strategy: requested_skill_id
+    joint_generation_limited: false
+  short_headway_following:
+    primary_generated_role: close_follower
+    proposal_mode: learned_conditioned_prior
+    condition_skill_strategy: requested_skill_id
+    joint_generation_limited: false
+  chain_braking:
+    primary_generated_role: front_vehicle
+    proposal_mode: rule_guided_prior_search
+    condition_skill_strategy: none_skill_id
+    joint_generation_limited: true
+  cut_out_reveals_slow_vehicle:
+    primary_generated_role: cut_out_vehicle
+    proposal_mode: rule_guided_prior_search
+    condition_skill_strategy: none_skill_id
+    joint_generation_limited: false
+  simultaneous_lane_change_conflict:
+    primary_generated_role: left_lane_changer
+    proposal_mode: rule_guided_prior_search
+    condition_skill_strategy: none_skill_id
+    joint_generation_limited: true
+  forced_lane_change_around_blockage:
+    primary_generated_role: avoiding_vehicle
+    proposal_mode: rule_guided_prior_search
+    condition_skill_strategy: none_skill_id
+    joint_generation_limited: false
+  late_lane_change_before_diverge:
+    primary_generated_role: late_lane_changer
+    proposal_mode: rule_guided_prior_search
+    condition_skill_strategy: none_skill_id
+    joint_generation_limited: false
+  ramp_merge_small_gap:
+    primary_generated_role: merging_vehicle
+    proposal_mode: learned_conditioned_prior
+    condition_skill_strategy: requested_skill_id
+    joint_generation_limited: false
+  lane_drop_merge_competition:
+    primary_generated_role: closing_lane_vehicle
+    proposal_mode: rule_guided_prior_search
+    condition_skill_strategy: none_skill_id
+    joint_generation_limited: false
+  merge_without_yield:
+    primary_generated_role: non_yielding_vehicle
+    proposal_mode: rule_guided_prior_search
+    condition_skill_strategy: none_skill_id
+    joint_generation_limited: false
+  diverge_lane_crossing_conflict:
+    primary_generated_role: crossing_vehicle
+    proposal_mode: rule_guided_prior_search
+    condition_skill_strategy: none_skill_id
+    joint_generation_limited: false
+  bike_lane_vehicle_merge_conflict:
+    primary_generated_role: cyclist
+    proposal_mode: learned_conditioned_prior
+    condition_skill_strategy: requested_skill_id
+    joint_generation_limited: false
+  zipper_merge_multi_vehicle:
+    primary_generated_role: merging_vehicle
+    proposal_mode: rule_guided_prior_search
+    condition_skill_strategy: none_skill_id
+    joint_generation_limited: false
+  unprotected_left_turn_conflict:
+    primary_generated_role: left_turn_vehicle
+    proposal_mode: learned_conditioned_prior
+    condition_skill_strategy: requested_skill_id
+    joint_generation_limited: false
+  right_turn_vehicle_conflict:
+    primary_generated_role: right_turn_vehicle
+    proposal_mode: learned_conditioned_prior
+    condition_skill_strategy: requested_skill_id
+    joint_generation_limited: false
+  crossing_path_conflict:
+    primary_generated_role: first_vehicle
+    proposal_mode: learned_conditioned_prior
+    condition_skill_strategy: requested_skill_id
+    joint_generation_limited: false
+  intersection_creep_conflict:
+    primary_generated_role: creeping_vehicle
+    proposal_mode: rule_guided_prior_search
+    condition_skill_strategy: none_skill_id
+    joint_generation_limited: false
+  intersection_blocking_vehicle:
+    primary_generated_role: blocking_vehicle
+    proposal_mode: rule_guided_prior_search
+    condition_skill_strategy: none_skill_id
+    joint_generation_limited: false
+  mutual_yield_deadlock:
+    primary_generated_role: first_yielding_vehicle
+    proposal_mode: rule_guided_prior_search
+    condition_skill_strategy: none_skill_id
+    joint_generation_limited: true
+  crosswalk_pedestrian_crossing:
+    primary_generated_role: pedestrian
+    proposal_mode: learned_conditioned_prior
+    condition_skill_strategy: requested_skill_id
+    joint_generation_limited: false
+  jaywalking_pedestrian_crossing:
+    primary_generated_role: pedestrian
+    proposal_mode: learned_conditioned_prior
+    condition_skill_strategy: requested_skill_id
+    joint_generation_limited: false
+  roadside_pedestrian_emergence:
+    primary_generated_role: emerging_pedestrian
+    proposal_mode: rule_guided_prior_search
+    condition_skill_strategy: none_skill_id
+    joint_generation_limited: false
+  cyclist_crossing:
+    primary_generated_role: crossing_cyclist
+    proposal_mode: learned_conditioned_prior
+    condition_skill_strategy: requested_skill_id
+    joint_generation_limited: false
+  turning_vehicle_crosswalk_conflict:
+    primary_generated_role: pedestrian
+    proposal_mode: learned_conditioned_prior
+    condition_skill_strategy: requested_skill_id
+    joint_generation_limited: false
+  group_pedestrian_crossing:
+    primary_generated_role: first_crossing_pedestrian
+    proposal_mode: rule_guided_prior_search
+    condition_skill_strategy: none_skill_id
+    joint_generation_limited: false
+  cyclist_vehicle_merge:
+    primary_generated_role: merging_cyclist
+    proposal_mode: learned_conditioned_prior
+    condition_skill_strategy: requested_skill_id
+    joint_generation_limited: false
+  stopped_vehicle_reentry:
+    primary_generated_role: reentering_vehicle
+    proposal_mode: rule_guided_prior_search
+    condition_skill_strategy: none_skill_id
+    joint_generation_limited: false
+  construction_object_lane_blockage:
+    primary_generated_role: responding_vehicle
+    proposal_mode: rule_guided_prior_search
+    condition_skill_strategy: none_skill_id
+    joint_generation_limited: false
+  static_object_avoidance:
+    primary_generated_role: avoiding_vehicle
+    proposal_mode: rule_guided_prior_search
+    condition_skill_strategy: none_skill_id
+    joint_generation_limited: false
+  cut_in_then_brake:
+    primary_generated_role: cut_in_braking_vehicle
+    proposal_mode: rule_guided_prior_search
+    condition_skill_strategy: none_skill_id
+    joint_generation_limited: false
+  abrupt_u_turn_conflict:
+    primary_generated_role: u_turning_vehicle
+    proposal_mode: rule_guided_prior_search
+    condition_skill_strategy: none_skill_id
+    joint_generation_limited: false
+  multi_vehicle_gap_squeeze:
+    primary_generated_role: squeezed_vehicle
+    proposal_mode: rule_guided_prior_search
+    condition_skill_strategy: none_skill_id
+    joint_generation_limited: true
+  motorcyclist_filtering_conflict:
+    primary_generated_role: filtering_motorcyclist
+    proposal_mode: rule_guided_prior_search
+    condition_skill_strategy: none_skill_id
+    joint_generation_limited: false

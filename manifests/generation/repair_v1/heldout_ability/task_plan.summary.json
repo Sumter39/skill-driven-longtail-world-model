@@ -1,0 +1,59 @@
+{
+  "base_seed": 2026,
+  "candidate_budget": 16,
+  "counts": {
+    "by_proposal_mode": {
+      "learned_conditioned_prior": 302,
+      "rule_guided_prior_search": 320
+    },
+    "by_skill": {
+      "abrupt_u_turn_conflict": 16,
+      "bike_lane_vehicle_merge_conflict": 18,
+      "chain_braking": 16,
+      "construction_object_lane_blockage": 16,
+      "crossing_path_conflict": 32,
+      "crosswalk_pedestrian_crossing": 28,
+      "cut_in_then_brake": 16,
+      "cut_out_reveals_slow_vehicle": 16,
+      "cyclist_crossing": 10,
+      "cyclist_vehicle_merge": 2,
+      "diverge_lane_crossing_conflict": 16,
+      "forced_lane_change_around_blockage": 16,
+      "intersection_blocking_vehicle": 16,
+      "intersection_creep_conflict": 16,
+      "jaywalking_pedestrian_crossing": 12,
+      "lane_drop_merge_competition": 16,
+      "late_lane_change_before_diverge": 16,
+      "lead_sudden_stop": 32,
+      "merge_without_yield": 16,
+      "motorcyclist_filtering_conflict": 16,
+      "multi_vehicle_gap_squeeze": 16,
+      "mutual_yield_deadlock": 16,
+      "ramp_merge_small_gap": 26,
+      "right_turn_vehicle_conflict": 24,
+      "roadside_pedestrian_emergence": 16,
+      "short_headway_following": 32,
+      "simultaneous_lane_change_conflict": 16,
+      "slow_lead_blockage": 32,
+      "static_object_avoidance": 16,
+      "stopped_vehicle_reentry": 16,
+      "turning_vehicle_crosswalk_conflict": 22,
+      "unprotected_left_turn_conflict": 32,
+      "zipper_merge_multi_vehicle": 16
+    },
+    "candidates": 9952,
+    "scenarios": 441,
+    "tasks": 622
+  },
+  "execution_config_sha256": "86b3d675155a34b97ed0365c32bba822162447a1287bd3b67da4afc9721bae8b",
+  "kind": "pilot_task_plan_summary",
+  "per_skill": 16,
+  "schema_version": 1,
+  "semantic_config_sha256": "411b6da6039e155adbd62c961ef22fcf19221209632fa4dc568c3e457bfe36ed",
+  "task_plan": {
+    "path": "task_plan.jsonl",
+    "sha256": "003102783f4beb9568766adcf981a916c22597e9b67f13d0f8bc5b0fa639c761",
+    "size_bytes": 358859
+  },
+  "task_plan_id": "f0c0b903583325180390093848a66eb101e8b60b168b30480aefc431c035709e"
+}

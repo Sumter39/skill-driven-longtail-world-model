@@ -1,0 +1,119 @@
+version: 1
+contract_name: filters_v1
+finite_values:
+  source: 05_goal_schema_contract
+  required:
+    - generated_positions
+    - derived_velocity
+    - derived_acceleration
+    - derived_heading
+    - risk_metrics
+    - distance_metrics
+    - realized_parameters
+class_footprint_proxies:
+  source: conservative_engineering_proxy_v1
+  basis: AV2 motion-forecasting tracks expose no instance dimensions; these frozen class defaults are collision proxies, not ground-truth boxes.
+  ground_truth: false
+  actor_types:
+    vehicle: {length_m: 4.8, width_m: 2.0}
+    bus: {length_m: 12.0, width_m: 2.6}
+    pedestrian: {length_m: 0.8, width_m: 0.8}
+    cyclist: {length_m: 2.0, width_m: 0.8}
+    motorcyclist: {length_m: 2.2, width_m: 0.9}
+    static: {length_m: 1.0, width_m: 1.0}
+    construction: {length_m: 1.0, width_m: 1.0}
+    background: {length_m: 4.8, width_m: 2.0}
+    riderless_bicycle: {length_m: 2.0, width_m: 0.8}
+    unknown: {length_m: 4.8, width_m: 2.0}
+kinematics:
+  source: physical_hard_caps_v1_cross_checked_with_formal_train_reference_v3
+  basis: Conservative physical plausibility limits cross-checked against candidate-equivalent Formal Train point and 60-step window-maximum distributions. AV2 position differences contain annotation and discretization jitter, so empirical tail quantiles are diagnostic evidence rather than automatic hard caps; thresholds are not relaxed to fit generated samples.
+  actor_types:
+    vehicle:
+      maximum_seam_speed_mps: 55.0
+      maximum_speed_mps: 55.0
+      maximum_acceleration_mps2: 8.0
+      maximum_deceleration_mps2: 12.0
+      maximum_jerk_mps3: 60.0
+      maximum_curvature_per_m: 0.25
+      maximum_heading_rate_rad_s: 1.5
+      minimum_heading_speed_mps: 0.5
+    bus:
+      maximum_seam_speed_mps: 40.0
+      maximum_speed_mps: 40.0
+      maximum_acceleration_mps2: 5.0
+      maximum_deceleration_mps2: 8.0
+      maximum_jerk_mps3: 40.0
+      maximum_curvature_per_m: 0.20
+      maximum_heading_rate_rad_s: 1.0
+      minimum_heading_speed_mps: 0.5
+    motorcyclist:
+      maximum_seam_speed_mps: 55.0
+      maximum_speed_mps: 55.0
+      maximum_acceleration_mps2: 10.0
+      maximum_deceleration_mps2: 14.0
+      maximum_jerk_mps3: 80.0
+      maximum_curvature_per_m: 0.50
+      maximum_heading_rate_rad_s: 2.5
+      minimum_heading_speed_mps: 0.5
+    cyclist:
+      maximum_seam_speed_mps: 20.0
+      maximum_speed_mps: 20.0
+      maximum_acceleration_mps2: 6.0
+      maximum_deceleration_mps2: 8.0
+      maximum_jerk_mps3: 50.0
+      maximum_curvature_per_m: 0.80
+      maximum_heading_rate_rad_s: 3.0
+      minimum_heading_speed_mps: 0.3
+    pedestrian:
+      maximum_seam_speed_mps: 8.0
+      maximum_speed_mps: 8.0
+      maximum_acceleration_mps2: 5.0
+      maximum_deceleration_mps2: 5.0
+      maximum_jerk_mps3: 40.0
+      maximum_curvature_per_m: 2.00
+      maximum_heading_rate_rad_s: 4.0
+      minimum_heading_speed_mps: 0.2
+map_policy:
+  source: av2_drivable_area_and_lane_topology_proxy_v1
+  required_drivable_actor_types: [vehicle, bus, motorcyclist, cyclist]
+  minimum_inside_fraction: 0.95
+  lane_required_actor_types: [vehicle, bus, motorcyclist, cyclist]
+  minimum_lane_assignment_fraction: 0.80
+  maximum_lane_distance_m: 6.0
+  maximum_heading_error_deg: 90.0
+  direction_exempt_skills: [abrupt_u_turn_conflict, wrong_way_vehicle]
+novelty:
+  source: observed_future_displacement_v1
+  minimum_rms_displacement_m: 0.5
+  minimum_endpoint_displacement_m: 1.0
+parameter_realization:
+  source: semantic_unit_tolerances_v1
+  unavailable_action: audit_only
+  out_of_tolerance_action: reject
+  absolute_tolerances:
+    seconds: 0.5
+    meters: 1.0
+    meters_per_second: 0.75
+    meters_per_second_squared: 1.0
+    degrees: 10.0
+    scale: 0.15
+diversity:
+  source: deterministic_trajectory_risk_parameter_summary_v1
+  maximum_per_scenario_skill: 3
+  minimum_pairwise_rms_m: 1.0
+  minimum_endpoint_distance_m: 0.5
+  global_endpoint_bin_m: 1.0
+  global_risk_bin: 0.25
+filter_order:
+  source: 05_goal_cheap_to_expensive_contract
+  stages:
+    - schema_finite
+    - history_invariants
+    - kinematics
+    - map
+    - collision
+    - target_risk
+    - skill_trigger
+    - parameter_realization
+    - diversity

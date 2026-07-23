@@ -1,0 +1,20 @@
+version: 1
+contract_name: counterfactual_formal_execution_v1
+
+inputs:
+  generation_config: configs/generation/counterfactual_v1.yaml
+  filter_config: configs/generation/filters_v1.yaml
+  detection_config: configs/seed_detection.yaml
+  performance_config: configs/generation/performance_v1.yaml
+
+execution:
+  device: cuda
+  task_batch_size: 64
+  filter_workers: 8
+  map_batch_size: 32
+  tasks_per_shard: 1
+  progress_interval_seconds: 10
+  use_bfloat16: false
+
+output:
+  root: outputs/generation/counterfactual_v1/formal/formal_v1

@@ -1,0 +1,170 @@
+{
+  "final_validation_accessed": false,
+  "formal_train_only": true,
+  "kind": "latent_search_representative_manifest",
+  "pilot": {
+    "accepted_index_path": "outputs/generation/counterfactual_v1/pilot/skill-pilot-v1/3a6d305509f75a1acf3029fc6efab208b632e4da4136471d4cbdc5afe227a315/filter-evaluations/d2282c24629f4251f38f26b77ebe17416544d1a14af0d48eb76bc7e39eddc043/accepted.jsonl",
+    "accepted_index_sha256": "a3257bb180656fd71690be114a58b2e58aedb29e72a392e02f1fc9893cd94946",
+    "base_seed": 2026,
+    "checkpoint_sha256": "d8dfda29821ad924370b9d2671907e0df8ab2506d3e2eb962fb18a47f13166b3",
+    "filter_semantic_sha256": "d2282c24629f4251f38f26b77ebe17416544d1a14af0d48eb76bc7e39eddc043",
+    "generation_execution_sha256": "86b3d675155a34b97ed0365c32bba822162447a1287bd3b67da4afc9721bae8b",
+    "generation_semantic_sha256": "411b6da6039e155adbd62c961ef22fcf19221209632fa4dc568c3e457bfe36ed",
+    "pilot_run_id": "3a6d305509f75a1acf3029fc6efab208b632e4da4136471d4cbdc5afe227a315",
+    "rejected_index_path": "outputs/generation/counterfactual_v1/pilot/skill-pilot-v1/3a6d305509f75a1acf3029fc6efab208b632e4da4136471d4cbdc5afe227a315/filter-evaluations/d2282c24629f4251f38f26b77ebe17416544d1a14af0d48eb76bc7e39eddc043/rejected.jsonl",
+    "rejected_index_sha256": "c03f5cb70779261359b1e773c509d040a8ef8235b32698d5f0048e8333c12ed3",
+    "summary_path": "outputs/generation/counterfactual_v1/pilot/skill-pilot-v1/3a6d305509f75a1acf3029fc6efab208b632e4da4136471d4cbdc5afe227a315/filter-evaluations/d2282c24629f4251f38f26b77ebe17416544d1a14af0d48eb76bc7e39eddc043/summary.json",
+    "summary_sha256": "0adf674bf0b704760b643f296580011919110d461c355a29aa85f014ccdeb333",
+    "task_plan_id": "e9abc5fef1dd6093bb2e0ba940b789e63b4c8e984f15eb7607f9bd361dc9e300",
+    "task_plan_path": "outputs/generation/counterfactual_v1/pilot/skill-pilot-v1/3a6d305509f75a1acf3029fc6efab208b632e4da4136471d4cbdc5afe227a315/task_plan.jsonl",
+    "task_plan_sha256": "cdbb1e0d928f9e7e687ec9aa34fb11d3758f7c324d1bba0c26f51360fc9c5d70",
+    "task_plan_summary_path": "outputs/generation/counterfactual_v1/pilot/skill-pilot-v1/3a6d305509f75a1acf3029fc6efab208b632e4da4136471d4cbdc5afe227a315/task_plan.summary.json",
+    "task_plan_summary_sha256": "ba5abbb0453a879c7b20b4e497e5a6ab81a5e1ae52aa7c6671a3adbf03e6a215"
+  },
+  "representatives": [
+    {
+      "pilot_evidence_by_arm": {
+        "rule_guided_none": {
+          "accepted_count": 0,
+          "candidate_count": 16,
+          "deepest_reached_count": 1,
+          "deepest_reached_stage": "skill_trigger",
+          "first_failed_stages": {
+            "kinematics": 15,
+            "skill_trigger": 1
+          },
+          "kinematic_passed_count": 1,
+          "minimum_normalized_kinematic_violation_score": null,
+          "parameter_realization_passed_count": 0,
+          "pilot_task_id": "aad578efc34598ababad0cb0fe8b50e8100ac6596c5e39a86b1a64d3f09f36e7",
+          "skill_trigger_passed_count": 0
+        }
+      },
+      "representative_id": "forced_lane_change_deepest_funnel",
+      "scenario_id": "901f8f00-5352-4f9e-b5c8-004a8c724954",
+      "seed_record_id": "57e918d7c729919439bec1b81a8529f373d4af318abc94f205c093f82f442ffe",
+      "selection_basis": "deepest reached filter stage, then number reaching that stage, then number passing it, kinematic-pass count, and task_id",
+      "skill_id": "forced_lane_change_around_blockage",
+      "target_track_id": "59889",
+      "task_ids_by_arm": {
+        "rule_guided_none": "aad578efc34598ababad0cb0fe8b50e8100ac6596c5e39a86b1a64d3f09f36e7"
+      }
+    },
+    {
+      "pilot_evidence_by_arm": {
+        "learned_conditioned": {
+          "accepted_count": 0,
+          "candidate_count": 16,
+          "deepest_reached_count": 16,
+          "deepest_reached_stage": "kinematics",
+          "first_failed_stages": {
+            "kinematics": 16
+          },
+          "kinematic_passed_count": 0,
+          "minimum_normalized_kinematic_violation_score": null,
+          "parameter_realization_passed_count": 0,
+          "pilot_task_id": "1b0546662feda81942f84cadf2f89d7b24ab943791f58bdcc1972ed8b06c9102",
+          "skill_trigger_passed_count": 0
+        },
+        "learned_none_control": {
+          "accepted_count": 2,
+          "candidate_count": 16,
+          "deepest_reached_count": 2,
+          "deepest_reached_stage": "diversity",
+          "first_failed_stages": {
+            "kinematics": 14
+          },
+          "kinematic_passed_count": 2,
+          "minimum_normalized_kinematic_violation_score": null,
+          "parameter_realization_passed_count": 2,
+          "pilot_task_id": "331ce771aaf0c1450bf39ec1dbd2b1e32aab30009503fa0a979eaf74a40fd3ff",
+          "skill_trigger_passed_count": 2
+        }
+      },
+      "representative_id": "jaywalking_condition_reverse",
+      "scenario_id": "e5a0065e-3166-4e6a-b9ae-39b57e258a79",
+      "seed_record_id": "0ac6eaf7e6a9ebe861bcf48bd0d7b425efea04e8aa6ddf15af4c80959a08d1a5",
+      "selection_basis": "largest none-control accepted advantage, then trigger-pass advantage, then seed_record_id",
+      "skill_id": "jaywalking_pedestrian_crossing",
+      "target_track_id": "186487",
+      "task_ids_by_arm": {
+        "learned_conditioned": "1b0546662feda81942f84cadf2f89d7b24ab943791f58bdcc1972ed8b06c9102",
+        "learned_none_control": "331ce771aaf0c1450bf39ec1dbd2b1e32aab30009503fa0a979eaf74a40fd3ff"
+      }
+    },
+    {
+      "pilot_evidence_by_arm": {
+        "learned_conditioned": {
+          "accepted_count": 0,
+          "candidate_count": 16,
+          "deepest_reached_count": 16,
+          "deepest_reached_stage": "kinematics",
+          "first_failed_stages": {
+            "kinematics": 16
+          },
+          "kinematic_passed_count": 0,
+          "minimum_normalized_kinematic_violation_score": null,
+          "parameter_realization_passed_count": 0,
+          "pilot_task_id": "9666596be1e064e3fa53e027558df3fb96d74ce6e48a6dd1765900d2218bc631",
+          "skill_trigger_passed_count": 0
+        },
+        "learned_none_control": {
+          "accepted_count": 0,
+          "candidate_count": 16,
+          "deepest_reached_count": 16,
+          "deepest_reached_stage": "kinematics",
+          "first_failed_stages": {
+            "kinematics": 16
+          },
+          "kinematic_passed_count": 0,
+          "minimum_normalized_kinematic_violation_score": null,
+          "parameter_realization_passed_count": 0,
+          "pilot_task_id": "059bf56e490ba05fccbdfd706cdd95cb62ee12fe8a9e7299fa6f95ad39f7c6c8",
+          "skill_trigger_passed_count": 0
+        }
+      },
+      "representative_id": "slow_lead_learned_failure",
+      "scenario_id": "9901cc86-0fe6-448f-880a-518582a6b632",
+      "seed_record_id": "242e71f1b79cc3565b264023f2b828f28571596e928ab5073ef44b821251861c",
+      "selection_basis": "both arms fail every Pilot candidate at kinematics; Pilot rows lack a complete normalized violation score, so use the stable lexicographic paired task IDs, then seed_record_id",
+      "skill_id": "slow_lead_blockage",
+      "target_track_id": "160584",
+      "task_ids_by_arm": {
+        "learned_conditioned": "9666596be1e064e3fa53e027558df3fb96d74ce6e48a6dd1765900d2218bc631",
+        "learned_none_control": "059bf56e490ba05fccbdfd706cdd95cb62ee12fe8a9e7299fa6f95ad39f7c6c8"
+      }
+    },
+    {
+      "pilot_evidence_by_arm": {
+        "rule_guided_none": {
+          "accepted_count": 0,
+          "candidate_count": 16,
+          "deepest_reached_count": 3,
+          "deepest_reached_stage": "parameter_realization",
+          "first_failed_stages": {
+            "collision": 2,
+            "kinematics": 11,
+            "parameter_realization": 3
+          },
+          "kinematic_passed_count": 5,
+          "minimum_normalized_kinematic_violation_score": null,
+          "parameter_realization_passed_count": 0,
+          "pilot_task_id": "0035bdeb66c37628093155585c4472df1633484a434ff5f2d8cf870353fcdc62",
+          "skill_trigger_passed_count": 3
+        }
+      },
+      "representative_id": "construction_rule_deepest_funnel",
+      "scenario_id": "0020e5ed-d537-49ea-984d-bd7a1adf060d",
+      "seed_record_id": "b4781fd596e0cac79bdc31a8d61eb57fbca24347ea0b3499fe4e01bf1db75b76",
+      "selection_basis": "deepest reached filter stage, then number reaching that stage, then number passing it, kinematic-pass count, and task_id",
+      "skill_id": "construction_object_lane_blockage",
+      "target_track_id": "50346",
+      "task_ids_by_arm": {
+        "rule_guided_none": "0035bdeb66c37628093155585c4472df1633484a434ff5f2d8cf870353fcdc62"
+      }
+    }
+  ],
+  "status": "frozen",
+  "validation_manifests_opened": false,
+  "version": 1
+}

@@ -1,0 +1,19 @@
+version: 1
+contract_name: counterfactual_performance_v1
+
+inputs:
+  generation_config: configs/generation/counterfactual_v1.yaml
+  filter_config: configs/generation/filters_v1.yaml
+  detection_config: configs/seed_detection.yaml
+  pilot_summary: outputs/generation/counterfactual_v1/active-v1/ab25dabcef82a9369f594431072a96f77ad0a46db5cde0d6a06534050bc3e631-stage-d-active-pilot-v1/pilot/skill-pilot-v1/3f473fcf78fd73403813cb9aeaac52f8c0951778c3798530ef5e3760b5492c99/filter-evaluations/2e778098693978bbc3923f23599964e041f03b89550e99cae72109b23b1e99c9/summary.json
+
+workload:
+  max_tasks: 512
+  selection_contract: deterministic_atomic_condition_pairs_v1
+
+benchmark:
+  runner: cpu_filter_legacy
+  repeats: 3
+  formal_candidate_count: 542624
+
+output_root: outputs/generation/counterfactual_v1/benchmarks/performance-v1

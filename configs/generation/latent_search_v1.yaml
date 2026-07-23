@@ -1,0 +1,30 @@
+version: 1
+contract_name: latent_search_v1
+base_seed: 2026
+candidate_budget_per_arm: 4096
+generation_chunk_size: 512
+kinematic_top_k: 64
+use_bfloat16: false
+raw_policy: top_k_only
+latent_contract: paired_standard_normal_epsilon_v1
+postprocess:
+  external_smoothing: false
+  interpolation_repair: false
+  filter_threshold_overrides: false
+representatives:
+  - representative_id: forced_lane_change_deepest_funnel
+    skill_id: forced_lane_change_around_blockage
+    required_arms: [rule_guided_none]
+    evidence_contract: deepest_formal_funnel
+  - representative_id: jaywalking_condition_reverse
+    skill_id: jaywalking_pedestrian_crossing
+    required_arms: [learned_conditioned, learned_none_control]
+    evidence_contract: none_control_outperforms_conditioned
+  - representative_id: slow_lead_learned_failure
+    skill_id: slow_lead_blockage
+    required_arms: [learned_conditioned, learned_none_control]
+    evidence_contract: both_arms_fail_kinematics
+  - representative_id: construction_rule_deepest_funnel
+    skill_id: construction_object_lane_blockage
+    required_arms: [rule_guided_none]
+    evidence_contract: deepest_formal_funnel
