@@ -29,7 +29,7 @@
 - 项目归档：`outputs/generation/formal_v1_6b2da617bcf0694b87ea055285f971b58d660ae4591f49d039de1d51de99baf3.tar`
 - 归档SHA-256：`3533bfa2212ba5fca48580388a16c02ed93eed088e98303d97835f72af289aa5`
 - 审查/交付归档：`outputs/generation/formal_review_delivery_v1_6b2da617bcf0694b87ea055285f971b58d660ae4591f49d039de1d51de99baf3.tar`
-- 审查/交付归档SHA-256：`c4656bc0d66fb7599b845252f1e725931099bc170ff9fb9fb2f0e5b4533fc871`
+- 审查/交付归档SHA-256：`e5142335b7f9c986cd88059ce7d7feb785c2cb1077c64165397ebe2a508c5b69`
 
 校验结果：33,914个任务全部为`accepted`或`rejected`，失败任务数为0；34类技能均有任务状态。`group_pedestrian_crossing`的3个任务全部因Prior上下文无效而拒绝，因此没有过滤目录，这是明确负结果而非漏项。
 
@@ -106,6 +106,7 @@
 - 交付清单审计记录proposal mode分栏：`learned_conditioned_prior=638`、`rule_guided_prior_search=874`，不合并解释为模型控制成功率；重复candidate/filter ID均为0，单场景最多8条。
 - 来源与多样性审计：1,512条候选来自704个源场景，前10个源场景占4.37%；全部1,512条均有`diversity`阶段通过证据，使用同一确定性轨迹/风险/参数摘要策略。
 - 参数覆盖审计：13个有交付样本的技能记录了非空`realized_parameter_bins`；另外5个技能没有可记录的参数分箱，保留为合同边界，不用空值冒充参数覆盖。
+- 人工审查合同：每条已审案例显式填写历史不变量、道路关系、运动连续性、技能角色、目标风险、参数实现度、背景交互和视觉异常8项。单项取值为`pass/fail/not_applicable/uncertain`；总体状态必须与单项结论一致，并记录reviewer。
 
 以下命令只运行正式计算之后的审查步骤，不会重新生成或过滤候选，也不进入正式耗时统计：
 

@@ -121,7 +121,7 @@ PYTHONPATH=. uv run python -m scripts.generation.finalize_formal_review \
   "$RUN_ROOT/review/formal_review_v1/manual_review.csv"
 ```
 
-审查图片、清单和人工审查模板均写入被Git忽略的运行目录；`manual_review.csv`填写完成前，不能关闭05 Goal。
+审查图片、清单和人工审查模板均写入被Git忽略的运行目录。每条已审案例必须分别填写历史不变量、道路关系、运动连续性、技能角色、目标风险、参数实现度、背景交互和视觉异常8列，取值为`pass`、`fail`、`not_applicable`或`uncertain`；总体`review_status`使用`passed`、`failed`或`uncertain`。`manual_review.csv`达到至少100条有效人工结论前，不能关闭05 Goal。
 
 真实数据采用确定性子集，不下载完整58GB数据集。Train准备流程为：
 
