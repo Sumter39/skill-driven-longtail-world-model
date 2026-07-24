@@ -1,0 +1,79 @@
+{
+  "archives": [
+    {
+      "repository_label": "outputs/generation/formal_v1_6b2da617bcf0694b87ea055285f971b58d660ae4591f49d039de1d51de99baf3.tar",
+      "sha256": "3533bfa2212ba5fca48580388a16c02ed93eed088e98303d97835f72af289aa5",
+      "size_bytes": 2783201280
+    },
+    {
+      "repository_label": "outputs/generation/formal_review_delivery_v1_6b2da617bcf0694b87ea055285f971b58d660ae4591f49d039de1d51de99baf3.tar",
+      "sha256": "29418c7364b1a86401e43f96c9f13b2d502b02bdc12b412fd64f38394169c616",
+      "size_bytes": 105891840
+    }
+  ],
+  "automated_review": {
+    "review_count": 149,
+    "review_method": "automated_evidence",
+    "summary_sha256": "bc4e0b4d580635752b2d6de975cd0ce853d79e0073c2a569c933f7c6681a5fa4"
+  },
+  "contract_id": "6b2da617bcf0694b87ea055285f971b58d660ae4591f49d039de1d51de99baf3",
+  "cvae_caches": {
+    "formal_train": {
+      "cache_manifest_sha256": "fc465665babcca4f5d113d82ab55ea0aec27c44b5e87100a45b2a9339cbc7ebc",
+      "partition": "formal_train",
+      "sample_count": 29382,
+      "sample_index_sha256": "16a7b121ad6955028a86a6bd26cf8c039a855e9eb49e90137e49ebf519258b95",
+      "scenario_count": 20000,
+      "shard_count": 313
+    },
+    "internal_validation": {
+      "cache_manifest_sha256": "0f08e88fbf60d622f76d322b133305fbae25ea150ed416672f63c54b5b49fb59",
+      "partition": "internal_validation",
+      "sample_count": 2954,
+      "sample_index_sha256": "e88bd03eff2825f97357afcdc0b0799f97a1187460eb6cbfd48e935e8215eca1",
+      "scenario_count": 2000,
+      "shard_count": 32
+    }
+  },
+  "final_validation_content_accessed": false,
+  "formal_generation": {
+    "contract_id": "6b2da617bcf0694b87ea055285f971b58d660ae4591f49d039de1d51de99baf3",
+    "delivery_audit_sha256": "3a5903c1b82165ddb2cc76e3ec376394668675ae634fc71f97a7d9cee7c2ea71",
+    "delivery_count": 1512,
+    "delivery_index_sha256": "75007fa394f04bc878722fd373f9cbb77662711d4fc41f5dd86dff6319b362cf",
+    "proposal_mode_counts": {
+      "learned_conditioned_prior": 638,
+      "rule_guided_prior_search": 874
+    },
+    "summary_sha256": "7d68f22c856b629a511bbd6fac49afe95a015a03e6ff8435f0585fb1293b586f",
+    "unique_delivery_scenarios": 704
+  },
+  "kind": "downstream_prediction_input_audit",
+  "manifests": {
+    "final_validation": {
+      "path": "/mnt/d/同济大学/Course/032 大三下/大数据智能分析/manifests/splits/final_validation.csv",
+      "scenario_count": 5000,
+      "scenario_ids_sha256": "d4aea8d4620863a6a16c9db3419bdca620c0ccb377830edbdaa08de470426ede",
+      "sha256": "cc927f6ce573d0248ff9c802181cf7680cacffa8b87063c1d7f5904b1ce7c34a"
+    },
+    "formal_train": {
+      "path": "/mnt/d/同济大学/Course/032 大三下/大数据智能分析/manifests/splits/formal_train.csv",
+      "scenario_count": 20000,
+      "scenario_ids_sha256": "97f9674f5f6532e49981dc787df90b8a234989a8a636db29a3ff42dd0a5c0114",
+      "sha256": "2c65fde2e2bf0c7f297cae46c64ac1b855dca101a56d0c7ae250f6f31ffdab81"
+    },
+    "internal_validation": {
+      "path": "/mnt/d/同济大学/Course/032 大三下/大数据智能分析/manifests/splits/internal_validation.csv",
+      "scenario_count": 2000,
+      "scenario_ids_sha256": "59aba0647adab9bf954eb28f6178629c0f6a2b758309f1a6839e31f5dc1b946b",
+      "sha256": "a687a7f870526aecca68078872a9be6b8b6e2d9ca7d8fb487f4e265932f9de5e"
+    }
+  },
+  "schema_version": 1,
+  "split_overlap_counts": {
+    "formal_train:final_validation": 0,
+    "formal_train:internal_validation": 0,
+    "internal_validation:final_validation": 0
+  },
+  "status": "complete"
+}

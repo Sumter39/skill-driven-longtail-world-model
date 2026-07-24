@@ -1,0 +1,27 @@
+{
+  "augmentation_manifest_sha256": "6037f28438b85d8e49fff4b452b488a101287cedda5079a67ed5e4b7bb30cade",
+  "config_path": "configs/prediction/formal_v1.json",
+  "config_sha256": "1e9e020e727e9bcb2d829925f07719417e6177aadb7377e0ca5704f1b75991ca",
+  "contract_id": "a9dac35db64569f2df48895cd10c723c522b7e178aa0fb9cf20a532e2445e1ca",
+  "experiments": {
+    "augmentation_samples": 1512,
+    "augmentation_sampling": "natural_interleaved_ratio",
+    "names": [
+      "e0",
+      "e1",
+      "e2",
+      "e3"
+    ],
+    "real_samples": 29382,
+    "seeds": [
+      2026,
+      2027,
+      2028
+    ]
+  },
+  "final_validation_content_accessed_before_freeze": false,
+  "input_audit_sha256": "d2c78df134f6bc0effd64dc385bd724730f9866772567b6c8f4ef52d2d91d756",
+  "kind": "downstream_prediction_formal_contract",
+  "schema_version": 1,
+  "status": "frozen"
+}

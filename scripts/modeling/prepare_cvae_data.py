@@ -11,6 +11,7 @@ from typing import TextIO
 from skilldrive.data.cvae_cache import (
     ScenarioLoader,
     ValidationLabeler,
+    prepare_cvae_partition,
     prepare_cvae_split,
 )
 from skilldrive.data.cvae_samples import (
@@ -81,6 +82,23 @@ def run_preparation(
     kwargs = {}
     if scenario_loader is not None:
         kwargs["scenario_loader"] = scenario_loader
+    if split == "final_validation":
+        return {
+            "split": split,
+            "partitions": {
+                split: prepare_cvae_partition(
+                    config,
+                    split,
+                    project_root=root,
+                    schema=schema,
+                    validation_labeler=validation_labeler,
+                    limit=limit,
+                    force=force,
+                    progress_stream=progress_stream,
+                    **kwargs,
+                )
+            },
+        }
     return prepare_cvae_split(
         config,
         split,
@@ -99,7 +117,11 @@ def _parser() -> argparse.ArgumentParser:
         description="Prepare deterministic scenario caches for conditional CVAE training."
     )
     parser.add_argument("--config", type=Path, default=DEFAULT_CVAE_CONFIG)
-    parser.add_argument("--split", choices=("development", "formal"), required=True)
+    parser.add_argument(
+        "--split",
+        choices=("development", "formal", "final_validation"),
+        required=True,
+    )
     parser.add_argument("--limit", type=int)
     parser.add_argument("--force", action="store_true")
     parser.add_argument("--cache-root", type=Path)

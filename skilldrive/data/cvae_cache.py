@@ -123,6 +123,9 @@ _PARTITIONS = {
     "development_validation": ("development_validation", False),
     "formal_train": ("train", True),
     "internal_validation": ("internal_validation", False),
+    # This partition is evaluation-only. It is intentionally not part of a
+    # train/validation split so callers must opt into it after contract freeze.
+    "final_validation": ("validation", False),
 }
 _SPLITS = {
     "development": ("development_train", "development_validation"),

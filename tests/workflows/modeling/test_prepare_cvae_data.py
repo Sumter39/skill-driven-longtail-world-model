@@ -212,6 +212,36 @@ def cvae_schema():
     return build_cvae_schema(REPO_ROOT / "configs/skills")
 
 
+def test_prepare_final_validation_builds_only_evaluation_partition(
+    tmp_path: Path,
+    cvae_schema,
+) -> None:
+    config_path = _write_project(
+        tmp_path,
+        train_count=1,
+        validation_count=1,
+    )
+    final_path = tmp_path / "manifests/splits/final_validation.csv"
+    write_manifest(final_path, [_row("final-000", "validation")])
+
+    def loader(path: str | Path) -> Scenario:
+        return _scenario(Path(path).parent.name)
+
+    result = run_preparation(
+        config_path=config_path,
+        split="final_validation",
+        project_root=tmp_path,
+        schema=cvae_schema,
+        scenario_loader=loader,
+    )
+    manifest = result["partitions"]["final_validation"]
+    assert result["split"] == "final_validation"
+    assert manifest["partition"] == "final_validation"
+    assert manifest["counts"]["retained_samples"] == 1
+    assert manifest["label_counts"]["retained_base_samples"] == 1
+    assert set(result["partitions"]) == {"final_validation"}
+
+
 def test_prepare_builds_atomic_shards_index_hashes_and_default_collatable_dataset(
     tmp_path: Path,
     cvae_schema,
