@@ -1,0 +1,5832 @@
+{
+  "comparisons": {
+    "e1_vs_e0": {
+      "overall": {
+        "delta": {
+          "min_ade": {
+            "candidate_minus_baseline": -0.03624152046889062,
+            "relative_percent": -2.207794231757495
+          },
+          "min_fde": {
+            "candidate_minus_baseline": -0.10808234009407469,
+            "relative_percent": -2.851916583958915
+          },
+          "miss_rate": {
+            "candidate_minus_baseline": -0.004066666666666774,
+            "relative_percent": -0.6491433436203214
+          }
+        },
+        "paired_bootstrap": {
+          "delta_definition": "candidate_minus_baseline; negative is better",
+          "metrics": {
+            "Miss Rate": {
+              "ci95": [
+                -0.013266666666666666,
+                0.004999999999999999
+              ],
+              "mean_delta": -0.004066666666666655
+            },
+            "minADE": {
+              "ci95": [
+                -0.046407454304248065,
+                -0.025806890047422308
+              ],
+              "mean_delta": -0.03624152046889074
+            },
+            "minFDE": {
+              "ci95": [
+                -0.13886446819363632,
+                -0.07855769126248541
+              ],
+              "mean_delta": -0.10808234009407443
+            }
+          },
+          "repetitions": 2000,
+          "scenario_count": 5000,
+          "seed": 2026
+        }
+      },
+      "real_long_tail": {
+        "delta": {
+          "min_ade": {
+            "candidate_minus_baseline": -0.013395115834492932,
+            "relative_percent": -2.345047365114237
+          },
+          "min_fde": {
+            "candidate_minus_baseline": -0.012731463314440195,
+            "relative_percent": -1.0968430284916506
+          },
+          "miss_rate": {
+            "candidate_minus_baseline": 0.0014626298083954825,
+            "relative_percent": 1.0515247108306955
+          }
+        },
+        "paired_bootstrap": {
+          "delta_definition": "candidate_minus_baseline; negative is better",
+          "metrics": {
+            "Miss Rate": {
+              "ci95": [
+                -0.007114373753851734,
+                0.005966406863633618
+              ],
+              "mean_delta": -0.0006495075826234067
+            },
+            "minADE": {
+              "ci95": [
+                -0.01815360980063926,
+                -0.0058882477785092025
+              ],
+              "mean_delta": -0.011946216252296001
+            },
+            "minFDE": {
+              "ci95": [
+                -0.028026277501835926,
+                0.008620051002918815
+              ],
+              "mean_delta": -0.00925656128728203
+            }
+          },
+          "repetitions": 2000,
+          "scenario_count": 1839,
+          "seed": 2026
+        }
+      }
+    },
+    "e2_vs_e0": {
+      "overall": {
+        "delta": {
+          "min_ade": {
+            "candidate_minus_baseline": -0.00520283172577618,
+            "relative_percent": -0.3169508818713522
+          },
+          "min_fde": {
+            "candidate_minus_baseline": -0.0033996013016754922,
+            "relative_percent": -0.08970364004570781
+          },
+          "miss_rate": {
+            "candidate_minus_baseline": 0.0003999999999998449,
+            "relative_percent": 0.06385016494623469
+          }
+        },
+        "paired_bootstrap": {
+          "delta_definition": "candidate_minus_baseline; negative is better",
+          "metrics": {
+            "Miss Rate": {
+              "ci95": [
+                -0.00813333333333334,
+                0.008734999999999996
+              ],
+              "mean_delta": 0.00039999999999999617
+            },
+            "minADE": {
+              "ci95": [
+                -0.015680614017819398,
+                0.005421634470565859
+              ],
+              "mean_delta": -0.0052028317257762
+            },
+            "minFDE": {
+              "ci95": [
+                -0.03217676915287349,
+                0.026420685433804377
+              ],
+              "mean_delta": -0.0033996013016750312
+            }
+          },
+          "repetitions": 2000,
+          "scenario_count": 5000,
+          "seed": 2026
+        }
+      },
+      "real_long_tail": {
+        "delta": {
+          "min_ade": {
+            "candidate_minus_baseline": 0.021433851823452588,
+            "relative_percent": 3.752367531858613
+          },
+          "min_fde": {
+            "candidate_minus_baseline": 0.08458099642577,
+            "relative_percent": 7.286835297813703
+          },
+          "miss_rate": {
+            "candidate_minus_baseline": 0.004095363463507362,
+            "relative_percent": 2.9442691903259552
+          }
+        },
+        "paired_bootstrap": {
+          "delta_definition": "candidate_minus_baseline; negative is better",
+          "metrics": {
+            "Miss Rate": {
+              "ci95": [
+                -0.0035968370491208978,
+                0.008490045918675604
+              ],
+              "mean_delta": 0.0023714579179505754
+            },
+            "minADE": {
+              "ci95": [
+                0.017240033155687198,
+                0.029233914053863875
+              ],
+              "mean_delta": 0.02328993141046586
+            },
+            "minFDE": {
+              "ci95": [
+                0.07040180827390717,
+                0.10529092373466453
+              ],
+              "mean_delta": 0.08784557998928615
+            }
+          },
+          "repetitions": 2000,
+          "scenario_count": 1839,
+          "seed": 2026
+        }
+      }
+    },
+    "e3_vs_e0": {
+      "overall": {
+        "delta": {
+          "min_ade": {
+            "candidate_minus_baseline": 0.02109148912951353,
+            "relative_percent": 1.2848707073227628
+          },
+          "min_fde": {
+            "candidate_minus_baseline": 0.014878984080255009,
+            "relative_percent": 0.3926045773435863
+          },
+          "miss_rate": {
+            "candidate_minus_baseline": 0.005266666666666531,
+            "relative_percent": 0.8406938384590609
+          }
+        },
+        "paired_bootstrap": {
+          "delta_definition": "candidate_minus_baseline; negative is better",
+          "metrics": {
+            "Miss Rate": {
+              "ci95": [
+                -0.0034,
+                0.01413333333333329
+              ],
+              "mean_delta": 0.005266666666666681
+            },
+            "minADE": {
+              "ci95": [
+                0.009158187473795048,
+                0.03227797173680736
+              ],
+              "mean_delta": 0.021091489129513478
+            },
+            "minFDE": {
+              "ci95": [
+                -0.019003402641339553,
+                0.04575892804709573
+              ],
+              "mean_delta": 0.014878984080255045
+            }
+          },
+          "repetitions": 2000,
+          "scenario_count": 5000,
+          "seed": 2026
+        }
+      },
+      "real_long_tail": {
+        "delta": {
+          "min_ade": {
+            "candidate_minus_baseline": -0.015576453616574781,
+            "relative_percent": -2.7269283791718366
+          },
+          "min_fde": {
+            "candidate_minus_baseline": -0.010745157287552098,
+            "relative_percent": -0.9257184794720509
+          },
+          "miss_rate": {
+            "candidate_minus_baseline": 0.003217785578470078,
+            "relative_percent": 2.313354363827542
+          }
+        },
+        "paired_bootstrap": {
+          "delta_definition": "candidate_minus_baseline; negative is better",
+          "metrics": {
+            "Miss Rate": {
+              "ci95": [
+                -0.007175925925925928,
+                0.007010150444081925
+              ],
+              "mean_delta": -4.531448250861032e-05
+            },
+            "minADE": {
+              "ci95": [
+                -0.020072881323648033,
+                -0.006770324171992034
+              ],
+              "mean_delta": -0.013178871139212346
+            },
+            "minFDE": {
+              "ci95": [
+                -0.027532669097807706,
+                0.012564115536615185
+              ],
+              "mean_delta": -0.007330640891457306
+            }
+          },
+          "repetitions": 2000,
+          "scenario_count": 1839,
+          "seed": 2026
+        }
+      }
+    },
+    "e3_vs_e2": {
+      "overall": {
+        "delta": {
+          "min_ade": {
+            "candidate_minus_baseline": 0.02629432085528971,
+            "relative_percent": 1.6069147195687086
+          },
+          "min_fde": {
+            "candidate_minus_baseline": 0.0182785853819305,
+            "relative_percent": 0.4827412538660142
+          },
+          "miss_rate": {
+            "candidate_minus_baseline": 0.004866666666666686,
+            "relative_percent": 0.776347974050838
+          }
+        },
+        "paired_bootstrap": {
+          "delta_definition": "candidate_minus_baseline; negative is better",
+          "metrics": {
+            "Miss Rate": {
+              "ci95": [
+                -0.0038666666666666624,
+                0.012666666666666654
+              ],
+              "mean_delta": 0.004866666666666683
+            },
+            "minADE": {
+              "ci95": [
+                0.01225023284581798,
+                0.039865615407967285
+              ],
+              "mean_delta": 0.026294320855289693
+            },
+            "minFDE": {
+              "ci95": [
+                -0.020641930031264175,
+                0.055631993428015294
+              ],
+              "mean_delta": 0.018278585381930106
+            }
+          },
+          "repetitions": 2000,
+          "scenario_count": 5000,
+          "seed": 2027
+        }
+      },
+      "real_long_tail": {
+        "delta": {
+          "min_ade": {
+            "candidate_minus_baseline": -0.03701030544002737,
+            "relative_percent": -6.244961985123753
+          },
+          "min_fde": {
+            "candidate_minus_baseline": -0.09532615371332209,
+            "relative_percent": -7.654763750360254
+          },
+          "miss_rate": {
+            "candidate_minus_baseline": -0.000877577885037284,
+            "relative_percent": -0.612870275791615
+          }
+        },
+        "paired_bootstrap": {
+          "delta_definition": "candidate_minus_baseline; negative is better",
+          "metrics": {
+            "Miss Rate": {
+              "ci95": [
+                -0.008821219261676031,
+                0.0037467524620868812
+              ],
+              "mean_delta": -0.002416772400459186
+            },
+            "minADE": {
+              "ci95": [
+                -0.042407674773986555,
+                -0.03067211537194491
+              ],
+              "mean_delta": -0.03646880254967829
+            },
+            "minFDE": {
+              "ci95": [
+                -0.11229619757730594,
+                -0.07870291602572284
+              ],
+              "mean_delta": -0.09517622088074326
+            }
+          },
+          "repetitions": 2000,
+          "scenario_count": 1839,
+          "seed": 2027
+        }
+      }
+    }
+  },
+  "e3_training_source_analysis": {
+    "per_skill": {
+      "abrupt_u_turn_conflict": {
+        "e3_minus_e0": null,
+        "final_validation": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "training_accepted_count": 0,
+        "training_proposal_mode_counts": {}
+      },
+      "bike_lane_vehicle_merge_conflict": {
+        "e3_minus_e0": {
+          "min_ade": {
+            "candidate_minus_baseline": -0.30723064144452406,
+            "relative_percent": -34.46333284955686
+          },
+          "min_fde": {
+            "candidate_minus_baseline": -0.7219715118408205,
+            "relative_percent": -30.867854905549667
+          },
+          "miss_rate": {
+            "candidate_minus_baseline": -0.6666666666666666,
+            "relative_percent": -99.99999999999999
+          }
+        },
+        "final_validation": {
+          "min_ade": 0.5842404266198477,
+          "min_fde": 1.6169390281041462,
+          "miss_rate": 0.0,
+          "sample_count": 1
+        },
+        "training_accepted_count": 0,
+        "training_proposal_mode_counts": {}
+      },
+      "chain_braking": {
+        "e3_minus_e0": null,
+        "final_validation": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "training_accepted_count": 1,
+        "training_proposal_mode_counts": {
+          "rule_guided_prior_search": 1
+        }
+      },
+      "construction_object_lane_blockage": {
+        "e3_minus_e0": null,
+        "final_validation": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "training_accepted_count": 20,
+        "training_proposal_mode_counts": {
+          "rule_guided_prior_search": 20
+        }
+      },
+      "crossing_path_conflict": {
+        "e3_minus_e0": {
+          "min_ade": {
+            "candidate_minus_baseline": -0.1756715322985789,
+            "relative_percent": -5.4270588551633745
+          },
+          "min_fde": {
+            "candidate_minus_baseline": -0.6324399610360469,
+            "relative_percent": -7.389892350934854
+          },
+          "miss_rate": {
+            "candidate_minus_baseline": -0.045454545454545525,
+            "relative_percent": -5.454545454545461
+          }
+        },
+        "final_validation": {
+          "min_ade": 3.0612849295139317,
+          "min_fde": 7.925735598260706,
+          "miss_rate": 0.787878787878788,
+          "sample_count": 22
+        },
+        "training_accepted_count": 1,
+        "training_proposal_mode_counts": {
+          "learned_conditioned_prior": 1
+        }
+      },
+      "crosswalk_pedestrian_crossing": {
+        "e3_minus_e0": {
+          "min_ade": {
+            "candidate_minus_baseline": 0.05019320283705997,
+            "relative_percent": 3.4341800799029634
+          },
+          "min_fde": {
+            "candidate_minus_baseline": 0.02164973194400499,
+            "relative_percent": 0.7825012583756062
+          },
+          "miss_rate": {
+            "candidate_minus_baseline": 0.04166666666666663,
+            "relative_percent": 7.692307692307685
+          }
+        },
+        "final_validation": {
+          "min_ade": 1.5117706876869004,
+          "min_fde": 2.7883841892083487,
+          "miss_rate": 0.5833333333333333,
+          "sample_count": 8
+        },
+        "training_accepted_count": 3,
+        "training_proposal_mode_counts": {
+          "learned_conditioned_prior": 3
+        }
+      },
+      "cut_in_then_brake": {
+        "e3_minus_e0": null,
+        "final_validation": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "training_accepted_count": 0,
+        "training_proposal_mode_counts": {}
+      },
+      "cut_out_reveals_slow_vehicle": {
+        "e3_minus_e0": null,
+        "final_validation": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "training_accepted_count": 14,
+        "training_proposal_mode_counts": {
+          "rule_guided_prior_search": 14
+        }
+      },
+      "cyclist_crossing": {
+        "e3_minus_e0": null,
+        "final_validation": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "training_accepted_count": 0,
+        "training_proposal_mode_counts": {}
+      },
+      "cyclist_vehicle_merge": {
+        "e3_minus_e0": null,
+        "final_validation": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "training_accepted_count": 0,
+        "training_proposal_mode_counts": {}
+      },
+      "diverge_lane_crossing_conflict": {
+        "e3_minus_e0": null,
+        "final_validation": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "training_accepted_count": 0,
+        "training_proposal_mode_counts": {}
+      },
+      "forced_lane_change_around_blockage": {
+        "e3_minus_e0": null,
+        "final_validation": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "training_accepted_count": 183,
+        "training_proposal_mode_counts": {
+          "rule_guided_prior_search": 183
+        }
+      },
+      "group_pedestrian_crossing": {
+        "e3_minus_e0": null,
+        "final_validation": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "training_accepted_count": 0,
+        "training_proposal_mode_counts": {}
+      },
+      "intersection_blocking_vehicle": {
+        "e3_minus_e0": null,
+        "final_validation": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "training_accepted_count": 0,
+        "training_proposal_mode_counts": {}
+      },
+      "intersection_creep_conflict": {
+        "e3_minus_e0": null,
+        "final_validation": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "training_accepted_count": 5,
+        "training_proposal_mode_counts": {
+          "rule_guided_prior_search": 5
+        }
+      },
+      "jaywalking_pedestrian_crossing": {
+        "e3_minus_e0": {
+          "min_ade": {
+            "candidate_minus_baseline": -0.29099176327387477,
+            "relative_percent": -11.365906447199151
+          },
+          "min_fde": {
+            "candidate_minus_baseline": -0.5845386981964111,
+            "relative_percent": -11.956774382015677
+          },
+          "miss_rate": {
+            "candidate_minus_baseline": -0.16666666666666663,
+            "relative_percent": -20.0
+          }
+        },
+        "final_validation": {
+          "min_ade": 2.269224305947622,
+          "min_fde": 4.304227113723755,
+          "miss_rate": 0.6666666666666666,
+          "sample_count": 2
+        },
+        "training_accepted_count": 3,
+        "training_proposal_mode_counts": {
+          "learned_conditioned_prior": 3
+        }
+      },
+      "lane_drop_merge_competition": {
+        "e3_minus_e0": null,
+        "final_validation": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "training_accepted_count": 28,
+        "training_proposal_mode_counts": {
+          "rule_guided_prior_search": 28
+        }
+      },
+      "late_lane_change_before_diverge": {
+        "e3_minus_e0": null,
+        "final_validation": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "training_accepted_count": 0,
+        "training_proposal_mode_counts": {}
+      },
+      "lead_sudden_stop": {
+        "e3_minus_e0": {
+          "min_ade": {
+            "candidate_minus_baseline": -0.015176033952997825,
+            "relative_percent": -2.0982910193170743
+          },
+          "min_fde": {
+            "candidate_minus_baseline": 0.02797278522500868,
+            "relative_percent": 2.000231508694308
+          },
+          "miss_rate": {
+            "candidate_minus_baseline": 0.02986111111111106,
+            "relative_percent": 14.726027397260248
+          }
+        },
+        "final_validation": {
+          "min_ade": 0.708080836199224,
+          "min_fde": 1.4264501666391474,
+          "miss_rate": 0.23263888888888887,
+          "sample_count": 480
+        },
+        "training_accepted_count": 210,
+        "training_proposal_mode_counts": {
+          "learned_conditioned_prior": 210
+        }
+      },
+      "merge_without_yield": {
+        "e3_minus_e0": null,
+        "final_validation": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "training_accepted_count": 39,
+        "training_proposal_mode_counts": {
+          "rule_guided_prior_search": 39
+        }
+      },
+      "motorcyclist_filtering_conflict": {
+        "e3_minus_e0": null,
+        "final_validation": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "training_accepted_count": 3,
+        "training_proposal_mode_counts": {
+          "rule_guided_prior_search": 3
+        }
+      },
+      "multi_vehicle_gap_squeeze": {
+        "e3_minus_e0": null,
+        "final_validation": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "training_accepted_count": 300,
+        "training_proposal_mode_counts": {
+          "rule_guided_prior_search": 300
+        }
+      },
+      "mutual_yield_deadlock": {
+        "e3_minus_e0": null,
+        "final_validation": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "training_accepted_count": 0,
+        "training_proposal_mode_counts": {}
+      },
+      "ramp_merge_small_gap": {
+        "e3_minus_e0": {
+          "min_ade": {
+            "candidate_minus_baseline": -0.05327972107463408,
+            "relative_percent": -3.0836873810960967
+          },
+          "min_fde": {
+            "candidate_minus_baseline": -0.602546777990129,
+            "relative_percent": -14.545696727455859
+          },
+          "miss_rate": {
+            "candidate_minus_baseline": -0.11111111111111116,
+            "relative_percent": -12.500000000000007
+          }
+        },
+        "final_validation": {
+          "min_ade": 1.6745128366682265,
+          "min_fde": 3.5398933490117392,
+          "miss_rate": 0.7777777777777777,
+          "sample_count": 3
+        },
+        "training_accepted_count": 0,
+        "training_proposal_mode_counts": {}
+      },
+      "right_turn_vehicle_conflict": {
+        "e3_minus_e0": {
+          "min_ade": {
+            "candidate_minus_baseline": 0.016588767369588364,
+            "relative_percent": 0.7729396364267688
+          },
+          "min_fde": {
+            "candidate_minus_baseline": -0.030698299407958984,
+            "relative_percent": -0.5019601022586112
+          },
+          "miss_rate": {
+            "candidate_minus_baseline": 0.0,
+            "relative_percent": 0.0
+          }
+        },
+        "final_validation": {
+          "min_ade": 2.1627806027730307,
+          "min_fde": 6.084986845652263,
+          "miss_rate": 1.0,
+          "sample_count": 1
+        },
+        "training_accepted_count": 0,
+        "training_proposal_mode_counts": {}
+      },
+      "roadside_pedestrian_emergence": {
+        "e3_minus_e0": null,
+        "final_validation": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "training_accepted_count": 0,
+        "training_proposal_mode_counts": {}
+      },
+      "short_headway_following": {
+        "e3_minus_e0": {
+          "min_ade": {
+            "candidate_minus_baseline": 0.046117581223529935,
+            "relative_percent": 3.4710814046209517
+          },
+          "min_fde": {
+            "candidate_minus_baseline": 0.03883329742267394,
+            "relative_percent": 1.391830512631028
+          },
+          "miss_rate": {
+            "candidate_minus_baseline": 0.021857923497267784,
+            "relative_percent": 3.4482758620689697
+          }
+        },
+        "final_validation": {
+          "min_ade": 1.3747404467701263,
+          "min_fde": 2.8289213915014524,
+          "miss_rate": 0.6557377049180327,
+          "sample_count": 61
+        },
+        "training_accepted_count": 121,
+        "training_proposal_mode_counts": {
+          "learned_conditioned_prior": 121
+        }
+      },
+      "simultaneous_lane_change_conflict": {
+        "e3_minus_e0": null,
+        "final_validation": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "training_accepted_count": 0,
+        "training_proposal_mode_counts": {}
+      },
+      "slow_lead_blockage": {
+        "e3_minus_e0": {
+          "min_ade": {
+            "candidate_minus_baseline": -0.013140716104216799,
+            "relative_percent": -3.2303478220105846
+          },
+          "min_fde": {
+            "candidate_minus_baseline": -0.002939576709513392,
+            "relative_percent": -0.37576456969245287
+          },
+          "miss_rate": {
+            "candidate_minus_baseline": -0.0037810945273631935,
+            "relative_percent": -4.986876640419959
+          }
+        },
+        "final_validation": {
+          "min_ade": 0.39364879475526554,
+          "min_fde": 0.7793525675230599,
+          "miss_rate": 0.07203980099502487,
+          "sample_count": 1675
+        },
+        "training_accepted_count": 300,
+        "training_proposal_mode_counts": {
+          "learned_conditioned_prior": 300
+        }
+      },
+      "static_object_avoidance": {
+        "e3_minus_e0": null,
+        "final_validation": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "training_accepted_count": 258,
+        "training_proposal_mode_counts": {
+          "rule_guided_prior_search": 258
+        }
+      },
+      "stopped_vehicle_reentry": {
+        "e3_minus_e0": null,
+        "final_validation": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "training_accepted_count": 5,
+        "training_proposal_mode_counts": {
+          "rule_guided_prior_search": 5
+        }
+      },
+      "turning_vehicle_crosswalk_conflict": {
+        "e3_minus_e0": {
+          "min_ade": {
+            "candidate_minus_baseline": 0.13743540975782587,
+            "relative_percent": 5.9825306046812
+          },
+          "min_fde": {
+            "candidate_minus_baseline": 0.16116653548346616,
+            "relative_percent": 3.7602797166162047
+          },
+          "miss_rate": {
+            "candidate_minus_baseline": 0.0,
+            "relative_percent": 0.0
+          }
+        },
+        "final_validation": {
+          "min_ade": 2.434714251094394,
+          "min_fde": 4.4471917152404785,
+          "miss_rate": 1.0,
+          "sample_count": 3
+        },
+        "training_accepted_count": 0,
+        "training_proposal_mode_counts": {}
+      },
+      "unprotected_left_turn_conflict": {
+        "e3_minus_e0": {
+          "min_ade": {
+            "candidate_minus_baseline": -0.21449252401572982,
+            "relative_percent": -5.5390785919446826
+          },
+          "min_fde": {
+            "candidate_minus_baseline": -0.7988617955774497,
+            "relative_percent": -7.669032785457165
+          },
+          "miss_rate": {
+            "candidate_minus_baseline": 0.0,
+            "relative_percent": 0.0
+          }
+        },
+        "final_validation": {
+          "min_ade": 3.6578577316325642,
+          "min_fde": 9.617859816205675,
+          "miss_rate": 0.9710144927536232,
+          "sample_count": 23
+        },
+        "training_accepted_count": 0,
+        "training_proposal_mode_counts": {}
+      },
+      "zipper_merge_multi_vehicle": {
+        "e3_minus_e0": null,
+        "final_validation": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "training_accepted_count": 18,
+        "training_proposal_mode_counts": {
+          "rule_guided_prior_search": 18
+        }
+      }
+    },
+    "proposal_mode_counts": {
+      "learned_conditioned_prior": 638,
+      "rule_guided_prior_search": 874
+    }
+  },
+  "evaluation_identity": "9eadb2f7c25188edec83234ada90fb2b7ce43f346146e059218f7dd5df82e4b6",
+  "final_validation": {
+    "base_samples": 5000,
+    "cache_manifest_sha256": "f4bba66ac447243e8f1b70d10aa3d117db259b2141211a700d7364cc259c9260",
+    "real_long_tail_samples": 2279,
+    "real_long_tail_scenarios": 1839,
+    "risk_metric_proxy_samples": 0
+  },
+  "formal_contract_id": "a9dac35db64569f2df48895cd10c723c522b7e178aa0fb9cf20a532e2445e1ca",
+  "kind": "downstream_prediction_final_evaluation",
+  "models": {
+    "constant_velocity": {
+      "overall": {
+        "min_ade": 4.703593248435855,
+        "min_fde": 12.197198212337215,
+        "miss_rate": 0.861,
+        "sample_count": 5000
+      },
+      "per_skill": {
+        "abrupt_u_turn_conflict": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "bike_lane_vehicle_merge_conflict": {
+          "min_ade": 0.6819694638252258,
+          "min_fde": 1.520102858543396,
+          "miss_rate": 0.0,
+          "sample_count": 1
+        },
+        "chain_braking": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "construction_object_lane_blockage": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "crossing_path_conflict": {
+          "min_ade": 7.501206896521828,
+          "min_fde": 20.06890416687185,
+          "miss_rate": 0.9545454545454546,
+          "sample_count": 22
+        },
+        "crosswalk_pedestrian_crossing": {
+          "min_ade": 1.7585186921060085,
+          "min_fde": 3.3824078398756683,
+          "miss_rate": 0.5,
+          "sample_count": 8
+        },
+        "cut_in_then_brake": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "cut_out_reveals_slow_vehicle": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "cyclist_crossing": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "cyclist_vehicle_merge": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "diverge_lane_crossing_conflict": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "forced_lane_change_around_blockage": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "group_pedestrian_crossing": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "intersection_blocking_vehicle": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "intersection_creep_conflict": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "jaywalking_pedestrian_crossing": {
+          "min_ade": 3.3310130834579468,
+          "min_fde": 7.937366247177124,
+          "miss_rate": 1.0,
+          "sample_count": 2
+        },
+        "lane_drop_merge_competition": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "late_lane_change_before_diverge": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "lead_sudden_stop": {
+          "min_ade": 2.7308272329799363,
+          "min_fde": 6.666782285808343,
+          "miss_rate": 0.6229166666666667,
+          "sample_count": 480
+        },
+        "merge_without_yield": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "motorcyclist_filtering_conflict": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "multi_vehicle_gap_squeeze": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "mutual_yield_deadlock": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "ramp_merge_small_gap": {
+          "min_ade": 4.174897352854411,
+          "min_fde": 10.677243868509928,
+          "miss_rate": 1.0,
+          "sample_count": 3
+        },
+        "right_turn_vehicle_conflict": {
+          "min_ade": 4.69262170791626,
+          "min_fde": 10.886577606201172,
+          "miss_rate": 1.0,
+          "sample_count": 1
+        },
+        "roadside_pedestrian_emergence": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "short_headway_following": {
+          "min_ade": 2.6658016482337574,
+          "min_fde": 6.617491726015435,
+          "miss_rate": 0.7868852459016393,
+          "sample_count": 61
+        },
+        "simultaneous_lane_change_conflict": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "slow_lead_blockage": {
+          "min_ade": 0.5381274795722205,
+          "min_fde": 1.25431013767197,
+          "miss_rate": 0.1480597014925373,
+          "sample_count": 1675
+        },
+        "static_object_avoidance": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "stopped_vehicle_reentry": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "turning_vehicle_crosswalk_conflict": {
+          "min_ade": 3.0509305795033774,
+          "min_fde": 5.865441004435222,
+          "miss_rate": 1.0,
+          "sample_count": 3
+        },
+        "unprotected_left_turn_conflict": {
+          "min_ade": 7.2095664739608765,
+          "min_fde": 20.60293773982836,
+          "miss_rate": 1.0,
+          "sample_count": 23
+        },
+        "zipper_merge_multi_vehicle": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        }
+      },
+      "real_long_tail": {
+        "min_ade": 1.2081629363550932,
+        "min_fde": 2.9508750167001616,
+        "miss_rate": 0.28609039052215884,
+        "sample_count": 2279
+      },
+      "risk_strata": {
+        "degenerate_target_range": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "high": {
+          "min_ade": 0.7050495498113752,
+          "min_fde": 1.474804371947737,
+          "miss_rate": 0.10396975425330812,
+          "sample_count": 529
+        },
+        "low": {
+          "min_ade": 1.39595807741009,
+          "min_fde": 3.5054333659928028,
+          "miss_rate": 0.3660287081339713,
+          "sample_count": 1254
+        },
+        "medium": {
+          "min_ade": 1.269961070626587,
+          "min_fde": 3.123103244645849,
+          "miss_rate": 0.2782258064516129,
+          "sample_count": 496
+        },
+        "proxy_metric": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        }
+      }
+    },
+    "lstm_e0_seed_2026": {
+      "overall": {
+        "min_ade": 1.912451964686811,
+        "min_fde": 4.565200182487443,
+        "miss_rate": 0.6674,
+        "sample_count": 5000
+      },
+      "per_skill": {
+        "abrupt_u_turn_conflict": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "bike_lane_vehicle_merge_conflict": {
+          "min_ade": 1.7853606939315796,
+          "min_fde": 4.986794471740723,
+          "miss_rate": 1.0,
+          "sample_count": 1
+        },
+        "chain_braking": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "construction_object_lane_blockage": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "crossing_path_conflict": {
+          "min_ade": 2.6294347129084845,
+          "min_fde": 6.646342705596577,
+          "miss_rate": 0.8636363636363636,
+          "sample_count": 22
+        },
+        "crosswalk_pedestrian_crossing": {
+          "min_ade": 1.5371771529316902,
+          "min_fde": 3.0824682302773,
+          "miss_rate": 0.625,
+          "sample_count": 8
+        },
+        "cut_in_then_brake": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "cut_out_reveals_slow_vehicle": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "cyclist_crossing": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "cyclist_vehicle_merge": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "diverge_lane_crossing_conflict": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "forced_lane_change_around_blockage": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "group_pedestrian_crossing": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "intersection_blocking_vehicle": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "intersection_creep_conflict": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "jaywalking_pedestrian_crossing": {
+          "min_ade": 2.413734197616577,
+          "min_fde": 4.632100939750671,
+          "miss_rate": 1.0,
+          "sample_count": 2
+        },
+        "lane_drop_merge_competition": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "late_lane_change_before_diverge": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "lead_sudden_stop": {
+          "min_ade": 0.6856939780409448,
+          "min_fde": 1.3345310159609653,
+          "miss_rate": 0.17083333333333334,
+          "sample_count": 480
+        },
+        "merge_without_yield": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "motorcyclist_filtering_conflict": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "multi_vehicle_gap_squeeze": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "mutual_yield_deadlock": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "ramp_merge_small_gap": {
+          "min_ade": 2.360471268494924,
+          "min_fde": 5.805657784144084,
+          "miss_rate": 0.6666666666666666,
+          "sample_count": 3
+        },
+        "right_turn_vehicle_conflict": {
+          "min_ade": 2.4195609092712402,
+          "min_fde": 6.620402812957764,
+          "miss_rate": 1.0,
+          "sample_count": 1
+        },
+        "roadside_pedestrian_emergence": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "short_headway_following": {
+          "min_ade": 1.437338549094122,
+          "min_fde": 3.2025763265422134,
+          "miss_rate": 0.639344262295082,
+          "sample_count": 61
+        },
+        "simultaneous_lane_change_conflict": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "slow_lead_blockage": {
+          "min_ade": 0.38113467090943853,
+          "min_fde": 0.781820792348138,
+          "miss_rate": 0.07761194029850746,
+          "sample_count": 1675
+        },
+        "static_object_avoidance": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "stopped_vehicle_reentry": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "turning_vehicle_crosswalk_conflict": {
+          "min_ade": 2.420448144276937,
+          "min_fde": 4.9635647137959795,
+          "miss_rate": 1.0,
+          "sample_count": 3
+        },
+        "unprotected_left_turn_conflict": {
+          "min_ade": 3.2364327389260996,
+          "min_fde": 8.005973383136418,
+          "miss_rate": 0.8695652173913043,
+          "sample_count": 23
+        },
+        "zipper_merge_multi_vehicle": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        }
+      },
+      "real_long_tail": {
+        "min_ade": 0.5367132149483091,
+        "min_fde": 1.1205254982882713,
+        "miss_rate": 0.13339183852566916,
+        "sample_count": 2279
+      },
+      "risk_strata": {
+        "degenerate_target_range": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "high": {
+          "min_ade": 0.3930784808383772,
+          "min_fde": 0.6978619688231013,
+          "miss_rate": 0.05860113421550094,
+          "sample_count": 529
+        },
+        "low": {
+          "min_ade": 0.5915402169911224,
+          "min_fde": 1.2759984731573932,
+          "miss_rate": 0.16108452950558214,
+          "sample_count": 1254
+        },
+        "medium": {
+          "min_ade": 0.5512892508000556,
+          "min_fde": 1.17823899950036,
+          "miss_rate": 0.1431451612903226,
+          "sample_count": 496
+        },
+        "proxy_metric": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        }
+      }
+    },
+    "transformer_e0_seed_2026": {
+      "overall": {
+        "min_ade": 1.649490652706474,
+        "min_fde": 3.811626430496946,
+        "miss_rate": 0.6262,
+        "sample_count": 5000
+      },
+      "per_skill": {
+        "abrupt_u_turn_conflict": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "bike_lane_vehicle_merge_conflict": {
+          "min_ade": 1.000731110572815,
+          "min_fde": 2.6016600131988525,
+          "miss_rate": 1.0,
+          "sample_count": 1
+        },
+        "chain_braking": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "construction_object_lane_blockage": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "crossing_path_conflict": {
+          "min_ade": 2.7438675950873983,
+          "min_fde": 7.394059072841298,
+          "miss_rate": 0.8636363636363636,
+          "sample_count": 22
+        },
+        "crosswalk_pedestrian_crossing": {
+          "min_ade": 1.4645459288731217,
+          "min_fde": 2.655866466462612,
+          "miss_rate": 0.625,
+          "sample_count": 8
+        },
+        "cut_in_then_brake": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "cut_out_reveals_slow_vehicle": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "cyclist_crossing": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "cyclist_vehicle_merge": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "diverge_lane_crossing_conflict": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "forced_lane_change_around_blockage": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "group_pedestrian_crossing": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "intersection_blocking_vehicle": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "intersection_creep_conflict": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "jaywalking_pedestrian_crossing": {
+          "min_ade": 2.3834149837493896,
+          "min_fde": 3.8897159099578857,
+          "miss_rate": 0.5,
+          "sample_count": 2
+        },
+        "lane_drop_merge_competition": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "late_lane_change_before_diverge": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "lead_sudden_stop": {
+          "min_ade": 0.7192968621694793,
+          "min_fde": 1.3822804390646828,
+          "miss_rate": 0.2,
+          "sample_count": 480
+        },
+        "merge_without_yield": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "motorcyclist_filtering_conflict": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "multi_vehicle_gap_squeeze": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "mutual_yield_deadlock": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "ramp_merge_small_gap": {
+          "min_ade": 1.4183842937151592,
+          "min_fde": 4.457294464111328,
+          "miss_rate": 1.0,
+          "sample_count": 3
+        },
+        "right_turn_vehicle_conflict": {
+          "min_ade": 2.3323845863342285,
+          "min_fde": 6.7397685050964355,
+          "miss_rate": 1.0,
+          "sample_count": 1
+        },
+        "roadside_pedestrian_emergence": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "short_headway_following": {
+          "min_ade": 1.2885736554372507,
+          "min_fde": 2.587043873599318,
+          "miss_rate": 0.5737704918032787,
+          "sample_count": 61
+        },
+        "simultaneous_lane_change_conflict": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "slow_lead_blockage": {
+          "min_ade": 0.3908756398531928,
+          "min_fde": 0.7460520520831333,
+          "miss_rate": 0.07462686567164178,
+          "sample_count": 1675
+        },
+        "static_object_avoidance": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "stopped_vehicle_reentry": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "turning_vehicle_crosswalk_conflict": {
+          "min_ade": 2.2122426430384317,
+          "min_fde": 3.8860199451446533,
+          "miss_rate": 1.0,
+          "sample_count": 3
+        },
+        "unprotected_left_turn_conflict": {
+          "min_ade": 3.2981781804043315,
+          "min_fde": 8.113011069919752,
+          "miss_rate": 0.9565217391304348,
+          "sample_count": 23
+        },
+        "zipper_merge_multi_vehicle": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        }
+      },
+      "real_long_tail": {
+        "min_ade": 0.5465175790802959,
+        "min_fde": 1.0897796243037285,
+        "miss_rate": 0.13646336112329968,
+        "sample_count": 2279
+      },
+      "risk_strata": {
+        "degenerate_target_range": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "high": {
+          "min_ade": 0.40167211321497687,
+          "min_fde": 0.6882038182448701,
+          "miss_rate": 0.06805293005671077,
+          "sample_count": 529
+        },
+        "low": {
+          "min_ade": 0.5953758065269419,
+          "min_fde": 1.2105418228703229,
+          "miss_rate": 0.16267942583732056,
+          "sample_count": 1254
+        },
+        "medium": {
+          "min_ade": 0.5774753093719482,
+          "min_fde": 1.212759068663863,
+          "miss_rate": 0.1431451612903226,
+          "sample_count": 496
+        },
+        "proxy_metric": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        }
+      }
+    },
+    "transformer_e0_seed_2027": {
+      "overall": {
+        "min_ade": 1.6033045907631516,
+        "min_fde": 3.722652969143353,
+        "miss_rate": 0.6146,
+        "sample_count": 5000
+      },
+      "per_skill": {
+        "abrupt_u_turn_conflict": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "bike_lane_vehicle_merge_conflict": {
+          "min_ade": 0.8714035749435425,
+          "min_fde": 2.453526258468628,
+          "miss_rate": 1.0,
+          "sample_count": 1
+        },
+        "chain_braking": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "construction_object_lane_blockage": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "crossing_path_conflict": {
+          "min_ade": 4.213048669424924,
+          "min_fde": 11.744667275385423,
+          "miss_rate": 0.8181818181818182,
+          "sample_count": 22
+        },
+        "crosswalk_pedestrian_crossing": {
+          "min_ade": 1.4873870611190796,
+          "min_fde": 2.840202383697033,
+          "miss_rate": 0.5,
+          "sample_count": 8
+        },
+        "cut_in_then_brake": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "cut_out_reveals_slow_vehicle": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "cyclist_crossing": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "cyclist_vehicle_merge": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "diverge_lane_crossing_conflict": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "forced_lane_change_around_blockage": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "group_pedestrian_crossing": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "intersection_blocking_vehicle": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "intersection_creep_conflict": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "jaywalking_pedestrian_crossing": {
+          "min_ade": 2.5266976356506348,
+          "min_fde": 4.9378368854522705,
+          "miss_rate": 1.0,
+          "sample_count": 2
+        },
+        "lane_drop_merge_competition": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "late_lane_change_before_diverge": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "lead_sudden_stop": {
+          "min_ade": 0.7190774124426146,
+          "min_fde": 1.4055929881733997,
+          "miss_rate": 0.18541666666666667,
+          "sample_count": 480
+        },
+        "merge_without_yield": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "motorcyclist_filtering_conflict": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "multi_vehicle_gap_squeeze": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "mutual_yield_deadlock": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "ramp_merge_small_gap": {
+          "min_ade": 1.6923025449117024,
+          "min_fde": 3.6332575480143228,
+          "miss_rate": 1.0,
+          "sample_count": 3
+        },
+        "right_turn_vehicle_conflict": {
+          "min_ade": 2.0869863033294678,
+          "min_fde": 5.563037395477295,
+          "miss_rate": 1.0,
+          "sample_count": 1
+        },
+        "roadside_pedestrian_emergence": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "short_headway_following": {
+          "min_ade": 1.298590648369711,
+          "min_fde": 2.724294676643903,
+          "miss_rate": 0.6065573770491803,
+          "sample_count": 61
+        },
+        "simultaneous_lane_change_conflict": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "slow_lead_blockage": {
+          "min_ade": 0.4326221814217852,
+          "min_fde": 0.8698984407755866,
+          "miss_rate": 0.0764179104477612,
+          "sample_count": 1675
+        },
+        "static_object_avoidance": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "stopped_vehicle_reentry": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "turning_vehicle_crosswalk_conflict": {
+          "min_ade": 2.3955514828364053,
+          "min_fde": 4.594847361246745,
+          "miss_rate": 1.0,
+          "sample_count": 3
+        },
+        "unprotected_left_turn_conflict": {
+          "min_ade": 4.995099342387656,
+          "min_fde": 15.20164672188137,
+          "miss_rate": 1.0,
+          "sample_count": 23
+        },
+        "zipper_merge_multi_vehicle": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        }
+      },
+      "real_long_tail": {
+        "min_ade": 0.6093734711402077,
+        "min_fde": 1.3037583254855543,
+        "miss_rate": 0.1355857832382624,
+        "sample_count": 2279
+      },
+      "risk_strata": {
+        "degenerate_target_range": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "high": {
+          "min_ade": 0.4326613315562445,
+          "min_fde": 0.7823301731857043,
+          "miss_rate": 0.054820415879017016,
+          "sample_count": 529
+        },
+        "low": {
+          "min_ade": 0.6520287068397329,
+          "min_fde": 1.4373494313340605,
+          "miss_rate": 0.17065390749601275,
+          "sample_count": 1254
+        },
+        "medium": {
+          "min_ade": 0.690000600722288,
+          "min_fde": 1.5221297888577194,
+          "miss_rate": 0.13306451612903225,
+          "sample_count": 496
+        },
+        "proxy_metric": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        }
+      }
+    },
+    "transformer_e0_seed_2028": {
+      "overall": {
+        "min_ade": 1.67178331746459,
+        "min_fde": 3.8351632448608055,
+        "miss_rate": 0.6386,
+        "sample_count": 5000
+      },
+      "per_skill": {
+        "abrupt_u_turn_conflict": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "bike_lane_vehicle_merge_conflict": {
+          "min_ade": 0.8022785186767578,
+          "min_fde": 1.9615453481674194,
+          "miss_rate": 0.0,
+          "sample_count": 1
+        },
+        "chain_braking": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "construction_object_lane_blockage": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "crossing_path_conflict": {
+          "min_ade": 2.75395312092521,
+          "min_fde": 6.5358003296635365,
+          "miss_rate": 0.8181818181818182,
+          "sample_count": 22
+        },
+        "crosswalk_pedestrian_crossing": {
+          "min_ade": 1.4327994645573199,
+          "min_fde": 2.8041345216333866,
+          "miss_rate": 0.5,
+          "sample_count": 8
+        },
+        "cut_in_then_brake": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "cut_out_reveals_slow_vehicle": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "cyclist_crossing": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "cyclist_vehicle_merge": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "diverge_lane_crossing_conflict": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "forced_lane_change_around_blockage": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "group_pedestrian_crossing": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "intersection_blocking_vehicle": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "intersection_creep_conflict": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "jaywalking_pedestrian_crossing": {
+          "min_ade": 2.7705355882644653,
+          "min_fde": 5.838744640350342,
+          "miss_rate": 1.0,
+          "sample_count": 2
+        },
+        "lane_drop_merge_competition": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "late_lane_change_before_diverge": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "lead_sudden_stop": {
+          "min_ade": 0.7313963358445714,
+          "min_fde": 1.407558717004334,
+          "miss_rate": 0.22291666666666668,
+          "sample_count": 480
+        },
+        "merge_without_yield": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "motorcyclist_filtering_conflict": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "multi_vehicle_gap_squeeze": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "mutual_yield_deadlock": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "ramp_merge_small_gap": {
+          "min_ade": 2.0726908346017203,
+          "min_fde": 4.336768368879954,
+          "miss_rate": 0.6666666666666666,
+          "sample_count": 3
+        },
+        "right_turn_vehicle_conflict": {
+          "min_ade": 2.019204616546631,
+          "min_fde": 6.044249534606934,
+          "miss_rate": 1.0,
+          "sample_count": 1
+        },
+        "roadside_pedestrian_emergence": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "short_headway_following": {
+          "min_ade": 1.398704292832828,
+          "min_fde": 3.0589257319931122,
+          "miss_rate": 0.7213114754098361,
+          "sample_count": 61
+        },
+        "simultaneous_lane_change_conflict": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "slow_lead_blockage": {
+          "min_ade": 0.39687071130346896,
+          "min_fde": 0.7309259398389997,
+          "miss_rate": 0.0764179104477612,
+          "sample_count": 1675
+        },
+        "static_object_avoidance": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "stopped_vehicle_reentry": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "turning_vehicle_crosswalk_conflict": {
+          "min_ade": 2.284042398134867,
+          "min_fde": 4.377208232879639,
+          "miss_rate": 1.0,
+          "sample_count": 3
+        },
+        "unprotected_left_turn_conflict": {
+          "min_ade": 3.3237732441528984,
+          "min_fde": 7.935507043548252,
+          "miss_rate": 0.9565217391304348,
+          "sample_count": 23
+        },
+        "zipper_merge_multi_vehicle": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        }
+      },
+      "real_long_tail": {
+        "min_ade": 0.5577352117173318,
+        "min_fde": 1.0886731735147053,
+        "miss_rate": 0.14523913997367266,
+        "sample_count": 2279
+      },
+      "risk_strata": {
+        "degenerate_target_range": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "high": {
+          "min_ade": 0.38863591598399644,
+          "min_fde": 0.6247802517360995,
+          "miss_rate": 0.062381852551984876,
+          "sample_count": 529
+        },
+        "low": {
+          "min_ade": 0.6134159431467501,
+          "min_fde": 1.2225451564941365,
+          "miss_rate": 0.16985645933014354,
+          "sample_count": 1254
+        },
+        "medium": {
+          "min_ade": 0.5973116033109686,
+          "min_fde": 1.2449713367499382,
+          "miss_rate": 0.17137096774193547,
+          "sample_count": 496
+        },
+        "proxy_metric": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        }
+      }
+    },
+    "transformer_e1_seed_2026": {
+      "overall": {
+        "min_ade": 1.6480554338946938,
+        "min_fde": 3.7744666730387135,
+        "miss_rate": 0.6242,
+        "sample_count": 5000
+      },
+      "per_skill": {
+        "abrupt_u_turn_conflict": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "bike_lane_vehicle_merge_conflict": {
+          "min_ade": 0.6981248259544373,
+          "min_fde": 1.431422472000122,
+          "miss_rate": 0.0,
+          "sample_count": 1
+        },
+        "chain_braking": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "construction_object_lane_blockage": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "crossing_path_conflict": {
+          "min_ade": 2.6922630098733036,
+          "min_fde": 7.093448162078857,
+          "miss_rate": 0.9090909090909091,
+          "sample_count": 22
+        },
+        "crosswalk_pedestrian_crossing": {
+          "min_ade": 1.5420827101916075,
+          "min_fde": 2.8486643992364407,
+          "miss_rate": 0.625,
+          "sample_count": 8
+        },
+        "cut_in_then_brake": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "cut_out_reveals_slow_vehicle": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "cyclist_crossing": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "cyclist_vehicle_merge": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "diverge_lane_crossing_conflict": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "forced_lane_change_around_blockage": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "group_pedestrian_crossing": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "intersection_blocking_vehicle": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "intersection_creep_conflict": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "jaywalking_pedestrian_crossing": {
+          "min_ade": 2.4999483823776245,
+          "min_fde": 5.355399131774902,
+          "miss_rate": 1.0,
+          "sample_count": 2
+        },
+        "lane_drop_merge_competition": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "late_lane_change_before_diverge": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "lead_sudden_stop": {
+          "min_ade": 0.6790382300193111,
+          "min_fde": 1.3122559900317963,
+          "miss_rate": 0.23333333333333334,
+          "sample_count": 480
+        },
+        "merge_without_yield": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "motorcyclist_filtering_conflict": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "multi_vehicle_gap_squeeze": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "mutual_yield_deadlock": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "ramp_merge_small_gap": {
+          "min_ade": 1.134626607100169,
+          "min_fde": 1.982567270596822,
+          "miss_rate": 0.6666666666666666,
+          "sample_count": 3
+        },
+        "right_turn_vehicle_conflict": {
+          "min_ade": 2.300649881362915,
+          "min_fde": 6.537780284881592,
+          "miss_rate": 1.0,
+          "sample_count": 1
+        },
+        "roadside_pedestrian_emergence": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "short_headway_following": {
+          "min_ade": 1.2987764609641717,
+          "min_fde": 2.9199788047642006,
+          "miss_rate": 0.7213114754098361,
+          "sample_count": 61
+        },
+        "simultaneous_lane_change_conflict": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "slow_lead_blockage": {
+          "min_ade": 0.41736487515826726,
+          "min_fde": 0.7847860276515581,
+          "miss_rate": 0.07164179104477612,
+          "sample_count": 1675
+        },
+        "static_object_avoidance": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "stopped_vehicle_reentry": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "turning_vehicle_crosswalk_conflict": {
+          "min_ade": 2.439457654953003,
+          "min_fde": 4.374881744384766,
+          "miss_rate": 1.0,
+          "sample_count": 3
+        },
+        "unprotected_left_turn_conflict": {
+          "min_ade": 3.2899660234865933,
+          "min_fde": 7.729769706726074,
+          "miss_rate": 0.9565217391304348,
+          "sample_count": 23
+        },
+        "zipper_merge_multi_vehicle": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        }
+      },
+      "real_long_tail": {
+        "min_ade": 0.557352554241049,
+        "min_fde": 1.104388067003923,
+        "miss_rate": 0.14523913997367266,
+        "sample_count": 2279
+      },
+      "risk_strata": {
+        "degenerate_target_range": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "high": {
+          "min_ade": 0.4171490999949226,
+          "min_fde": 0.7094761152647873,
+          "miss_rate": 0.04914933837429111,
+          "sample_count": 529
+        },
+        "low": {
+          "min_ade": 0.6000931015567916,
+          "min_fde": 1.2104138007797478,
+          "miss_rate": 0.17783094098883573,
+          "sample_count": 1254
+        },
+        "medium": {
+          "min_ade": 0.5988263061810886,
+          "min_fde": 1.25751740634892,
+          "miss_rate": 0.16532258064516128,
+          "sample_count": 496
+        },
+        "proxy_metric": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        }
+      }
+    },
+    "transformer_e1_seed_2027": {
+      "overall": {
+        "min_ade": 1.5831466269850731,
+        "min_fde": 3.664283299938962,
+        "miss_rate": 0.6244,
+        "sample_count": 5000
+      },
+      "per_skill": {
+        "abrupt_u_turn_conflict": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "bike_lane_vehicle_merge_conflict": {
+          "min_ade": 0.9119614958763123,
+          "min_fde": 2.6786305904388428,
+          "miss_rate": 1.0,
+          "sample_count": 1
+        },
+        "chain_braking": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "construction_object_lane_blockage": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "crossing_path_conflict": {
+          "min_ade": 3.7184828519821167,
+          "min_fde": 10.384129803289067,
+          "miss_rate": 0.8636363636363636,
+          "sample_count": 22
+        },
+        "crosswalk_pedestrian_crossing": {
+          "min_ade": 1.5077758617699146,
+          "min_fde": 2.7142260000109673,
+          "miss_rate": 0.5,
+          "sample_count": 8
+        },
+        "cut_in_then_brake": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "cut_out_reveals_slow_vehicle": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "cyclist_crossing": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "cyclist_vehicle_merge": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "diverge_lane_crossing_conflict": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "forced_lane_change_around_blockage": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "group_pedestrian_crossing": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "intersection_blocking_vehicle": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "intersection_creep_conflict": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "jaywalking_pedestrian_crossing": {
+          "min_ade": 2.6772817373275757,
+          "min_fde": 6.375086545944214,
+          "miss_rate": 1.0,
+          "sample_count": 2
+        },
+        "lane_drop_merge_competition": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "late_lane_change_before_diverge": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "lead_sudden_stop": {
+          "min_ade": 0.7080536112810175,
+          "min_fde": 1.4193207438414295,
+          "miss_rate": 0.19166666666666668,
+          "sample_count": 480
+        },
+        "merge_without_yield": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "motorcyclist_filtering_conflict": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "multi_vehicle_gap_squeeze": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "mutual_yield_deadlock": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "ramp_merge_small_gap": {
+          "min_ade": 1.1247748136520386,
+          "min_fde": 2.4062074422836304,
+          "miss_rate": 0.6666666666666666,
+          "sample_count": 3
+        },
+        "right_turn_vehicle_conflict": {
+          "min_ade": 2.3088037967681885,
+          "min_fde": 6.055920600891113,
+          "miss_rate": 1.0,
+          "sample_count": 1
+        },
+        "roadside_pedestrian_emergence": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "short_headway_following": {
+          "min_ade": 1.2662070545016741,
+          "min_fde": 2.7494983438585625,
+          "miss_rate": 0.6065573770491803,
+          "sample_count": 61
+        },
+        "simultaneous_lane_change_conflict": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "slow_lead_blockage": {
+          "min_ade": 0.4139682388639272,
+          "min_fde": 0.8886390724444567,
+          "miss_rate": 0.07044776119402985,
+          "sample_count": 1675
+        },
+        "static_object_avoidance": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "stopped_vehicle_reentry": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "turning_vehicle_crosswalk_conflict": {
+          "min_ade": 2.415142059326172,
+          "min_fde": 4.297762552897136,
+          "miss_rate": 1.0,
+          "sample_count": 3
+        },
+        "unprotected_left_turn_conflict": {
+          "min_ade": 4.402464223944622,
+          "min_fde": 13.594333545021389,
+          "miss_rate": 1.0,
+          "sample_count": 23
+        },
+        "zipper_merge_multi_vehicle": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        }
+      },
+      "real_long_tail": {
+        "min_ade": 0.5813171347131615,
+        "min_fde": 1.290870895937,
+        "miss_rate": 0.13251426064063185,
+        "sample_count": 2279
+      },
+      "risk_strata": {
+        "degenerate_target_range": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "high": {
+          "min_ade": 0.4127931270206132,
+          "min_fde": 0.7935922514816257,
+          "miss_rate": 0.052930056710775046,
+          "sample_count": 529
+        },
+        "low": {
+          "min_ade": 0.6191009041634901,
+          "min_fde": 1.409957585813243,
+          "miss_rate": 0.16427432216905902,
+          "sample_count": 1254
+        },
+        "medium": {
+          "min_ade": 0.6655275241862382,
+          "min_fde": 1.5201565689452352,
+          "miss_rate": 0.13709677419354838,
+          "sample_count": 496
+        },
+        "proxy_metric": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        }
+      }
+    },
+    "transformer_e1_seed_2028": {
+      "overall": {
+        "min_ade": 1.5846519386477769,
+        "min_fde": 3.6064456512412058,
+        "miss_rate": 0.6186,
+        "sample_count": 5000
+      },
+      "per_skill": {
+        "abrupt_u_turn_conflict": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "bike_lane_vehicle_merge_conflict": {
+          "min_ade": 0.715407133102417,
+          "min_fde": 1.5296517610549927,
+          "miss_rate": 0.0,
+          "sample_count": 1
+        },
+        "chain_braking": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "construction_object_lane_blockage": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "crossing_path_conflict": {
+          "min_ade": 2.801977347243916,
+          "min_fde": 7.283889120275324,
+          "miss_rate": 0.8636363636363636,
+          "sample_count": 22
+        },
+        "crosswalk_pedestrian_crossing": {
+          "min_ade": 1.371861396357417,
+          "min_fde": 2.612108515575528,
+          "miss_rate": 0.5,
+          "sample_count": 8
+        },
+        "cut_in_then_brake": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "cut_out_reveals_slow_vehicle": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "cyclist_crossing": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "cyclist_vehicle_merge": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "diverge_lane_crossing_conflict": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "forced_lane_change_around_blockage": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "group_pedestrian_crossing": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "intersection_blocking_vehicle": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "intersection_creep_conflict": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "jaywalking_pedestrian_crossing": {
+          "min_ade": 1.8198025226593018,
+          "min_fde": 5.021762371063232,
+          "miss_rate": 1.0,
+          "sample_count": 2
+        },
+        "lane_drop_merge_competition": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "late_lane_change_before_diverge": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "lead_sudden_stop": {
+          "min_ade": 0.7222078906837851,
+          "min_fde": 1.427866453914127,
+          "miss_rate": 0.25625,
+          "sample_count": 480
+        },
+        "merge_without_yield": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "motorcyclist_filtering_conflict": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "multi_vehicle_gap_squeeze": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "mutual_yield_deadlock": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "ramp_merge_small_gap": {
+          "min_ade": 2.0435042679309845,
+          "min_fde": 3.151880204677582,
+          "miss_rate": 0.3333333333333333,
+          "sample_count": 3
+        },
+        "right_turn_vehicle_conflict": {
+          "min_ade": 2.2064599990844727,
+          "min_fde": 5.637081146240234,
+          "miss_rate": 1.0,
+          "sample_count": 1
+        },
+        "roadside_pedestrian_emergence": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "short_headway_following": {
+          "min_ade": 1.268146808518738,
+          "min_fde": 2.698161856072848,
+          "miss_rate": 0.5737704918032787,
+          "sample_count": 61
+        },
+        "simultaneous_lane_change_conflict": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "slow_lead_blockage": {
+          "min_ade": 0.37408425394723666,
+          "min_fde": 0.6770336265742445,
+          "miss_rate": 0.07044776119402985,
+          "sample_count": 1675
+        },
+        "static_object_avoidance": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "stopped_vehicle_reentry": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "turning_vehicle_crosswalk_conflict": {
+          "min_ade": 2.1480993827184043,
+          "min_fde": 3.97237491607666,
+          "miss_rate": 1.0,
+          "sample_count": 3
+        },
+        "unprotected_left_turn_conflict": {
+          "min_ade": 3.3209164660909902,
+          "min_fde": 8.104278756224591,
+          "miss_rate": 0.9565217391304348,
+          "sample_count": 23
+        },
+        "zipper_merge_multi_vehicle": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        }
+      },
+      "real_long_tail": {
+        "min_ade": 0.5347712254801462,
+        "min_fde": 1.0487577704197435,
+        "miss_rate": 0.1439227731461167,
+        "sample_count": 2279
+      },
+      "risk_strata": {
+        "degenerate_target_range": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "high": {
+          "min_ade": 0.38169560106805683,
+          "min_fde": 0.6359511787989063,
+          "miss_rate": 0.07183364839319471,
+          "sample_count": 529
+        },
+        "low": {
+          "min_ade": 0.5852408098113356,
+          "min_fde": 1.168419965719611,
+          "miss_rate": 0.17384370015948963,
+          "sample_count": 1254
+        },
+        "medium": {
+          "min_ade": 0.5704328112920085,
+          "min_fde": 1.186496266511254,
+          "miss_rate": 0.14516129032258066,
+          "sample_count": 496
+        },
+        "proxy_metric": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        }
+      }
+    },
+    "transformer_e2_seed_2026": {
+      "overall": {
+        "min_ade": 1.650131157901138,
+        "min_fde": 3.8290057586461304,
+        "miss_rate": 0.6418,
+        "sample_count": 5000
+      },
+      "per_skill": {
+        "abrupt_u_turn_conflict": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "bike_lane_vehicle_merge_conflict": {
+          "min_ade": 0.7228749394416809,
+          "min_fde": 1.6701688766479492,
+          "miss_rate": 0.0,
+          "sample_count": 1
+        },
+        "chain_braking": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "construction_object_lane_blockage": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "crossing_path_conflict": {
+          "min_ade": 2.6731057830832223,
+          "min_fde": 6.9221333915537056,
+          "miss_rate": 0.8636363636363636,
+          "sample_count": 22
+        },
+        "crosswalk_pedestrian_crossing": {
+          "min_ade": 1.5087355906143785,
+          "min_fde": 2.780580522492528,
+          "miss_rate": 0.625,
+          "sample_count": 8
+        },
+        "cut_in_then_brake": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "cut_out_reveals_slow_vehicle": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "cyclist_crossing": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "cyclist_vehicle_merge": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "diverge_lane_crossing_conflict": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "forced_lane_change_around_blockage": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "group_pedestrian_crossing": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "intersection_blocking_vehicle": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "intersection_creep_conflict": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "jaywalking_pedestrian_crossing": {
+          "min_ade": 2.338767647743225,
+          "min_fde": 4.199919164180756,
+          "miss_rate": 0.5,
+          "sample_count": 2
+        },
+        "lane_drop_merge_competition": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "late_lane_change_before_diverge": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "lead_sudden_stop": {
+          "min_ade": 0.6840484328723202,
+          "min_fde": 1.3797372223838464,
+          "miss_rate": 0.23125,
+          "sample_count": 480
+        },
+        "merge_without_yield": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "motorcyclist_filtering_conflict": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "multi_vehicle_gap_squeeze": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "mutual_yield_deadlock": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "ramp_merge_small_gap": {
+          "min_ade": 1.5980360110600789,
+          "min_fde": 3.2758477330207825,
+          "miss_rate": 0.6666666666666666,
+          "sample_count": 3
+        },
+        "right_turn_vehicle_conflict": {
+          "min_ade": 2.2358744144439697,
+          "min_fde": 6.989611625671387,
+          "miss_rate": 1.0,
+          "sample_count": 1
+        },
+        "roadside_pedestrian_emergence": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "short_headway_following": {
+          "min_ade": 1.283516437792387,
+          "min_fde": 2.5623560657755275,
+          "miss_rate": 0.639344262295082,
+          "sample_count": 61
+        },
+        "simultaneous_lane_change_conflict": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "slow_lead_blockage": {
+          "min_ade": 0.3867415112790777,
+          "min_fde": 0.7448114973403959,
+          "miss_rate": 0.08119402985074627,
+          "sample_count": 1675
+        },
+        "static_object_avoidance": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "stopped_vehicle_reentry": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "turning_vehicle_crosswalk_conflict": {
+          "min_ade": 2.4131491978963218,
+          "min_fde": 4.415229717890422,
+          "miss_rate": 1.0,
+          "sample_count": 3
+        },
+        "unprotected_left_turn_conflict": {
+          "min_ade": 3.2876486778259277,
+          "min_fde": 7.683720407278641,
+          "miss_rate": 0.9130434782608695,
+          "sample_count": 23
+        },
+        "zipper_merge_multi_vehicle": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        }
+      },
+      "real_long_tail": {
+        "min_ade": 0.5355830424289109,
+        "min_fde": 1.0783356051543052,
+        "miss_rate": 0.1483106625713032,
+        "sample_count": 2279
+      },
+      "risk_strata": {
+        "degenerate_target_range": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "high": {
+          "min_ade": 0.39829118464613905,
+          "min_fde": 0.6938185889206981,
+          "miss_rate": 0.07183364839319471,
+          "sample_count": 529
+        },
+        "low": {
+          "min_ade": 0.5760796030796174,
+          "min_fde": 1.18719339757776,
+          "miss_rate": 0.17703349282296652,
+          "sample_count": 1254
+        },
+        "medium": {
+          "min_ade": 0.5796247878141941,
+          "min_fde": 1.213218326703833,
+          "miss_rate": 0.15725806451612903,
+          "sample_count": 496
+        },
+        "proxy_metric": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        }
+      }
+    },
+    "transformer_e2_seed_2027": {
+      "overall": {
+        "min_ade": 1.6248690689712764,
+        "min_fde": 3.764118278428167,
+        "miss_rate": 0.624,
+        "sample_count": 5000
+      },
+      "per_skill": {
+        "abrupt_u_turn_conflict": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "bike_lane_vehicle_merge_conflict": {
+          "min_ade": 0.6093204617500305,
+          "min_fde": 1.4484156370162964,
+          "miss_rate": 0.0,
+          "sample_count": 1
+        },
+        "chain_braking": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "construction_object_lane_blockage": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "crossing_path_conflict": {
+          "min_ade": 4.301782656799663,
+          "min_fde": 11.862414593046362,
+          "miss_rate": 0.8181818181818182,
+          "sample_count": 22
+        },
+        "crosswalk_pedestrian_crossing": {
+          "min_ade": 1.4622996933758259,
+          "min_fde": 2.7074527218937874,
+          "miss_rate": 0.5,
+          "sample_count": 8
+        },
+        "cut_in_then_brake": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "cut_out_reveals_slow_vehicle": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "cyclist_crossing": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "cyclist_vehicle_merge": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "diverge_lane_crossing_conflict": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "forced_lane_change_around_blockage": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "group_pedestrian_crossing": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "intersection_blocking_vehicle": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "intersection_creep_conflict": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "jaywalking_pedestrian_crossing": {
+          "min_ade": 2.460482120513916,
+          "min_fde": 4.265257358551025,
+          "miss_rate": 1.0,
+          "sample_count": 2
+        },
+        "lane_drop_merge_competition": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "late_lane_change_before_diverge": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "lead_sudden_stop": {
+          "min_ade": 0.7267071287458141,
+          "min_fde": 1.4971730914898216,
+          "miss_rate": 0.21041666666666667,
+          "sample_count": 480
+        },
+        "merge_without_yield": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "motorcyclist_filtering_conflict": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "multi_vehicle_gap_squeeze": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "mutual_yield_deadlock": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "ramp_merge_small_gap": {
+          "min_ade": 1.4270697633425395,
+          "min_fde": 3.82215944925944,
+          "miss_rate": 1.0,
+          "sample_count": 3
+        },
+        "right_turn_vehicle_conflict": {
+          "min_ade": 1.9864803552627563,
+          "min_fde": 5.727041721343994,
+          "miss_rate": 1.0,
+          "sample_count": 1
+        },
+        "roadside_pedestrian_emergence": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "short_headway_following": {
+          "min_ade": 1.3086354209751379,
+          "min_fde": 2.9232832252002154,
+          "miss_rate": 0.639344262295082,
+          "sample_count": 61
+        },
+        "simultaneous_lane_change_conflict": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "slow_lead_blockage": {
+          "min_ade": 0.42234019037058107,
+          "min_fde": 0.9478858885641641,
+          "miss_rate": 0.08059701492537313,
+          "sample_count": 1675
+        },
+        "static_object_avoidance": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "stopped_vehicle_reentry": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "turning_vehicle_crosswalk_conflict": {
+          "min_ade": 2.2122222582499185,
+          "min_fde": 4.027922709782918,
+          "miss_rate": 1.0,
+          "sample_count": 3
+        },
+        "unprotected_left_turn_conflict": {
+          "min_ade": 5.058715644090072,
+          "min_fde": 15.325648784637451,
+          "miss_rate": 1.0,
+          "sample_count": 23
+        },
+        "zipper_merge_multi_vehicle": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        }
+      },
+      "real_long_tail": {
+        "min_ade": 0.6042951813434341,
+        "min_fde": 1.3861566947866273,
+        "miss_rate": 0.14436156208863538,
+        "sample_count": 2279
+      },
+      "risk_strata": {
+        "degenerate_target_range": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "high": {
+          "min_ade": 0.414270993526356,
+          "min_fde": 0.8544105199748379,
+          "miss_rate": 0.054820415879017016,
+          "sample_count": 529
+        },
+        "low": {
+          "min_ade": 0.6377358834899404,
+          "min_fde": 1.4816143555155223,
+          "miss_rate": 0.1762360446570973,
+          "sample_count": 1254
+        },
+        "medium": {
+          "min_ade": 0.7224164613101992,
+          "min_fde": 1.7119426220475185,
+          "miss_rate": 0.1592741935483871,
+          "sample_count": 496
+        },
+        "proxy_metric": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        }
+      }
+    },
+    "transformer_e2_seed_2028": {
+      "overall": {
+        "min_ade": 1.6339698388844728,
+        "min_fde": 3.766119803521782,
+        "miss_rate": 0.6148,
+        "sample_count": 5000
+      },
+      "per_skill": {
+        "abrupt_u_turn_conflict": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "bike_lane_vehicle_merge_conflict": {
+          "min_ade": 0.6792751550674438,
+          "min_fde": 1.383646845817566,
+          "miss_rate": 0.0,
+          "sample_count": 1
+        },
+        "chain_braking": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "construction_object_lane_blockage": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "crossing_path_conflict": {
+          "min_ade": 2.6709609925746918,
+          "min_fde": 6.731987709348852,
+          "miss_rate": 0.8181818181818182,
+          "sample_count": 22
+        },
+        "crosswalk_pedestrian_crossing": {
+          "min_ade": 1.390107149258256,
+          "min_fde": 2.5982995219528675,
+          "miss_rate": 0.375,
+          "sample_count": 8
+        },
+        "cut_in_then_brake": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "cut_out_reveals_slow_vehicle": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "cyclist_crossing": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "cyclist_vehicle_merge": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "diverge_lane_crossing_conflict": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "forced_lane_change_around_blockage": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "group_pedestrian_crossing": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "intersection_blocking_vehicle": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "intersection_creep_conflict": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "jaywalking_pedestrian_crossing": {
+          "min_ade": 2.489916682243347,
+          "min_fde": 5.923934459686279,
+          "miss_rate": 1.0,
+          "sample_count": 2
+        },
+        "lane_drop_merge_competition": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "late_lane_change_before_diverge": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "lead_sudden_stop": {
+          "min_ade": 0.7508258882599572,
+          "min_fde": 1.4899773377381886,
+          "miss_rate": 0.2375,
+          "sample_count": 480
+        },
+        "merge_without_yield": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "motorcyclist_filtering_conflict": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "multi_vehicle_gap_squeeze": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "mutual_yield_deadlock": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "ramp_merge_small_gap": {
+          "min_ade": 1.3063787817955017,
+          "min_fde": 2.8879675467809043,
+          "miss_rate": 0.6666666666666666,
+          "sample_count": 3
+        },
+        "right_turn_vehicle_conflict": {
+          "min_ade": 1.8360282182693481,
+          "min_fde": 5.997982501983643,
+          "miss_rate": 1.0,
+          "sample_count": 1
+        },
+        "roadside_pedestrian_emergence": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "short_headway_following": {
+          "min_ade": 1.3073776210429238,
+          "min_fde": 2.471904570939111,
+          "miss_rate": 0.6065573770491803,
+          "sample_count": 61
+        },
+        "simultaneous_lane_change_conflict": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "slow_lead_blockage": {
+          "min_ade": 0.5083281697977835,
+          "min_fde": 0.9816329520818458,
+          "miss_rate": 0.0662686567164179,
+          "sample_count": 1675
+        },
+        "static_object_avoidance": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "stopped_vehicle_reentry": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "turning_vehicle_crosswalk_conflict": {
+          "min_ade": 2.181110680103302,
+          "min_fde": 3.9616459210713706,
+          "miss_rate": 0.6666666666666666,
+          "sample_count": 3
+        },
+        "unprotected_left_turn_conflict": {
+          "min_ade": 3.2469249600949497,
+          "min_fde": 7.773152646811112,
+          "miss_rate": 0.9565217391304348,
+          "sample_count": 23
+        },
+        "zipper_merge_multi_vehicle": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        }
+      },
+      "real_long_tail": {
+        "min_ade": 0.6380495936358482,
+        "min_fde": 1.271461812640365,
+        "miss_rate": 0.13690215006581835,
+        "sample_count": 2279
+      },
+      "risk_strata": {
+        "degenerate_target_range": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "high": {
+          "min_ade": 0.5333150397486182,
+          "min_fde": 0.99627330828113,
+          "miss_rate": 0.062381852551984876,
+          "sample_count": 529
+        },
+        "low": {
+          "min_ade": 0.6674997043072511,
+          "min_fde": 1.3371346385739566,
+          "miss_rate": 0.16188197767145135,
+          "sample_count": 1254
+        },
+        "medium": {
+          "min_ade": 0.6752958440882785,
+          "min_fde": 1.3989234962801058,
+          "miss_rate": 0.1532258064516129,
+          "sample_count": 496
+        },
+        "proxy_metric": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        }
+      }
+    },
+    "transformer_e3_seed_2026": {
+      "overall": {
+        "min_ade": 1.6875440300017595,
+        "min_fde": 3.8448900240693242,
+        "miss_rate": 0.6402,
+        "sample_count": 5000
+      },
+      "per_skill": {
+        "abrupt_u_turn_conflict": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "bike_lane_vehicle_merge_conflict": {
+          "min_ade": 0.7390536665916443,
+          "min_fde": 1.6592005491256714,
+          "miss_rate": 0.0,
+          "sample_count": 1
+        },
+        "chain_braking": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "construction_object_lane_blockage": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "crossing_path_conflict": {
+          "min_ade": 2.6566393104466526,
+          "min_fde": 6.516053042628548,
+          "miss_rate": 0.7272727272727273,
+          "sample_count": 22
+        },
+        "crosswalk_pedestrian_crossing": {
+          "min_ade": 1.4685738123953342,
+          "min_fde": 2.604037430137396,
+          "miss_rate": 0.625,
+          "sample_count": 8
+        },
+        "cut_in_then_brake": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "cut_out_reveals_slow_vehicle": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "cyclist_crossing": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "cyclist_vehicle_merge": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "diverge_lane_crossing_conflict": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "forced_lane_change_around_blockage": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "group_pedestrian_crossing": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "intersection_blocking_vehicle": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "intersection_creep_conflict": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "jaywalking_pedestrian_crossing": {
+          "min_ade": 2.0881457924842834,
+          "min_fde": 3.6435407996177673,
+          "miss_rate": 0.5,
+          "sample_count": 2
+        },
+        "lane_drop_merge_competition": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "late_lane_change_before_diverge": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "lead_sudden_stop": {
+          "min_ade": 0.6930352189422896,
+          "min_fde": 1.4111233038362117,
+          "miss_rate": 0.22916666666666666,
+          "sample_count": 480
+        },
+        "merge_without_yield": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "motorcyclist_filtering_conflict": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "multi_vehicle_gap_squeeze": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "mutual_yield_deadlock": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "ramp_merge_small_gap": {
+          "min_ade": 1.2244378725687664,
+          "min_fde": 3.32190736134847,
+          "miss_rate": 0.6666666666666666,
+          "sample_count": 3
+        },
+        "right_turn_vehicle_conflict": {
+          "min_ade": 2.178541421890259,
+          "min_fde": 5.962098598480225,
+          "miss_rate": 1.0,
+          "sample_count": 1
+        },
+        "roadside_pedestrian_emergence": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "short_headway_following": {
+          "min_ade": 1.4162507792476748,
+          "min_fde": 2.943335145711899,
+          "miss_rate": 0.6229508196721312,
+          "sample_count": 61
+        },
+        "simultaneous_lane_change_conflict": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "slow_lead_blockage": {
+          "min_ade": 0.3987487745196072,
+          "min_fde": 0.8072700917376067,
+          "miss_rate": 0.0764179104477612,
+          "sample_count": 1675
+        },
+        "static_object_avoidance": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "stopped_vehicle_reentry": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "turning_vehicle_crosswalk_conflict": {
+          "min_ade": 2.3934447367986045,
+          "min_fde": 4.159663438796997,
+          "miss_rate": 1.0,
+          "sample_count": 3
+        },
+        "unprotected_left_turn_conflict": {
+          "min_ade": 3.268197800802148,
+          "min_fde": 7.71517244629238,
+          "miss_rate": 0.9565217391304348,
+          "sample_count": 23
+        },
+        "zipper_merge_multi_vehicle": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        }
+      },
+      "real_long_tail": {
+        "min_ade": 0.5486016407177448,
+        "min_fde": 1.1356066516811005,
+        "miss_rate": 0.14304519526107942,
+        "sample_count": 2279
+      },
+      "risk_strata": {
+        "degenerate_target_range": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "high": {
+          "min_ade": 0.4095819332057677,
+          "min_fde": 0.7456467614873595,
+          "miss_rate": 0.05103969754253308,
+          "sample_count": 529
+        },
+        "low": {
+          "min_ade": 0.5902956545685657,
+          "min_fde": 1.238945410882481,
+          "miss_rate": 0.17384370015948963,
+          "sample_count": 1254
+        },
+        "medium": {
+          "min_ade": 0.5914587614937655,
+          "min_fde": 1.2902477361044036,
+          "miss_rate": 0.16330645161290322,
+          "sample_count": 496
+        },
+        "proxy_metric": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        }
+      }
+    },
+    "transformer_e3_seed_2027": {
+      "overall": {
+        "min_ade": 1.654052031122148,
+        "min_fde": 3.802489309488237,
+        "miss_rate": 0.642,
+        "sample_count": 5000
+      },
+      "per_skill": {
+        "abrupt_u_turn_conflict": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "bike_lane_vehicle_merge_conflict": {
+          "min_ade": 0.29177334904670715,
+          "min_fde": 1.4084389209747314,
+          "miss_rate": 0.0,
+          "sample_count": 1
+        },
+        "chain_braking": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "construction_object_lane_blockage": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "crossing_path_conflict": {
+          "min_ade": 3.689597105438059,
+          "min_fde": 10.09633987329223,
+          "miss_rate": 0.7727272727272727,
+          "sample_count": 22
+        },
+        "crosswalk_pedestrian_crossing": {
+          "min_ade": 1.5891240499913692,
+          "min_fde": 2.894041705876589,
+          "miss_rate": 0.625,
+          "sample_count": 8
+        },
+        "cut_in_then_brake": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "cut_out_reveals_slow_vehicle": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "cyclist_crossing": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "cyclist_vehicle_merge": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "diverge_lane_crossing_conflict": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "forced_lane_change_around_blockage": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "group_pedestrian_crossing": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "intersection_blocking_vehicle": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "intersection_creep_conflict": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "jaywalking_pedestrian_crossing": {
+          "min_ade": 2.3802154064178467,
+          "min_fde": 3.68617445230484,
+          "miss_rate": 0.5,
+          "sample_count": 2
+        },
+        "lane_drop_merge_competition": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "late_lane_change_before_diverge": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "lead_sudden_stop": {
+          "min_ade": 0.7282546525510649,
+          "min_fde": 1.488618061450931,
+          "miss_rate": 0.23333333333333334,
+          "sample_count": 480
+        },
+        "merge_without_yield": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "motorcyclist_filtering_conflict": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "multi_vehicle_gap_squeeze": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "mutual_yield_deadlock": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "ramp_merge_small_gap": {
+          "min_ade": 1.9669097264607747,
+          "min_fde": 4.1005321343739825,
+          "miss_rate": 1.0,
+          "sample_count": 3
+        },
+        "right_turn_vehicle_conflict": {
+          "min_ade": 2.157057762145996,
+          "min_fde": 6.655613422393799,
+          "miss_rate": 1.0,
+          "sample_count": 1
+        },
+        "roadside_pedestrian_emergence": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "short_headway_following": {
+          "min_ade": 1.3752177909749452,
+          "min_fde": 2.6772911543728877,
+          "miss_rate": 0.6557377049180327,
+          "sample_count": 61
+        },
+        "simultaneous_lane_change_conflict": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "slow_lead_blockage": {
+          "min_ade": 0.41508370082992224,
+          "min_fde": 0.8350250480101624,
+          "miss_rate": 0.07701492537313433,
+          "sample_count": 1675
+        },
+        "static_object_avoidance": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "stopped_vehicle_reentry": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "turning_vehicle_crosswalk_conflict": {
+          "min_ade": 2.540676474571228,
+          "min_fde": 4.625109116236369,
+          "miss_rate": 1.0,
+          "sample_count": 3
+        },
+        "unprotected_left_turn_conflict": {
+          "min_ade": 4.300606950469639,
+          "min_fde": 13.208618381749028,
+          "miss_rate": 1.0,
+          "sample_count": 23
+        },
+        "zipper_merge_multi_vehicle": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        }
+      },
+      "real_long_tail": {
+        "min_ade": 0.5889626267975414,
+        "min_fde": 1.2580964212240868,
+        "miss_rate": 0.1465555068012286,
+        "sample_count": 2279
+      },
+      "risk_strata": {
+        "degenerate_target_range": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "high": {
+          "min_ade": 0.42769046005262995,
+          "min_fde": 0.7788365661027526,
+          "miss_rate": 0.05671077504725898,
+          "sample_count": 529
+        },
+        "low": {
+          "min_ade": 0.6286797687809386,
+          "min_fde": 1.3896572865008048,
+          "miss_rate": 0.18261562998405104,
+          "sample_count": 1254
+        },
+        "medium": {
+          "min_ade": 0.6605506916380217,
+          "min_fde": 1.4366269419946136,
+          "miss_rate": 0.15120967741935484,
+          "sample_count": 496
+        },
+        "proxy_metric": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        }
+      }
+    },
+    "transformer_e3_seed_2028": {
+      "overall": {
+        "min_ade": 1.6462569671988487,
+        "min_fde": 3.766700263184309,
+        "miss_rate": 0.613,
+        "sample_count": 5000
+      },
+      "per_skill": {
+        "abrupt_u_turn_conflict": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "bike_lane_vehicle_merge_conflict": {
+          "min_ade": 0.7218942642211914,
+          "min_fde": 1.7831776142120361,
+          "miss_rate": 0.0,
+          "sample_count": 1
+        },
+        "chain_braking": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "construction_object_lane_blockage": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "crossing_path_conflict": {
+          "min_ade": 2.8376183726570825,
+          "min_fde": 7.164813878861341,
+          "miss_rate": 0.8636363636363636,
+          "sample_count": 22
+        },
+        "crosswalk_pedestrian_crossing": {
+          "min_ade": 1.4776142006739974,
+          "min_fde": 2.867073431611061,
+          "miss_rate": 0.5,
+          "sample_count": 8
+        },
+        "cut_in_then_brake": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "cut_out_reveals_slow_vehicle": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "cyclist_crossing": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "cyclist_vehicle_merge": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "diverge_lane_crossing_conflict": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "forced_lane_change_around_blockage": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "group_pedestrian_crossing": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "intersection_blocking_vehicle": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "intersection_creep_conflict": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "jaywalking_pedestrian_crossing": {
+          "min_ade": 2.339311718940735,
+          "min_fde": 5.582966089248657,
+          "miss_rate": 1.0,
+          "sample_count": 2
+        },
+        "lane_drop_merge_competition": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "late_lane_change_before_diverge": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "lead_sudden_stop": {
+          "min_ade": 0.7029526371043175,
+          "min_fde": 1.3796091346303,
+          "miss_rate": 0.23541666666666666,
+          "sample_count": 480
+        },
+        "merge_without_yield": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "motorcyclist_filtering_conflict": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "multi_vehicle_gap_squeeze": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "mutual_yield_deadlock": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "ramp_merge_small_gap": {
+          "min_ade": 1.8321909109751384,
+          "min_fde": 3.1972405513127646,
+          "miss_rate": 0.6666666666666666,
+          "sample_count": 3
+        },
+        "right_turn_vehicle_conflict": {
+          "min_ade": 2.152742624282837,
+          "min_fde": 5.637248516082764,
+          "miss_rate": 1.0,
+          "sample_count": 1
+        },
+        "roadside_pedestrian_emergence": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "short_headway_following": {
+          "min_ade": 1.332752770087758,
+          "min_fde": 2.866137874419572,
+          "miss_rate": 0.6885245901639344,
+          "sample_count": 61
+        },
+        "simultaneous_lane_change_conflict": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "slow_lead_blockage": {
+          "min_ade": 0.367113908916267,
+          "min_fde": 0.6957625628214107,
+          "miss_rate": 0.0626865671641791,
+          "sample_count": 1675
+        },
+        "static_object_avoidance": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "stopped_vehicle_reentry": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "turning_vehicle_crosswalk_conflict": {
+          "min_ade": 2.3700215419133506,
+          "min_fde": 4.556802590688069,
+          "miss_rate": 1.0,
+          "sample_count": 3
+        },
+        "unprotected_left_turn_conflict": {
+          "min_ade": 3.404768443625906,
+          "min_fde": 7.929788620575614,
+          "miss_rate": 0.9565217391304348,
+          "sample_count": 23
+        },
+        "zipper_merge_multi_vehicle": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        }
+      },
+      "real_long_tail": {
+        "min_ade": 0.5293326335728247,
+        "min_fde": 1.0562725785361442,
+        "miss_rate": 0.137340939008337,
+        "sample_count": 2279
+      },
+      "risk_strata": {
+        "degenerate_target_range": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "high": {
+          "min_ade": 0.3673115218646247,
+          "min_fde": 0.6295665599025491,
+          "miss_rate": 0.04914933837429111,
+          "sample_count": 529
+        },
+        "low": {
+          "min_ade": 0.5796251492797615,
+          "min_fde": 1.1751160611215818,
+          "miss_rate": 0.1682615629984051,
+          "sample_count": 1254
+        },
+        "medium": {
+          "min_ade": 0.5749825396154437,
+          "min_fde": 1.2109051525180656,
+          "miss_rate": 0.1532258064516129,
+          "sample_count": 496
+        },
+        "proxy_metric": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        }
+      }
+    }
+  },
+  "post_final_validation_tuning_permitted": false,
+  "runtime": {
+    "batch_size": 288,
+    "bootstrap_repetitions": 2000,
+    "device": "cuda",
+    "num_workers": 2,
+    "per_model_outputs": {
+      "constant_velocity": {
+        "checkpoint_sha256": null,
+        "elapsed_seconds": 7.541091930999997,
+        "rows": 7279,
+        "sha256": "67f3b3207a91bd987a77573a5aeb1b138f3037df6fcc1895b27b8de9905f853a"
+      },
+      "lstm_e0_seed_2026": {
+        "checkpoint_sha256": "3cefcd7916a12570565e79d437ce1e8d42d7f0741751073508fb292caea53feb",
+        "elapsed_seconds": 5.9500631709999965,
+        "rows": 7279,
+        "sha256": "05de3c8e53dcf4181fdddea247b31548aab088e0b447f3be6bafd544c76d6c10"
+      },
+      "transformer_e0_seed_2026": {
+        "checkpoint_sha256": "da6eb62c93918cef9482e3aca4b2401d920302f6cd62796f10b3738af5b9c087",
+        "elapsed_seconds": 22.386697681,
+        "rows": 7279,
+        "sha256": "6c6cafde3aaa8b121419c5c076ed5fdc4a01bc9a4169160e52618f8a4f544e74"
+      },
+      "transformer_e0_seed_2027": {
+        "checkpoint_sha256": "87d124fffa87b4b40fbbc3de92c323eb7b0684f3fd6df8bbb05ef261599a7c9b",
+        "elapsed_seconds": 2.379145379999997,
+        "rows": 7279,
+        "sha256": "9f4256c628a97bc8182747f29d438a545bfe53b91081b848268f7729c7ddf388"
+      },
+      "transformer_e0_seed_2028": {
+        "checkpoint_sha256": "9ff16e1eeede49e7f501bec396f4f99a68361eb4a942ca28c6f2c3f60350cda2",
+        "elapsed_seconds": 2.350071111999995,
+        "rows": 7279,
+        "sha256": "a4cc6f7efbfa9add5d14e3c1bd982b92a5553e32fea7ed431517959f1d1498d3"
+      },
+      "transformer_e1_seed_2026": {
+        "checkpoint_sha256": "c5d2b719adac4c4983e4c5b8c6531719d0d14f7c93122ee1337a633966ca7464",
+        "elapsed_seconds": 2.3714866979999982,
+        "rows": 7279,
+        "sha256": "0fc4e23e89d0fae14e833e639378ea8f3c4ba68941cc1994abd91aab07c30b01"
+      },
+      "transformer_e1_seed_2027": {
+        "checkpoint_sha256": "0bfc671ba39c0254eb81f27dae412f4110b067137a740718d1ccbed4b5eca0ab",
+        "elapsed_seconds": 2.34261500800001,
+        "rows": 7279,
+        "sha256": "121ef1999121fdb63a36f6eaca0df6d7796131c34b4715739d743d3f6007a0f4"
+      },
+      "transformer_e1_seed_2028": {
+        "checkpoint_sha256": "6cd8a300ec7c40853bc2b2469e5e7af4caa2011fff5cbad9c787b0995e1e2546",
+        "elapsed_seconds": 2.318821157000002,
+        "rows": 7279,
+        "sha256": "e379aee82e7dad3711cd7b087136ff938dd7a12d3632e1c46856f1db207c6456"
+      },
+      "transformer_e2_seed_2026": {
+        "checkpoint_sha256": "64588a0113864a40f424fe7f0f26040d4f45ff9737b15990bfbd78df27f48a10",
+        "elapsed_seconds": 2.7561747190000006,
+        "rows": 7279,
+        "sha256": "e9810cfa838aca6cec902e0c52fd36ecd1d935d88775ecaa67c54505b83d717e"
+      },
+      "transformer_e2_seed_2027": {
+        "checkpoint_sha256": "c50e77d165fe1db5626ee33535bf6c36d79c78ac150a416d0434229b6a61cd8d",
+        "elapsed_seconds": 2.3982035850000045,
+        "rows": 7279,
+        "sha256": "ca7cc010a605b40a6a49fa273917746a45d47961007bbf2b38d590f7af4540d2"
+      },
+      "transformer_e2_seed_2028": {
+        "checkpoint_sha256": "701cef50d49514b74388d22da1a82b082464dcb90cc0faa255cba5e54a845c62",
+        "elapsed_seconds": 2.3725292170000074,
+        "rows": 7279,
+        "sha256": "47b28829f5f58d41f49eae6095d96adc0842ab47655aa0827137887481cba582"
+      },
+      "transformer_e3_seed_2026": {
+        "checkpoint_sha256": "002146a9b8c04c1808b3ef7b847ed34380f5d7739b5075b856fb115fb59beb44",
+        "elapsed_seconds": 2.3054728350000033,
+        "rows": 7279,
+        "sha256": "6c77f704ab71b6c11398d9000bf431832abe9c7f7223bbee67bd14d94f260fb9"
+      },
+      "transformer_e3_seed_2027": {
+        "checkpoint_sha256": "27cc207653edd0ca908ae4dd03bd887684bb42e5b3fd8da76546b3e13f2ca4fd",
+        "elapsed_seconds": 2.6275014419999962,
+        "rows": 7279,
+        "sha256": "ca3ce9d1b578c10e562bd0383773f086f40465f9709581e35bc6afa889f300e8"
+      },
+      "transformer_e3_seed_2028": {
+        "checkpoint_sha256": "e3c70a581ab23b8ec11a63dc56d6acf0f1441ecebe35b025bdb7677e1371d5f0",
+        "elapsed_seconds": 2.364206445999997,
+        "rows": 7279,
+        "sha256": "a56ce57b5ce729b1d59d751e04916a6f94dad8b70fc4c11eacbce7a72767039c"
+      }
+    },
+    "total_elapsed_seconds": 68.17372211500002
+  },
+  "schema_version": 1,
+  "status": "complete",
+  "success_criteria": {
+    "either_long_tail_metric_met": false,
+    "long_tail_min_fde_improved_at_least_5_percent": false,
+    "long_tail_miss_rate_improved_at_least_5_percent": false,
+    "overall_min_fde_degradation_at_most_2_percent": true,
+    "overall_miss_rate_degradation_at_most_2_percent": true
+  },
+  "three_seed_averaged_views": {
+    "e0": {
+      "overall": {
+        "min_ade": 1.641526186978072,
+        "min_fde": 3.789814214833702,
+        "miss_rate": 0.6264666666666667,
+        "sample_count": 5000
+      },
+      "per_skill": {
+        "abrupt_u_turn_conflict": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "bike_lane_vehicle_merge_conflict": {
+          "min_ade": 0.8914710680643717,
+          "min_fde": 2.338910539944967,
+          "miss_rate": 0.6666666666666666,
+          "sample_count": 1
+        },
+        "chain_braking": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "construction_object_lane_blockage": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "crossing_path_conflict": {
+          "min_ade": 3.2369564618125106,
+          "min_fde": 8.558175559296753,
+          "miss_rate": 0.8333333333333335,
+          "sample_count": 22
+        },
+        "crosswalk_pedestrian_crossing": {
+          "min_ade": 1.4615774848498404,
+          "min_fde": 2.7667344572643437,
+          "miss_rate": 0.5416666666666666,
+          "sample_count": 8
+        },
+        "cut_in_then_brake": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "cut_out_reveals_slow_vehicle": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "cyclist_crossing": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "cyclist_vehicle_merge": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "diverge_lane_crossing_conflict": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "forced_lane_change_around_blockage": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "group_pedestrian_crossing": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "intersection_blocking_vehicle": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "intersection_creep_conflict": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "jaywalking_pedestrian_crossing": {
+          "min_ade": 2.5602160692214966,
+          "min_fde": 4.888765811920166,
+          "miss_rate": 0.8333333333333333,
+          "sample_count": 2
+        },
+        "lane_drop_merge_competition": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "late_lane_change_before_diverge": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "lead_sudden_stop": {
+          "min_ade": 0.7232568701522218,
+          "min_fde": 1.3984773814141387,
+          "miss_rate": 0.2027777777777778,
+          "sample_count": 480
+        },
+        "merge_without_yield": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "motorcyclist_filtering_conflict": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "multi_vehicle_gap_squeeze": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "mutual_yield_deadlock": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "ramp_merge_small_gap": {
+          "min_ade": 1.7277925577428606,
+          "min_fde": 4.142440127001868,
+          "miss_rate": 0.8888888888888888,
+          "sample_count": 3
+        },
+        "right_turn_vehicle_conflict": {
+          "min_ade": 2.1461918354034424,
+          "min_fde": 6.115685145060222,
+          "miss_rate": 1.0,
+          "sample_count": 1
+        },
+        "roadside_pedestrian_emergence": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "short_headway_following": {
+          "min_ade": 1.3286228655465964,
+          "min_fde": 2.7900880940787784,
+          "miss_rate": 0.633879781420765,
+          "sample_count": 61
+        },
+        "simultaneous_lane_change_conflict": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "slow_lead_blockage": {
+          "min_ade": 0.40678951085948234,
+          "min_fde": 0.7822921442325733,
+          "miss_rate": 0.07582089552238806,
+          "sample_count": 1675
+        },
+        "static_object_avoidance": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "stopped_vehicle_reentry": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "turning_vehicle_crosswalk_conflict": {
+          "min_ade": 2.2972788413365683,
+          "min_fde": 4.286025179757012,
+          "miss_rate": 1.0,
+          "sample_count": 3
+        },
+        "unprotected_left_turn_conflict": {
+          "min_ade": 3.872350255648294,
+          "min_fde": 10.416721611783125,
+          "miss_rate": 0.9710144927536232,
+          "sample_count": 23
+        },
+        "zipper_merge_multi_vehicle": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        }
+      },
+      "real_long_tail": {
+        "min_ade": 0.5712087539792784,
+        "min_fde": 1.1607370411013291,
+        "miss_rate": 0.1390960947784116,
+        "sample_count": 2279
+      },
+      "risk_strata": {
+        "degenerate_target_range": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "high": {
+          "min_ade": 0.4076564535850726,
+          "min_fde": 0.698438081055558,
+          "miss_rate": 0.06175173282923755,
+          "sample_count": 529
+        },
+        "low": {
+          "min_ade": 0.620273485504475,
+          "min_fde": 1.2901454702328399,
+          "miss_rate": 0.16772993088782562,
+          "sample_count": 1254
+        },
+        "medium": {
+          "min_ade": 0.621595837801735,
+          "min_fde": 1.3266200647571735,
+          "miss_rate": 0.14919354838709678,
+          "sample_count": 496
+        },
+        "proxy_metric": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        }
+      }
+    },
+    "e1": {
+      "overall": {
+        "min_ade": 1.6052846665091813,
+        "min_fde": 3.6817318747396275,
+        "miss_rate": 0.6224,
+        "sample_count": 5000
+      },
+      "per_skill": {
+        "abrupt_u_turn_conflict": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "bike_lane_vehicle_merge_conflict": {
+          "min_ade": 0.7751644849777222,
+          "min_fde": 1.879901607831319,
+          "miss_rate": 0.3333333333333333,
+          "sample_count": 1
+        },
+        "chain_braking": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "construction_object_lane_blockage": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "crossing_path_conflict": {
+          "min_ade": 3.070907736366445,
+          "min_fde": 8.253822361881083,
+          "miss_rate": 0.8787878787878788,
+          "sample_count": 22
+        },
+        "crosswalk_pedestrian_crossing": {
+          "min_ade": 1.473906656106313,
+          "min_fde": 2.724999638274312,
+          "miss_rate": 0.5416666666666666,
+          "sample_count": 8
+        },
+        "cut_in_then_brake": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "cut_out_reveals_slow_vehicle": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "cyclist_crossing": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "cyclist_vehicle_merge": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "diverge_lane_crossing_conflict": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "forced_lane_change_around_blockage": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "group_pedestrian_crossing": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "intersection_blocking_vehicle": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "intersection_creep_conflict": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "jaywalking_pedestrian_crossing": {
+          "min_ade": 2.3323442141215005,
+          "min_fde": 5.584082682927449,
+          "miss_rate": 1.0,
+          "sample_count": 2
+        },
+        "lane_drop_merge_competition": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "late_lane_change_before_diverge": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "lead_sudden_stop": {
+          "min_ade": 0.7030999106613713,
+          "min_fde": 1.3864810625957844,
+          "miss_rate": 0.22708333333333333,
+          "sample_count": 480
+        },
+        "merge_without_yield": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "motorcyclist_filtering_conflict": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "multi_vehicle_gap_squeeze": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "mutual_yield_deadlock": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "ramp_merge_small_gap": {
+          "min_ade": 1.4343018962277305,
+          "min_fde": 2.513551639186011,
+          "miss_rate": 0.5555555555555555,
+          "sample_count": 3
+        },
+        "right_turn_vehicle_conflict": {
+          "min_ade": 2.2719712257385254,
+          "min_fde": 6.0769273440043134,
+          "miss_rate": 1.0,
+          "sample_count": 1
+        },
+        "roadside_pedestrian_emergence": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "short_headway_following": {
+          "min_ade": 1.2777101079948614,
+          "min_fde": 2.7892130015652032,
+          "miss_rate": 0.633879781420765,
+          "sample_count": 61
+        },
+        "simultaneous_lane_change_conflict": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "slow_lead_blockage": {
+          "min_ade": 0.4018057893231437,
+          "min_fde": 0.7834862422234198,
+          "miss_rate": 0.0708457711442786,
+          "sample_count": 1675
+        },
+        "static_object_avoidance": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "stopped_vehicle_reentry": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "turning_vehicle_crosswalk_conflict": {
+          "min_ade": 2.334233032332526,
+          "min_fde": 4.215006404452853,
+          "miss_rate": 1.0,
+          "sample_count": 3
+        },
+        "unprotected_left_turn_conflict": {
+          "min_ade": 3.6711155711740684,
+          "min_fde": 9.809460669324016,
+          "miss_rate": 0.9710144927536232,
+          "sample_count": 23
+        },
+        "zipper_merge_multi_vehicle": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        }
+      },
+      "real_long_tail": {
+        "min_ade": 0.5578136381447855,
+        "min_fde": 1.148005577786889,
+        "miss_rate": 0.14055872458680707,
+        "sample_count": 2279
+      },
+      "risk_strata": {
+        "degenerate_target_range": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "high": {
+          "min_ade": 0.4038792760278642,
+          "min_fde": 0.713006515181773,
+          "miss_rate": 0.05797101449275362,
+          "sample_count": 529
+        },
+        "low": {
+          "min_ade": 0.6014782718438724,
+          "min_fde": 1.2629304507708674,
+          "miss_rate": 0.17198298777246146,
+          "sample_count": 1254
+        },
+        "medium": {
+          "min_ade": 0.6115955472197784,
+          "min_fde": 1.321390080601803,
+          "miss_rate": 0.14919354838709678,
+          "sample_count": 496
+        },
+        "proxy_metric": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        }
+      }
+    },
+    "e2": {
+      "overall": {
+        "min_ade": 1.6363233552522958,
+        "min_fde": 3.7864146135320267,
+        "miss_rate": 0.6268666666666666,
+        "sample_count": 5000
+      },
+      "per_skill": {
+        "abrupt_u_turn_conflict": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "bike_lane_vehicle_merge_conflict": {
+          "min_ade": 0.6704901854197184,
+          "min_fde": 1.5007437864939372,
+          "miss_rate": 0.0,
+          "sample_count": 1
+        },
+        "chain_braking": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "construction_object_lane_blockage": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "crossing_path_conflict": {
+          "min_ade": 3.2152831441525254,
+          "min_fde": 8.505511897982972,
+          "miss_rate": 0.8333333333333335,
+          "sample_count": 22
+        },
+        "crosswalk_pedestrian_crossing": {
+          "min_ade": 1.4537141444161534,
+          "min_fde": 2.6954442554463944,
+          "miss_rate": 0.5,
+          "sample_count": 8
+        },
+        "cut_in_then_brake": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "cut_out_reveals_slow_vehicle": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "cyclist_crossing": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "cyclist_vehicle_merge": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "diverge_lane_crossing_conflict": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "forced_lane_change_around_blockage": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "group_pedestrian_crossing": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "intersection_blocking_vehicle": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "intersection_creep_conflict": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "jaywalking_pedestrian_crossing": {
+          "min_ade": 2.429722150166829,
+          "min_fde": 4.796370327472687,
+          "miss_rate": 0.8333333333333333,
+          "sample_count": 2
+        },
+        "lane_drop_merge_competition": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "late_lane_change_before_diverge": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "lead_sudden_stop": {
+          "min_ade": 0.720527149959364,
+          "min_fde": 1.4556292172039522,
+          "miss_rate": 0.22638888888888886,
+          "sample_count": 480
+        },
+        "merge_without_yield": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "motorcyclist_filtering_conflict": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "multi_vehicle_gap_squeeze": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "mutual_yield_deadlock": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "ramp_merge_small_gap": {
+          "min_ade": 1.4438281853993733,
+          "min_fde": 3.3286582430203757,
+          "miss_rate": 0.7777777777777778,
+          "sample_count": 3
+        },
+        "right_turn_vehicle_conflict": {
+          "min_ade": 2.019460995992025,
+          "min_fde": 6.238211949666341,
+          "miss_rate": 1.0,
+          "sample_count": 1
+        },
+        "roadside_pedestrian_emergence": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "short_headway_following": {
+          "min_ade": 1.2998431599368163,
+          "min_fde": 2.652514620638285,
+          "miss_rate": 0.628415300546448,
+          "sample_count": 61
+        },
+        "simultaneous_lane_change_conflict": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "slow_lead_blockage": {
+          "min_ade": 0.4391366238158141,
+          "min_fde": 0.8914434459954687,
+          "miss_rate": 0.07601990049751244,
+          "sample_count": 1675
+        },
+        "static_object_avoidance": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "stopped_vehicle_reentry": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "turning_vehicle_crosswalk_conflict": {
+          "min_ade": 2.2688273787498474,
+          "min_fde": 4.134932782914904,
+          "miss_rate": 0.8888888888888888,
+          "sample_count": 3
+        },
+        "unprotected_left_turn_conflict": {
+          "min_ade": 3.864429760670316,
+          "min_fde": 10.260840612909067,
+          "miss_rate": 0.9565217391304348,
+          "sample_count": 23
+        },
+        "zipper_merge_multi_vehicle": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        }
+      },
+      "real_long_tail": {
+        "min_ade": 0.592642605802731,
+        "min_fde": 1.2453180375270991,
+        "miss_rate": 0.14319145824191895,
+        "sample_count": 2279
+      },
+      "risk_strata": {
+        "degenerate_target_range": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "high": {
+          "min_ade": 0.4486257393070377,
+          "min_fde": 0.848167472392222,
+          "miss_rate": 0.0630119722747322,
+          "sample_count": 529
+        },
+        "low": {
+          "min_ade": 0.627105063625603,
+          "min_fde": 1.3353141305557463,
+          "miss_rate": 0.1717171717171717,
+          "sample_count": 1254
+        },
+        "medium": {
+          "min_ade": 0.6591123644042238,
+          "min_fde": 1.4413614816771527,
+          "miss_rate": 0.15658602150537632,
+          "sample_count": 496
+        },
+        "proxy_metric": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        }
+      }
+    },
+    "e3": {
+      "overall": {
+        "min_ade": 1.6626176761075855,
+        "min_fde": 3.804693198913957,
+        "miss_rate": 0.6317333333333333,
+        "sample_count": 5000
+      },
+      "per_skill": {
+        "abrupt_u_turn_conflict": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "bike_lane_vehicle_merge_conflict": {
+          "min_ade": 0.5842404266198477,
+          "min_fde": 1.6169390281041462,
+          "miss_rate": 0.0,
+          "sample_count": 1
+        },
+        "chain_braking": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "construction_object_lane_blockage": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "crossing_path_conflict": {
+          "min_ade": 3.0612849295139317,
+          "min_fde": 7.925735598260706,
+          "miss_rate": 0.787878787878788,
+          "sample_count": 22
+        },
+        "crosswalk_pedestrian_crossing": {
+          "min_ade": 1.5117706876869004,
+          "min_fde": 2.7883841892083487,
+          "miss_rate": 0.5833333333333333,
+          "sample_count": 8
+        },
+        "cut_in_then_brake": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "cut_out_reveals_slow_vehicle": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "cyclist_crossing": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "cyclist_vehicle_merge": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "diverge_lane_crossing_conflict": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "forced_lane_change_around_blockage": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "group_pedestrian_crossing": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "intersection_blocking_vehicle": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "intersection_creep_conflict": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "jaywalking_pedestrian_crossing": {
+          "min_ade": 2.269224305947622,
+          "min_fde": 4.304227113723755,
+          "miss_rate": 0.6666666666666666,
+          "sample_count": 2
+        },
+        "lane_drop_merge_competition": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "late_lane_change_before_diverge": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "lead_sudden_stop": {
+          "min_ade": 0.708080836199224,
+          "min_fde": 1.4264501666391474,
+          "miss_rate": 0.23263888888888887,
+          "sample_count": 480
+        },
+        "merge_without_yield": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "motorcyclist_filtering_conflict": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "multi_vehicle_gap_squeeze": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "mutual_yield_deadlock": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "ramp_merge_small_gap": {
+          "min_ade": 1.6745128366682265,
+          "min_fde": 3.5398933490117392,
+          "miss_rate": 0.7777777777777777,
+          "sample_count": 3
+        },
+        "right_turn_vehicle_conflict": {
+          "min_ade": 2.1627806027730307,
+          "min_fde": 6.084986845652263,
+          "miss_rate": 1.0,
+          "sample_count": 1
+        },
+        "roadside_pedestrian_emergence": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "short_headway_following": {
+          "min_ade": 1.3747404467701263,
+          "min_fde": 2.8289213915014524,
+          "miss_rate": 0.6557377049180327,
+          "sample_count": 61
+        },
+        "simultaneous_lane_change_conflict": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "slow_lead_blockage": {
+          "min_ade": 0.39364879475526554,
+          "min_fde": 0.7793525675230599,
+          "miss_rate": 0.07203980099502487,
+          "sample_count": 1675
+        },
+        "static_object_avoidance": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "stopped_vehicle_reentry": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "turning_vehicle_crosswalk_conflict": {
+          "min_ade": 2.434714251094394,
+          "min_fde": 4.4471917152404785,
+          "miss_rate": 1.0,
+          "sample_count": 3
+        },
+        "unprotected_left_turn_conflict": {
+          "min_ade": 3.6578577316325642,
+          "min_fde": 9.617859816205675,
+          "miss_rate": 0.9710144927536232,
+          "sample_count": 23
+        },
+        "zipper_merge_multi_vehicle": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        }
+      },
+      "real_long_tail": {
+        "min_ade": 0.5556323003627036,
+        "min_fde": 1.149991883813777,
+        "miss_rate": 0.14231388035688167,
+        "sample_count": 2279
+      },
+      "risk_strata": {
+        "degenerate_target_range": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        },
+        "high": {
+          "min_ade": 0.40152797170767407,
+          "min_fde": 0.7180166291642205,
+          "miss_rate": 0.05229993698802772,
+          "sample_count": 529
+        },
+        "low": {
+          "min_ade": 0.5995335242097553,
+          "min_fde": 1.2679062528349558,
+          "miss_rate": 0.17490696438064857,
+          "sample_count": 1254
+        },
+        "medium": {
+          "min_ade": 0.6089973309157436,
+          "min_fde": 1.312593276872361,
+          "miss_rate": 0.15591397849462366,
+          "sample_count": 496
+        },
+        "proxy_metric": {
+          "min_ade": null,
+          "min_fde": null,
+          "miss_rate": null,
+          "sample_count": 0
+        }
+      }
+    }
+  },
+  "three_seed_statistics": {
+    "e0": {
+      "overall": {
+        "min_ade": {
+          "by_seed": [
+            1.649490652706474,
+            1.6033045907631516,
+            1.67178331746459
+          ],
+          "mean": 1.641526186978072,
+          "std": 0.034927189099850896
+        },
+        "min_fde": {
+          "by_seed": [
+            3.811626430496946,
+            3.722652969143353,
+            3.8351632448608055
+          ],
+          "mean": 3.7898142148337013,
+          "std": 0.05934197586539565
+        },
+        "miss_rate": {
+          "by_seed": [
+            0.6262,
+            0.6146,
+            0.6386
+          ],
+          "mean": 0.6264666666666666,
+          "std": 0.012002222016498957
+        }
+      },
+      "real_long_tail": {
+        "min_ade": {
+          "by_seed": [
+            0.5465175790802959,
+            0.6093734711402077,
+            0.5577352117173318
+          ],
+          "mean": 0.5712087539792784,
+          "std": 0.03352414126379927
+        },
+        "min_fde": {
+          "by_seed": [
+            1.0897796243037285,
+            1.3037583254855543,
+            1.0886731735147053
+          ],
+          "mean": 1.1607370411013294,
+          "std": 0.12386130105292022
+        },
+        "miss_rate": {
+          "by_seed": [
+            0.13646336112329968,
+            0.1355857832382624,
+            0.14523913997367266
+          ],
+          "mean": 0.1390960947784116,
+          "std": 0.005338097876523229
+        }
+      },
+      "seed_count": 3
+    },
+    "e1": {
+      "overall": {
+        "min_ade": {
+          "by_seed": [
+            1.6480554338946938,
+            1.5831466269850731,
+            1.5846519386477769
+          ],
+          "mean": 1.6052846665091813,
+          "std": 0.037048217202177
+        },
+        "min_fde": {
+          "by_seed": [
+            3.7744666730387135,
+            3.664283299938962,
+            3.6064456512412058
+          ],
+          "mean": 3.681731874739627,
+          "std": 0.08535868739267521
+        },
+        "miss_rate": {
+          "by_seed": [
+            0.6242,
+            0.6244,
+            0.6186
+          ],
+          "mean": 0.6224,
+          "std": 0.0032924155266308235
+        }
+      },
+      "real_long_tail": {
+        "min_ade": {
+          "by_seed": [
+            0.557352554241049,
+            0.5813171347131615,
+            0.5347712254801462
+          ],
+          "mean": 0.5578136381447856,
+          "std": 0.023276379988235667
+        },
+        "min_fde": {
+          "by_seed": [
+            1.104388067003923,
+            1.290870895937,
+            1.0487577704197435
+          ],
+          "mean": 1.148005577786889,
+          "std": 0.12681307827708593
+        },
+        "miss_rate": {
+          "by_seed": [
+            0.14523913997367266,
+            0.13251426064063185,
+            0.1439227731461167
+          ],
+          "mean": 0.14055872458680707,
+          "std": 0.0069977321713650354
+        }
+      },
+      "seed_count": 3
+    },
+    "e2": {
+      "overall": {
+        "min_ade": {
+          "by_seed": [
+            1.650131157901138,
+            1.6248690689712764,
+            1.6339698388844728
+          ],
+          "mean": 1.6363233552522958,
+          "std": 0.012794434874009351
+        },
+        "min_fde": {
+          "by_seed": [
+            3.8290057586461304,
+            3.764118278428167,
+            3.766119803521782
+          ],
+          "mean": 3.7864146135320262,
+          "std": 0.036898587469889416
+        },
+        "miss_rate": {
+          "by_seed": [
+            0.6418,
+            0.624,
+            0.6148
+          ],
+          "mean": 0.6268666666666667,
+          "std": 0.013726373641036212
+        }
+      },
+      "real_long_tail": {
+        "min_ade": {
+          "by_seed": [
+            0.5355830424289109,
+            0.6042951813434341,
+            0.6380495936358482
+          ],
+          "mean": 0.5926426058027311,
+          "std": 0.052217673412455125
+        },
+        "min_fde": {
+          "by_seed": [
+            1.0783356051543052,
+            1.3861566947866273,
+            1.271461812640365
+          ],
+          "mean": 1.2453180375270991,
+          "std": 0.15556695837640871
+        },
+        "miss_rate": {
+          "by_seed": [
+            0.1483106625713032,
+            0.14436156208863538,
+            0.13690215006581835
+          ],
+          "mean": 0.14319145824191898,
+          "std": 0.005793565107602268
+        }
+      },
+      "seed_count": 3
+    },
+    "e3": {
+      "overall": {
+        "min_ade": {
+          "by_seed": [
+            1.6875440300017595,
+            1.654052031122148,
+            1.6462569671988487
+          ],
+          "mean": 1.6626176761075857,
+          "std": 0.021935885991572913
+        },
+        "min_fde": {
+          "by_seed": [
+            3.8448900240693242,
+            3.802489309488237,
+            3.766700263184309
+          ],
+          "mean": 3.804693198913957,
+          "std": 0.03914144252917306
+        },
+        "miss_rate": {
+          "by_seed": [
+            0.6402,
+            0.642,
+            0.613
+          ],
+          "mean": 0.6317333333333334,
+          "std": 0.016248487109061373
+        }
+      },
+      "real_long_tail": {
+        "min_ade": {
+          "by_seed": [
+            0.5486016407177448,
+            0.5889626267975414,
+            0.5293326335728247
+          ],
+          "mean": 0.5556323003627036,
+          "std": 0.03043035744577084
+        },
+        "min_fde": {
+          "by_seed": [
+            1.1356066516811005,
+            1.2580964212240868,
+            1.0562725785361442
+          ],
+          "mean": 1.149991883813777,
+          "std": 0.10167800670235967
+        },
+        "miss_rate": {
+          "by_seed": [
+            0.14304519526107942,
+            0.1465555068012286,
+            0.137340939008337
+          ],
+          "mean": 0.14231388035688167,
+          "std": 0.0046506108221689765
+        }
+      },
+      "seed_count": 3
+    }
+  }
+}
